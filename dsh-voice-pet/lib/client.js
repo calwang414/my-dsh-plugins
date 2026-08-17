@@ -1,4 +1,4 @@
-window.__ModuleLoader__.load({ id: "@deepseek-ai/dsh-voice-pet", factory: (require) => { var module = { exports: {} }; var exports = module.exports;Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+window.__ModuleLoader__.load({ id: "@calwang414/dsh-voice-pet", factory: (require) => { var module = { exports: {} }; var exports = module.exports;Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 //#region \0rolldown/runtime.js
 var __create = Object.create;
 var __defProp$1 = Object.defineProperty;

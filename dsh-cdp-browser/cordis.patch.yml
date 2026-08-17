@@ -20,4 +20,4 @@
 # cookie values (browser_cookies masks them).
 - insert:
     - id: cdp-browser
-      name: '@deepseek-ai/dsh-cdp-browser'
+      name: '@calwang414/dsh-cdp-browser'

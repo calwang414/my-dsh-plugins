@@ -7,4 +7,4 @@
 # Client 半(dsh.client bundle):VRM 桌宠渲染 + 麦克风采集 + 音频播放。
 - insert:
     - id: voice-pet
-      name: '@deepseek-ai/dsh-voice-pet'
+      name: '@calwang414/dsh-voice-pet'

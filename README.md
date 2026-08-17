@@ -14,8 +14,8 @@ DeepSeek Harness 个人插件集(插件目录独立仓库)。
 **方式 A(推荐):预编译安装包(GitHub Releases,免构建)**
 
 ```sh
-dsh plugin --profile web add https://github.com/calwang414/my-dsh-plugins/releases/download/v0.1.0/dsh-voice-pet-0.1.0.tgz
-dsh plugin --profile web add https://github.com/calwang414/my-dsh-plugins/releases/download/v0.1.0/dsh-cdp-browser-0.1.0.tgz
+dsh plugin --profile web add https://github.com/calwang414/my-dsh-plugins/releases/download/v0.1.1/dsh-voice-pet-0.1.1.tgz
+dsh plugin --profile web add https://github.com/calwang414/my-dsh-plugins/releases/download/v0.1.1/dsh-cdp-browser-0.1.1.tgz
 # 重启 dsh
 ```
 

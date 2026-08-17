@@ -1,6 +1,6 @@
 {
-  "name": "@deepseek-ai/dsh-cdp-browser",
-  "version": "0.1.0",
+  "name": "@calwang414/dsh-cdp-browser",
+  "version": "0.1.1",
   "description": "Direct CDP browser control for DeepSeek Harness agents: drives a dedicated Chrome on a copy of the user's real profile, reusing login state without a Chrome extension",
   "license": "MIT",
   "private": true,

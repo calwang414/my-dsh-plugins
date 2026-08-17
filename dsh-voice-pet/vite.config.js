@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 // 注意:vite 8(rolldown)不再应用 rollupOptions.output.banner/footer,
 // 因此用插件在 generateBundle 阶段注入 __ModuleLoader__.load 包裹。
 
-const BANNER = 'window.__ModuleLoader__.load({ id: "@deepseek-ai/dsh-voice-pet", factory: (require) => { var module = { exports: {} }; var exports = module.exports;'
+const BANNER = 'window.__ModuleLoader__.load({ id: "@calwang414/dsh-voice-pet", factory: (require) => { var module = { exports: {} }; var exports = module.exports;'
 const FOOTER = '; return module.exports; } })'
 
 function moduleLoaderWrap() {

@@ -26,7 +26,10 @@ const ENGINE_MAIN = path.join(PKG_DIR, 'engine', 'engine.mjs')
 const FETCH_MODELS = path.join(PKG_DIR, 'fetch-models.mjs')
 const ASSETS_DIR = path.join(PKG_DIR, 'assets')
 const MODELS_DIR = path.join(os.homedir(), '.dsh', 'dsh-voice-pet', 'models')
-const CACHE_DIR = path.join(os.homedir(), '.dsh', 'dsh-voice-pet')
+/** 用户数据目录(配置/形象库/唤醒缓存);测试可用 DSH_VOICE_PET_CACHE_DIR 覆盖 */
+const CACHE_DIR = process.env.DSH_VOICE_PET_CACHE_DIR || path.join(os.homedir(), '.dsh', 'dsh-voice-pet')
+/** 用户上传的形象库(默认形象在 assets/cal-vrm.vrm) */
+const AVATARS_DIR = path.join(CACHE_DIR, 'avatars')
 /** 本机 calwork 现成模型(存在则直接复用,省去 320MB 下载) */
 const CALWORK_MODELS = '/Users/calwang/dev/code/calwork/desktop-agent/assets/models'
 const CONFIG_FILE = path.join(CACHE_DIR, 'config.json')
@@ -41,6 +44,10 @@ const CONFIG_DEFAULTS = {
   petMode: 'page',
   /** 桌宠缩放 0.5-2.0 */
   petSize: 1,
+  /** 用户形象 id('' = 默认形象 assets/cal-vrm.vrm) */
+  avatarId: '',
+  /** 形象 id → 上传文件名 */
+  avatarNames: {},
 }
 
 export const name = 'dsh-voice-pet'
@@ -59,6 +66,20 @@ function modelsReady() {
 
 function copyDir(src, dest) {
   fs.cpSync(src, dest, { recursive: true, force: true })
+}
+
+/** VRM 校验:glTF magic + JSON 可解析 + 含 VRMC_vrm(v1)/VRM(0.x) 扩展(移植自 calwork) */
+function isValidVrm(buffer) {
+  if (!buffer || buffer.length < 20) return false
+  // glb magic: "glTF"
+  if (buffer.readUInt32LE(0) !== 0x46546c67) return false
+  try {
+    const jsonLen = buffer.readUInt32LE(12)
+    const json = JSON.parse(buffer.toString('utf8', 20, 20 + jsonLen))
+    return !!(json.extensions && (json.extensions.VRMC_vrm || json.extensions.VRM))
+  } catch {
+    return false
+  }
 }
 
 export function apply(ctx) {
@@ -81,6 +102,9 @@ export function apply(ctx) {
     // 独立桌宠窗口固定 360×480,最大放得下 150%
     const maxSize = next.petMode === 'standalone' ? 1.5 : 2
     next.petSize = Number.isFinite(size) ? Math.min(maxSize, Math.max(0.5, size)) : 1
+    // avatarId 只允许纯数字或空(路径安全)
+    if (typeof next.avatarId !== 'string' || !/^\d*$/.test(next.avatarId)) next.avatarId = ''
+    if (!next.avatarNames || typeof next.avatarNames !== 'object' || Array.isArray(next.avatarNames)) next.avatarNames = {}
     return next
   }
   function loadConfigFile() {
@@ -297,11 +321,38 @@ export function apply(ctx) {
   // ---------------- 静态路由 ----------------
   const CLIP_WHITELIST = new Set(fs.existsSync(path.join(ASSETS_DIR, 'clips')) ? fs.readdirSync(path.join(ASSETS_DIR, 'clips')) : [])
 
+  // 当前生效的 VRM 路径:用户上传形象优先,否则默认形象
+  function resolveVrmPath() {
+    const cfg = readConfig()
+    if (cfg.avatarId) {
+      const p = path.join(AVATARS_DIR, cfg.avatarId + '.vrm')
+      if (fs.existsSync(p)) return p
+    }
+    return path.join(ASSETS_DIR, 'cal-vrm.vrm')
+  }
+
+  // 形象列表:默认 + 已上传(名称取自上传文件名)
+  function listAvatars() {
+    const cfg = readConfig()
+    const list = [{ id: 'default', name: '默认形象', custom: false }]
+    try {
+      const dir = AVATARS_DIR
+      if (fs.existsSync(dir)) {
+        const names = cfg.avatarNames || {}
+        for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.vrm'))) {
+          const id = f.replace(/\.vrm$/i, '')
+          list.push({ id, name: names[id] || '形象 ' + id.slice(-4), custom: true })
+        }
+      }
+    } catch {}
+    return list
+  }
+
   const disposeVrm = ctx.webServer.register({
     kind: 'exact',
     path: '/voice-pet/vrm',
     handler: (req, res) => {
-      const file = path.join(ASSETS_DIR, 'cal-vrm.vrm')
+      const file = resolveVrmPath()
       if (!fs.existsSync(file)) {
         res.writeHead(404).end()
         return
@@ -460,6 +511,103 @@ export function apply(ctx) {
     },
   })
 
+  // ---------------- 用户形象库(上传/列表/切换/删除) ----------------
+  const disposeAvatarUpload = ctx.webServer.register({
+    kind: 'exact',
+    path: '/voice-pet/vrm-upload',
+    handler: (req, res) => {
+      if (req.method !== 'POST') {
+        sendJson(res, 405, { ok: false, error: 'POST required' })
+        return
+      }
+      let body = ''
+      req.on('data', (d) => { body += d })
+      req.on('end', () => {
+        try {
+          const payload = JSON.parse(body || '{}')
+          const base64 = payload.base64
+          if (typeof base64 !== 'string' || base64.length === 0) {
+            sendJson(res, 400, { ok: false, error: '文件内容为空' })
+            return
+          }
+          const buffer = Buffer.from(base64, 'base64')
+          if (buffer.length > 64 * 1024 * 1024) {
+            sendJson(res, 400, { ok: false, error: '文件过大(上限 64MB)' })
+            return
+          }
+          if (!isValidVrm(buffer)) {
+            sendJson(res, 400, { ok: false, error: '不是有效的 VRM 文件(需为 VRM 1.0/0.x 格式)' })
+            return
+          }
+          const id = String(Date.now())
+          fs.mkdirSync(AVATARS_DIR, { recursive: true })
+          fs.writeFileSync(path.join(AVATARS_DIR, id + '.vrm'), buffer)
+          const rawName = String(payload.filename ?? '').replace(/\.vrm$/i, '').trim()
+          const names = { ...(readConfig().avatarNames || {}) }
+          if (rawName) names[id] = rawName
+          saveConfigFile({ avatarId: id, avatarNames: names })
+          sendJson(res, 200, { ok: true, avatarId: id, avatars: listAvatars() })
+        } catch (e) {
+          sendJson(res, 400, { ok: false, error: e.message })
+        }
+      })
+    },
+  })
+
+  const disposeAvatarList = ctx.webServer.register({
+    kind: 'exact',
+    path: '/voice-pet/avatars',
+    handler: (req, res) => {
+      sendJson(res, 200, { ok: true, avatars: listAvatars() })
+    },
+  })
+
+  const disposeAvatarSet = ctx.webServer.register({
+    kind: 'exact',
+    path: '/voice-pet/avatar',
+    handler: async (req, res) => {
+      try {
+        const body = await readJsonBody(req)
+        const id = String(body.id ?? '')
+        if (id === 'default' || id === '') {
+          saveConfigFile({ avatarId: '' })
+        } else if (/^\d+$/.test(id) && fs.existsSync(path.join(AVATARS_DIR, id + '.vrm'))) {
+          saveConfigFile({ avatarId: id })
+        } else {
+          sendJson(res, 400, { ok: false, error: '形象不存在' })
+          return
+        }
+        sendJson(res, 200, { ok: true, avatars: listAvatars() })
+      } catch (e) {
+        sendJson(res, 400, { ok: false, error: e.message })
+      }
+    },
+  })
+
+  const disposeAvatarDelete = ctx.webServer.register({
+    kind: 'exact',
+    path: '/voice-pet/avatar-delete',
+    handler: async (req, res) => {
+      try {
+        const body = await readJsonBody(req)
+        const id = String(body.id ?? '')
+        if (!/^\d+$/.test(id)) {
+          sendJson(res, 400, { ok: false, error: '非法形象 id' })
+          return
+        }
+        fs.rmSync(path.join(AVATARS_DIR, id + '.vrm'), { force: true })
+        const cfg = readConfig()
+        const patch = { avatarNames: { ...(cfg.avatarNames || {}) } }
+        delete patch.avatarNames[id]
+        if (cfg.avatarId === id) patch.avatarId = ''
+        saveConfigFile(patch)
+        sendJson(res, 200, { ok: true, avatars: listAvatars() })
+      } catch (e) {
+        sendJson(res, 400, { ok: false, error: e.message })
+      }
+    },
+  })
+
   // ---------------- 一次性接口(输入框语音输入 / 消息卡片播报) ----------------
   function readJsonBody(req) {
     return new Promise((resolve, reject) => {
@@ -527,6 +675,10 @@ export function apply(ctx) {
       disposePetPage()
       disposeStandaloneBundle()
       disposeConfig()
+      disposeAvatarUpload()
+      disposeAvatarList()
+      disposeAvatarSet()
+      disposeAvatarDelete()
       disposeTranscribe()
       disposeSpeak()
       for (const d of disposers) {

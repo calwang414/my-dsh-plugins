@@ -73,6 +73,7 @@ http://127.0.0.1:<端口>/voice-pet/pet
 | 语速 | 0.5-1.5 |
 | Edge 音色 | 8 个中文音色(界面显示中文名,仅 edge 引擎生效) |
 | 语音播报 | voice_speak 总开关 |
+| 桌宠形象 | 上传/切换/删除自定义 VRM(1.0/0.x);动画需标准人形骨骼,非人形模型仅静态展示 |
 | 桌宠显示 | 关闭 / 页面桌宠(主界面浮层)/ 独立桌宠(独立窗口,仅桌面端,切换后需重启桌面应用) |
 | 桌宠大小 | 50%-200% 缩放,页面浮层即时生效,独立窗口下次打开生效 |
 
@@ -86,7 +87,18 @@ http://127.0.0.1:<端口>/voice-pet/pet
 
 - `config.json` 设置(上述菜单读写)
 - `models/` 语音模型(KWS/ASR/TTS/VAD)
+- `avatars/` 用户上传的自定义 VRM 形象(设置页上传/切换/删除)
 - `wake-cache/` 「我在」唤醒反馈缓存(毫秒级响应)
+
+## 测试
+
+```sh
+# 引擎冒烟测试(需模型就绪;写入真实 wake-cache,无破坏性)
+(cd engine && MODELS_DIR=$HOME/.dsh/dsh-voice-pet/models node test-engine.mjs)
+
+# Host 路由集成测试(临时 CACHE_DIR,不触碰真实配置)
+node test-host.mjs
+```
 
 ## 故障排查
 

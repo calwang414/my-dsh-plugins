@@ -220,8 +220,14 @@ async function patchConfig(patch) {
 function VoiceSettingsPage() {
   const [value, setValue] = React.useState(null)
   const [error, setError] = React.useState('')
+  const [avatars, setAvatars] = React.useState([])
+  const [avatarMsg, setAvatarMsg] = React.useState(null)
+  const fileRef = React.useRef(null)
   React.useEffect(() => {
     fetchConfig().then(setValue).catch(() => setError('配置读取失败'))
+    fetch('/voice-pet/avatars').then((r) => r.json()).then((d) => {
+      if (d.ok) setAvatars(d.avatars)
+    }).catch(() => {})
   }, [])
   const wakeWords = Array.isArray(value?.wakeWords) ? value.wakeWords : ['小希小希', '你好小希']
   const writable = true
@@ -233,6 +239,78 @@ function VoiceSettingsPage() {
         window.dispatchEvent(new CustomEvent('voice-pet-config', { detail: res.config }))
       }
     }).catch(() => setError('配置保存失败'))
+  }
+  const refreshAvatars = () => {
+    fetch('/voice-pet/avatars').then((r) => r.json()).then((d) => {
+      if (d.ok) setAvatars(d.avatars)
+    }).catch(() => {})
+  }
+  const notifyAvatar = (avatarId) => {
+    window.dispatchEvent(new CustomEvent('voice-pet-config', { detail: { avatarId } }))
+  }
+  const onFileChosen = (e) => {
+    const file = e.target.files && e.target.files[0]
+    e.target.value = ''
+    if (!file) return
+    setAvatarMsg('上传中…')
+    const reader = new FileReader()
+    reader.onload = async () => {
+      const data = String(reader.result)
+      const comma = data.indexOf(',')
+      const base64 = comma >= 0 ? data.slice(comma + 1) : data
+      try {
+        const res = await fetch('/voice-pet/vrm-upload', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ base64, filename: file.name }),
+        })
+        const d = await res.json()
+        if (d.ok) {
+          setAvatarMsg('已上传并切换到新形象')
+          refreshAvatars()
+          notifyAvatar(d.avatarId)
+        } else {
+          setAvatarMsg('上传失败:' + (d.error || '未知错误'))
+        }
+      } catch {
+        setAvatarMsg('上传失败:网络错误')
+      }
+    }
+    reader.onerror = () => setAvatarMsg('读取文件失败')
+    reader.readAsDataURL(file)
+  }
+  const onAvatar = (e) => {
+    const id = e.target.value
+    fetch('/voice-pet/avatar', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id }),
+    }).then((r) => r.json()).then((d) => {
+      if (d.ok) {
+        setAvatarMsg(null)
+        refreshAvatars()
+        notifyAvatar(id === 'default' ? '' : id)
+      } else {
+        setAvatarMsg('切换失败:' + (d.error || '未知错误'))
+      }
+    }).catch(() => setAvatarMsg('切换失败'))
+  }
+  const onDeleteAvatar = () => {
+    const id = value?.avatarId
+    if (!id) return
+    fetch('/voice-pet/avatar-delete', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id }),
+    }).then((r) => r.json()).then((d) => {
+      if (d.ok) {
+        setAvatarMsg('已删除,恢复默认形象')
+        refreshAvatars()
+        notifyAvatar('')
+      } else {
+        setAvatarMsg('删除失败:' + (d.error || '未知错误'))
+      }
+    }).catch(() => setAvatarMsg('删除失败'))
   }
   const onWakeWords = (e) => {
     const list = e.target.value.split(/[,，\n]/).map((s) => s.trim()).filter(Boolean)
@@ -281,6 +359,15 @@ function VoiceSettingsPage() {
             React.createElement('label', { style: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 } },
               React.createElement('input', { type: 'checkbox', checked: value.speakEnabled !== false, disabled: !writable, onChange: onCheck('speakEnabled') }),
               ' 开启语音播报(voice_speak 与回复朗读)')),
+          React.createElement(Field, { label: '桌宠形象', hint: '上传 VRM 1.0/0.x 模型;动画需标准人形骨骼,非人形模型仅静态展示' },
+            React.createElement('div', { style: { display: 'flex', gap: 8, alignItems: 'center' } },
+              React.createElement('select', { style: { ...inputStyle, flex: 1 }, value: value?.avatarId ?? '', disabled: !writable, onChange: onAvatar },
+                React.createElement('option', { value: '' }, '默认形象'),
+                avatars.filter((a) => a.custom).map((a) => React.createElement('option', { key: a.id, value: a.id }, a.name))),
+              React.createElement('button', { type: 'button', style: { ...inputStyle, width: 'auto', flexShrink: 0, cursor: 'pointer' }, onClick: () => fileRef.current && fileRef.current.click() }, '上传'),
+              value?.avatarId ? React.createElement('button', { type: 'button', style: { ...inputStyle, width: 'auto', flexShrink: 0, cursor: 'pointer', color: 'var(--dsw-alias-state-error-primary)' }, onClick: onDeleteAvatar }, '删除') : null),
+            React.createElement('input', { ref: fileRef, type: 'file', accept: '.vrm', style: { display: 'none' }, onChange: onFileChosen }),
+            avatarMsg ? React.createElement('span', { style: { display: 'block', marginTop: 4, fontSize: 11, color: 'var(--dsw-alias-label-secondary)' } }, avatarMsg) : null),
           React.createElement(Field, { label: '桌宠显示', hint: isDesktop ? '独立桌宠需重启桌面应用后生效' : '独立桌宠仅桌面版可用' },
             React.createElement('select', { style: inputStyle, value: value.petMode ?? 'off', disabled: !writable, onChange: onSelect('petMode') },
               React.createElement('option', { value: 'off' }, '关闭'),
@@ -402,28 +489,41 @@ function SpeakButton(props) {
 }
 
 // ---------- 插件入口 ----------
-// 桌宠浮层:按配置 petMode(off/page/standalone)与 petSize 动态挂载/卸载/缩放
+// 桌宠浮层:按配置 petMode(off/page/standalone)、petSize 与 avatarId 动态挂载/卸载/缩放/换形象
 function PetOverlay() {
   const hostRef = React.useRef(null)
   const petRef = React.useRef(null)
+  const avatarRef = React.useRef('')
   const [mode, setMode] = React.useState('off')
   const [size, setSize] = React.useState(1)
+  const [avatarId, setAvatarId] = React.useState('')
   React.useEffect(() => {
     fetchConfig().then((cfg) => {
       setMode(cfg.petMode ?? 'off')
       setSize(cfg.petSize ?? 1)
+      setAvatarId(cfg.avatarId ?? '')
     }).catch(() => {})
     const onCfg = (e) => {
       const c = e.detail || {}
       if (c.petMode !== undefined) setMode(c.petMode)
       if (c.petSize !== undefined) setSize(c.petSize)
+      if (c.avatarId !== undefined) setAvatarId(c.avatarId)
     }
     window.addEventListener('voice-pet-config', onCfg)
     return () => window.removeEventListener('voice-pet-config', onCfg)
   }, [])
   React.useEffect(() => {
     const want = mode === 'page'
-    if (want && hostRef.current && !petRef.current) {
+    const avatarChanged = avatarRef.current !== avatarId
+    avatarRef.current = avatarId
+    if (want && hostRef.current && (!petRef.current || avatarChanged)) {
+      // 首次挂载或形象变更:销毁重建(重新拉取 /voice-pet/vrm)
+      if (petRef.current) {
+        try {
+          petRef.current.dispose()
+        } catch {}
+        petRef.current = null
+      }
       petRef.current = mountPet(hostRef.current, { scale: size })
     } else if (!want && petRef.current) {
       try {
@@ -433,7 +533,7 @@ function PetOverlay() {
     } else if (want && petRef.current) {
       petRef.current.setScale(size)
     }
-  }, [mode, size])
+  }, [mode, size, avatarId])
   return React.createElement('div', { style: { display: 'contents' }, ref: hostRef })
 }
 

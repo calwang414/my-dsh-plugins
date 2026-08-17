@@ -53,5 +53,16 @@
   ],
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "dsh",
+    "cordis",
+    "voice",
+    "tts",
+    "vrm",
+    "pet",
+    "sherpa-onnx"
+  ]
 }

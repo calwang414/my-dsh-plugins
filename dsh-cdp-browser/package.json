@@ -9,6 +9,7 @@
     "node": ">=22.19"
   },
   "keywords": [
+    "dsh-plugin",
     "deepseek-harness",
     "dsh",
     "cordis",

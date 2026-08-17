@@ -1,10 +1,13 @@
 # dsh-cdp-browser
 
-版本:0.1.2 · 许可:MIT · 环境要求:Node.js `^22.19`、Google Chrome(macOS / Windows / Linux 均支持)
+版本:0.1.3 · 许可:MIT · 环境要求:Node.js `^22.19`、Chrome 或 Edge(macOS / Windows / Linux 均支持)
 
 让 DeepSeek Harness 的智能体**直接控制浏览器**并**复用你的登录状态**——不安装 Chrome 扩展,不触碰你正在使用的真实浏览器。
 
-> 跨平台:Chrome 可执行文件与真实配置目录按平台自动探测(macOS `~/Library/Application Support/Google/Chrome`、Windows `%LOCALAPPDATA%\Google\Chrome\User Data`、Linux `~/.config/google-chrome`;可执行文件同理)。非默认安装位置可用环境变量指定:`DSH_CDP_CHROME`(Chrome 路径)、`DSH_CDP_CHROME_SRC`(真实配置目录)。
+> 跨平台与浏览器管理:
+> - **解析链**:显式指定(`--chrome` / `DSH_CDP_CHROME` / `DSH_CDP_EDGE`)→ 首选浏览器系统安装(`DSH_CDP_BROWSER=chrome|edge`,默认 chrome)→ 备选浏览器系统安装 → **受管 Chrome(自动安装)**。
+> - **自动安装**:系统未装 Chrome/Edge 时,自动下载**固定版本** Chrome for Testing(默认 `152.0.7977.42`,可用 `DSH_CDP_CHROME_VERSION` 覆盖)到 `~/.dsh/dsh-cdp-profiles/chrome/`(可用 `DSH_CDP_CHROME_DIR` 覆盖),解压后直接驱动,无需系统安装权限。
+> - 真实配置目录按平台自动探测(macOS `~/Library/Application Support/Google/Chrome`、Windows `%LOCALAPPDATA%\Google\Chrome\User Data`、Linux `~/.config/google-chrome`;Edge 同理),可用 `DSH_CDP_CHROME_SRC` / `DSH_CDP_EDGE_SRC` 覆盖。
 
 ## 原理
 

@@ -10,9 +10,12 @@
  * cookie encryption key lives in the user's own Keychain; on Windows the
  * DPAPI key is per-user, so a copy under the same user decrypts normally.
  *
- * Cross-platform: Chrome binary and real-profile paths are resolved per
- * platform (win32/darwin/linux), overridable via DSH_CDP_CHROME /
- * DSH_CDP_CHROME_SRC or the --chrome / --chrome-src CLI args.
+ * Cross-platform: Chrome/Edge binaries and real-profile paths are resolved
+ * per platform (win32/darwin/linux). Resolution chain: explicit --chrome /
+ * DSH_CDP_CHROME / DSH_CDP_EDGE → preferred browser's system install
+ * (DSH_CDP_BROWSER=chrome|edge, default chrome) → the other browser's system
+ * install → managed Chrome for Testing (auto-downloaded, pinned version,
+ * DSH_CDP_CHROME_VERSION / DSH_CDP_CHROME_DIR overrides).
  *
  * Wire protocol — JSON lines on stdin (requests) / stdout (responses):
  *   -> {"id":1,"cmd":"open","args":{...}}
@@ -20,11 +23,11 @@
  *   <- {"id":1,"ok":false,"error":"..."}
  *
  * CLI options:
- *   --profile-dir <path>   where the controlled Chrome profile copy lives
+ *   --profile-dir <path>   where the controlled browser profile copy lives
  *                          (default ~/.dsh/dsh-cdp-profiles/default)
- *   --chrome-src <path>    source of the user's real Chrome profile
+ *   --chrome-src <path>    source of the user's real browser profile
  *                          (default: per-platform, see platform-paths.mjs)
- *   --chrome <path>        Chrome executable
+ *   --chrome <path>        browser executable
  *                          (default: per-platform, see platform-paths.mjs)
  */
 import { spawn, spawnSync } from 'node:child_process'
@@ -32,7 +35,8 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import readline from 'node:readline'
-import { defaultChromeSrc, resolveChromeBinary } from './platform-paths.mjs'
+import { selectedBrowser, defaultProfileSrc, resolveBrowserBinary } from './platform-paths.mjs'
+import { ensureManagedChrome, PINNED_VERSION } from './managed-chrome.mjs'
 
 const HOME = os.homedir()
 const arg = (name, fallback) => {
@@ -40,8 +44,28 @@ const arg = (name, fallback) => {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : fallback
 }
 const PROFILE_DIR = arg('--profile-dir', path.join(HOME, '.dsh', 'dsh-cdp-profiles', 'default'))
-const CHROME_SRC = arg('--chrome-src', defaultChromeSrc())
-const CHROME_BIN = arg('--chrome', resolveChromeBinary())
+const BROWSER = selectedBrowser()
+
+// 解析链:显式 --chrome → 首选浏览器系统安装 → 备选浏览器系统安装 → 受管 Chrome(自动安装)
+async function resolveBrowser() {
+  const explicit = arg('--chrome', '')
+  if (explicit) {
+    return { kind: 'explicit', bin: explicit, src: arg('--chrome-src', defaultProfileSrc(BROWSER)), version: null }
+  }
+  const order = BROWSER === 'edge' ? ['edge', 'chrome'] : ['chrome', 'edge']
+  for (const kind of order) {
+    const bin = resolveBrowserBinary(kind)
+    if (bin && fs.existsSync(bin)) {
+      return { kind, bin, src: defaultProfileSrc(kind), version: null }
+    }
+  }
+  // 系统无 Chrome/Edge → 自动安装固定版本 Chrome for Testing
+  const version = process.env.DSH_CDP_CHROME_VERSION || PINNED_VERSION
+  const bin = await ensureManagedChrome(version)
+  return { kind: 'managed', bin, src: '', version }
+}
+
+const { kind: BROWSER_KIND, bin: CHROME_BIN, src: CHROME_SRC, version: MANAGED_VERSION } = await resolveBrowser()
 
 let WSImpl = globalThis.WebSocket
 if (!WSImpl) {
@@ -230,8 +254,9 @@ function ensureProfileDir(mode) {
   }
   if (mode === 'reuse' && hasProfile) return
   if (mode === 'fresh' || !hasProfile) {
-    if (!fs.existsSync(path.join(CHROME_SRC, 'Default'))) {
-      console.error('real Chrome profile not found at ' + CHROME_SRC + '; starting with a clean profile')
+    // 受管 Chrome 无系统 profile 可复制(登录态本就无从复用)
+    if (!CHROME_SRC || !fs.existsSync(path.join(CHROME_SRC, 'Default'))) {
+      console.error('real browser profile not found at ' + CHROME_SRC + '; starting with a clean profile')
       fs.rmSync(dir, { recursive: true, force: true })
       fs.mkdirSync(dir, { recursive: true })
       return
@@ -327,6 +352,8 @@ async function status() {
     url: page.url,
     title: page.title,
     profileDir: PROFILE_DIR,
+    browser: BROWSER_KIND,
+    ...(MANAGED_VERSION ? { managedVersion: MANAGED_VERSION } : {}),
   }
 }
 
@@ -714,4 +741,4 @@ process.on('SIGTERM', () => {
   process.exit(0)
 })
 
-console.error('dsh-cdp-browser bridge ready (profile: ' + PROFILE_DIR + ')')
+console.error('dsh-cdp-browser bridge ready (' + BROWSER_KIND + (MANAGED_VERSION ? ' ' + MANAGED_VERSION : '') + ', profile: ' + PROFILE_DIR + ')')

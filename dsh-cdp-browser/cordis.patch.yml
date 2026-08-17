@@ -1,0 +1,23 @@
+# dsh-cdp-browser — direct agent browser control (no Chrome extension).
+#
+# Registers the `cdp-browser` plugin row for the dsh `web` profile. The plugin
+# spawns bridge.mjs (zero-dependency Node helper, built-in WebSocket) which
+# drives a dedicated Chrome instance over CDP. That Chrome runs on a COPY of
+# the user's real Chrome profile, so login state/cookies carry over without
+# touching the real browser.
+#
+# To mount durably (applies on the next dsh start), make the package
+# resolvable from the profile's node_modules and add the row:
+#
+#   mkdir -p ~/.dsh/profiles/node_modules/@deepseek-ai
+#   ln -s <this-directory> ~/.dsh/profiles/node_modules/@deepseek-ai/dsh-cdp-browser
+#
+# then insert the row below into ~/.dsh/profiles/web/cordis.patch.yml.
+#
+# Security: activating this plugin grants the agent full control of a Chrome
+# instance holding a copy of your cookies/login data — only approve runs you
+# trust. Cookies stay inside the controlled Chrome; tool results never echo
+# cookie values (browser_cookies masks them).
+- insert:
+    - id: cdp-browser
+      name: '@deepseek-ai/dsh-cdp-browser'

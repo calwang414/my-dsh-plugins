@@ -1,0 +1,10 @@
+# dsh-voice-pet — 本地语音 + VRM 桌宠插件。
+#
+# Host 半:模型管理(sherpa-onnx 本地模型,优先复用本机 calwork 模型目录,
+# 否则从 hf-mirror 下载)、语音引擎子进程、/voice-pet/ws WebSocket
+# (浏览器麦克风音频帧上行 / 唤醒·事件·TTS 音频下行)、
+# /voice-pet/vrm 与 /voice-pet/clips 静态资源、voice_speak/voice_stop/voice_status 工具。
+# Client 半(dsh.client bundle):VRM 桌宠渲染 + 麦克风采集 + 音频播放。
+- insert:
+    - id: voice-pet
+      name: '@deepseek-ai/dsh-voice-pet'

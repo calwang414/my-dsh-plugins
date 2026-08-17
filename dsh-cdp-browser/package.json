@@ -1,0 +1,31 @@
+{
+  "name": "@deepseek-ai/dsh-cdp-browser",
+  "version": "0.1.0",
+  "description": "Direct CDP browser control for DeepSeek Harness agents: drives a dedicated Chrome on a copy of the user's real profile, reusing login state without a Chrome extension",
+  "license": "MIT",
+  "private": true,
+  "type": "commonjs",
+  "main": "plugin.js",
+  "engines": {
+    "node": ">=22.19"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "cordis",
+    "browser",
+    "cdp",
+    "chrome",
+    "automation"
+  ],
+  "files": [
+    "plugin.js",
+    "bridge.mjs",
+    "cordis.patch.yml"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

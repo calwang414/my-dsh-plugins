@@ -1,0 +1,12 @@
+# 依赖(独立安装,不入库)
+node_modules/
+engine/node_modules/
+
+# 构建产物(dist/client.js 与 lib/client.js 重复,不入库;
+# dist/pet-standalone.js 是独立页运行时产物,随源码入库)
+dist/*
+!dist/pet-standalone.js
+
+# 系统与编辑器杂项
+.DS_Store
+*.log

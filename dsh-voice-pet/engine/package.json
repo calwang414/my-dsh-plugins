@@ -1,0 +1,15 @@
+{
+  "name": "dsh-voice-pet-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "dsh-voice-pet 语音引擎子进程:sherpa-onnx 唤醒/ASR/TTS + Edge TTS,JSON-lines stdio 协议",
+  "dependencies": {
+    "@andresaya/edge-tts": "^1.8.0",
+    "commander": "^12.1.0",
+    "mpg123-decoder": "^1.0.3",
+    "pinyin-pro": "^3.29.1",
+    "sherpa-onnx-node": "^1.13.5",
+    "ws": "^8.21.0"
+  }
+}

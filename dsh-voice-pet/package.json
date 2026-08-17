@@ -1,0 +1,51 @@
+{
+  "name": "@deepseek-ai/dsh-voice-pet",
+  "version": "0.1.0",
+  "description": "本地语音 + VRM 桌宠:dsh 插件。sherpa-onnx 唤醒词/ASR/TTS 全离线,VRM 虚拟形象随语音说话",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.js",
+  "engines": {
+    "node": ">=22.19"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-settings": "0.1.0-rc.6",
+    "@deepseek-ai/schemastery": "^3.18.1",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@pixiv/three-vrm": "^3.5.5",
+    "@pixiv/three-vrm-animation": "^3.5.5",
+    "three": "^0.185.1",
+    "vite": "^8.2.1",
+    "vrm-mixamo-retarget": "^1.0.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime"
+      ]
+    }
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "engine",
+    "assets",
+    "fetch-models.mjs"
+  ]
+}

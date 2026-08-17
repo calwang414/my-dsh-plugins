@@ -2,6 +2,9 @@
 node_modules/
 engine/node_modules/
 
+# 发布安装包(经 GitHub Releases 分发,不入库)
+*.tgz
+
 # 系统与编辑器杂项
 .DS_Store
 *.log

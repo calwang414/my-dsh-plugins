@@ -183,7 +183,40 @@ export function apply(ctx) {
     })
   }
 
+  // 引擎依赖(sherpa-onnx-node 等)缺失时自动安装;npm 不可用则给出手动命令
+  function ensureEngineDeps(callback) {
+    const depsDir = path.join(PKG_DIR, 'engine', 'node_modules')
+    if (fs.existsSync(path.join(depsDir, 'sherpa-onnx-node'))) {
+      callback()
+      return
+    }
+    consoleLog('dsh-voice-pet: 引擎依赖缺失,自动安装 (cd engine && npm install)…')
+    const child = spawn('npm', ['install', '--no-audit', '--no-fund'], {
+      cwd: path.join(PKG_DIR, 'engine'),
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    let out = ''
+    child.stdout.on('data', (d) => { out += String(d) })
+    child.stderr.on('data', (d) => { out += String(d) })
+    child.on('error', (err) => {
+      consoleError('dsh-voice-pet: 无法执行 npm(' + err.message + '),请手动执行: cd ' + path.join(PKG_DIR, 'engine') + ' && npm install')
+    })
+    child.on('exit', (code) => {
+      if (code === 0 && fs.existsSync(path.join(depsDir, 'sherpa-onnx-node'))) {
+        consoleLog('dsh-voice-pet: 引擎依赖安装完成')
+        callback()
+      } else {
+        consoleError('dsh-voice-pet: 引擎依赖安装失败(exit ' + code + '),请手动执行: cd ' + path.join(PKG_DIR, 'engine') + ' && npm install\n' + out.slice(-300))
+      }
+    })
+  }
+
   function startEngine() {
+    if (engine && engine.proc && engine.proc.exitCode === null) return
+    ensureEngineDeps(spawnEngine)
+  }
+
+  function spawnEngine() {
     if (engine && engine.proc && engine.proc.exitCode === null) return
     const cfg = readConfig()
     const proc = spawn(process.execPath, [ENGINE_MAIN], {

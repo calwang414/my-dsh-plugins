@@ -43,8 +43,12 @@
   "files": [
     "lib/index.js",
     "lib/client.js",
+    "dist/pet-standalone.js",
     "cordis.patch.yml",
-    "engine",
+    "engine/*.js",
+    "engine/*.mjs",
+    "engine/package.json",
+    "engine/package-lock.json",
     "assets",
     "fetch-models.mjs"
   ]

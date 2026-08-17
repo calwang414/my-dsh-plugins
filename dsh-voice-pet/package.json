@@ -1,6 +1,6 @@
 {
   "name": "@calwang414/dsh-voice-pet",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "本地语音 + VRM 桌宠:dsh 插件。sherpa-onnx 唤醒词/ASR/TTS 全离线,VRM 虚拟形象随语音说话",
   "license": "MIT",
   "type": "module",

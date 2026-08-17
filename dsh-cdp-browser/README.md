@@ -1,8 +1,10 @@
 # dsh-cdp-browser
 
-版本:0.1.0 · 许可:MIT · 环境要求:Node.js `^22.19`、macOS + Google Chrome
+版本:0.1.2 · 许可:MIT · 环境要求:Node.js `^22.19`、Google Chrome(macOS / Windows / Linux 均支持)
 
 让 DeepSeek Harness 的智能体**直接控制浏览器**并**复用你的登录状态**——不安装 Chrome 扩展,不触碰你正在使用的真实浏览器。
+
+> 跨平台:Chrome 可执行文件与真实配置目录按平台自动探测(macOS `~/Library/Application Support/Google/Chrome`、Windows `%LOCALAPPDATA%\Google\Chrome\User Data`、Linux `~/.config/google-chrome`;可执行文件同理)。非默认安装位置可用环境变量指定:`DSH_CDP_CHROME`(Chrome 路径)、`DSH_CDP_CHROME_SRC`(真实配置目录)。
 
 ## 原理
 
@@ -16,7 +18,7 @@ agent (模型)                    Harness 宿主进程                    独立
 ```
 
 - **直接控制**:插件通过 `subprocess` 服务启动一个零依赖的 Node 桥接进程(`bridge.mjs`),桥接进程用 Node 22 内置 WebSocket 直连 Chrome 的 DevTools 协议,向模型暴露 `browser_*` 工具。全程不需要 Chrome 扩展。
-- **复用登录态**:受控 Chrome 以你**真实 Chrome 配置的副本**启动(`~/Library/Application Support/Google/Chrome` → `~/.dsh/dsh-cdp-profiles/default`,排除缓存与扩展)。macOS 下 Cookie 加密密钥在你的钥匙串里,副本可正常解密,登录态、会话、Cookie 全部带过去;真实浏览器不受影响。
+- **复用登录态**:受控 Chrome 以你**真实 Chrome 配置的副本**启动(按平台探测,见上 → `~/.dsh/dsh-cdp-profiles/default`,排除缓存与扩展)。macOS 下 Cookie 加密密钥在你的钥匙串里;Windows 下 DPAPI 密钥按用户绑定,同用户副本可正常解密。登录态、会话、Cookie 全部带过去;真实浏览器不受影响。
 - **纯文本管线**:页面快照是结构化文本 + 编号交互元素清单,模型按编号点击/输入,不依赖截图(也提供截图工具供人工查看)。
 
 ## 工具

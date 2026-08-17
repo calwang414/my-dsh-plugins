@@ -18,10 +18,15 @@ const os = require('os')
 // file-installed copy and the pnpm link: mount alike).
 const HELPER_PATH = path.join(__dirname, 'bridge.mjs')
 const WORKSPACE = os.homedir()
+// Node 回退顺序:subprocess 解析 → 宿主自身 node(process.execPath,全平台通用)
+// → 常见安装路径(macOS 应用内/系统,Windows 安装目录)
 const NODE_FALLBACKS = [
+  process.execPath,
   '/Applications/DeepSeek Harness.app/Contents/Resources/resources/node/bin/node',
   '/usr/local/bin/node',
-]
+  'C:\\Program Files\\nodejs\\node.exe',
+  path.join(process.env.APPDATA || '', '..', 'Local', 'Programs', 'nodejs', 'node.exe'),
+].filter(Boolean)
 
 const textRender = (args, value) => [{ type: 'text', text: JSON.stringify(value, null, 2) }]
 

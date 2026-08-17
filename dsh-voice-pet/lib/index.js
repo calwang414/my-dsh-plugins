@@ -30,8 +30,8 @@ const MODELS_DIR = path.join(os.homedir(), '.dsh', 'dsh-voice-pet', 'models')
 const CACHE_DIR = process.env.DSH_VOICE_PET_CACHE_DIR || path.join(os.homedir(), '.dsh', 'dsh-voice-pet')
 /** 用户上传的形象库(默认形象在 assets/cal-vrm.vrm) */
 const AVATARS_DIR = path.join(CACHE_DIR, 'avatars')
-/** 本机 calwork 现成模型(存在则直接复用,省去 320MB 下载) */
-const CALWORK_MODELS = '/Users/calwang/dev/code/calwork/desktop-agent/assets/models'
+/** 本机 calwork 现成模型(仅 macOS 开发机;存在则直接复用,省去 320MB 下载) */
+const CALWORK_MODELS = process.platform === 'darwin' ? '/Users/calwang/dev/code/calwork/desktop-agent/assets/models' : null
 const CONFIG_FILE = path.join(CACHE_DIR, 'config.json')
 const CONFIG_DEFAULTS = {
   wakeWords: ['小希小希', '你好小希'],
@@ -138,7 +138,7 @@ export function apply(ctx) {
       startEngine()
       return
     }
-    if (fs.existsSync(path.join(CALWORK_MODELS, 'kws')) && fs.existsSync(path.join(CALWORK_MODELS, 'asr'))) {
+    if (CALWORK_MODELS && fs.existsSync(path.join(CALWORK_MODELS, 'kws')) && fs.existsSync(path.join(CALWORK_MODELS, 'asr'))) {
       modelState = 'copying'
       consoleLog('dsh-voice-pet: 复用本机 calwork 语音模型…')
       try {

@@ -1,7 +1,7 @@
 {
   "name": "@calwang414/dsh-cdp-browser",
-  "version": "0.1.1",
-  "description": "Direct CDP browser control for DeepSeek Harness agents: drives a dedicated Chrome on a copy of the user's real profile, reusing login state without a Chrome extension",
+  "version": "0.1.2",
+  "description": "Cross-platform CDP browser control for DeepSeek Harness agents: drives a dedicated Chrome on a copy of the user's real profile, reusing login state without a Chrome extension (macOS / Windows / Linux)",
   "license": "MIT",
   "type": "commonjs",
   "main": "plugin.js",
@@ -20,6 +20,7 @@
   "files": [
     "plugin.js",
     "bridge.mjs",
+    "platform-paths.mjs",
     "cordis.patch.yml"
   ],
   "dsh": {

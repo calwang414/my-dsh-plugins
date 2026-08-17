@@ -5,9 +5,14 @@
  * available since Node 22). No Chrome extension is involved.
  *
  * Login-state reuse: the controlled Chrome runs on a COPY of the user's real
- * Chrome profile (cookies / local storage / login data). On macOS the cookie
- * encryption key lives in the user's own Keychain, so the copy decrypts
- * normally while the real browser is never touched.
+ * Chrome profile (cookies / local storage / login data), so logged-in
+ * sessions carry over while the real browser is never touched. On macOS the
+ * cookie encryption key lives in the user's own Keychain; on Windows the
+ * DPAPI key is per-user, so a copy under the same user decrypts normally.
+ *
+ * Cross-platform: Chrome binary and real-profile paths are resolved per
+ * platform (win32/darwin/linux), overridable via DSH_CDP_CHROME /
+ * DSH_CDP_CHROME_SRC or the --chrome / --chrome-src CLI args.
  *
  * Wire protocol — JSON lines on stdin (requests) / stdout (responses):
  *   -> {"id":1,"cmd":"open","args":{...}}
@@ -18,15 +23,16 @@
  *   --profile-dir <path>   where the controlled Chrome profile copy lives
  *                          (default ~/.dsh/dsh-cdp-profiles/default)
  *   --chrome-src <path>    source of the user's real Chrome profile
- *                          (default ~/Library/Application Support/Google/Chrome)
+ *                          (default: per-platform, see platform-paths.mjs)
  *   --chrome <path>        Chrome executable
- *                          (default /Applications/Google Chrome.app/.../Google Chrome)
+ *                          (default: per-platform, see platform-paths.mjs)
  */
 import { spawn, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import readline from 'node:readline'
+import { defaultChromeSrc, resolveChromeBinary } from './platform-paths.mjs'
 
 const HOME = os.homedir()
 const arg = (name, fallback) => {
@@ -34,8 +40,8 @@ const arg = (name, fallback) => {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : fallback
 }
 const PROFILE_DIR = arg('--profile-dir', path.join(HOME, '.dsh', 'dsh-cdp-profiles', 'default'))
-const CHROME_SRC = arg('--chrome-src', path.join(HOME, 'Library', 'Application Support', 'Google', 'Chrome'))
-const CHROME_BIN = arg('--chrome', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
+const CHROME_SRC = arg('--chrome-src', defaultChromeSrc())
+const CHROME_BIN = arg('--chrome', resolveChromeBinary())
 
 let WSImpl = globalThis.WebSocket
 if (!WSImpl) {
@@ -237,6 +243,9 @@ function ensureProfileDir(mode) {
 function killChromeUsingProfile() {
   // An orphaned Chrome (from a dead helper) may still hold the profile lock;
   // only processes launched with this exact user-data-dir are affected.
+  // pkill is unix-only; on Windows the OS clears the lock when the process
+  // exits, so nothing to do there.
+  if (process.platform === 'win32') return
   try {
     spawnSync('pkill', ['-f', '--', `--user-data-dir=${PROFILE_DIR}`], { stdio: 'ignore' })
   } catch {

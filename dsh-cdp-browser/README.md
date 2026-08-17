@@ -80,10 +80,10 @@ echo '{"id":1,"cmd":"open","args":{"url":"https://example.com","headless":true,"
 
 ## 版本
 
-- 当前版本 `0.1.0`(见 `package.json` 与 `CHANGELOG.md`)。
+- 当前版本 `0.1.3`(见 `package.json` 与 `CHANGELOG.md`)。
 - 本地锁定安装:插件以 `link:` 依赖安装在 web profile,版本由插件目录内的 `package.json` 决定——源码更新即时生效,无需重新安装。
 - 升级元数据(版本号/描述)后重启 dsh 即生效;如需回退,将 `package.json` 版本改回旧值即可。
-- 本版本未发布到 npm/GitHub;若将来要分发,先移除 `private: true`,再 `npm publish`(注意 `@deepseek-ai` 为官方 scope,发布需改用自有 scope),或推送到 GitHub 后用 `dsh plugin --profile web add github:<user>/dsh-cdp-browser#v0.1.0` 安装。
+- 分发:预编译安装包发布在 GitHub Releases(`dsh plugin --profile web add <tgz URL>`,见仓库根 README)。
 
 ## 安全边界
 

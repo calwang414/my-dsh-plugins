@@ -3,7 +3,6 @@
   "version": "0.1.1",
   "description": "Direct CDP browser control for DeepSeek Harness agents: drives a dedicated Chrome on a copy of the user's real profile, reusing login state without a Chrome extension",
   "license": "MIT",
-  "private": true,
   "type": "commonjs",
   "main": "plugin.js",
   "engines": {
@@ -27,5 +26,8 @@
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

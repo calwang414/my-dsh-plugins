@@ -22,7 +22,16 @@ dsh plugin --profile web add https://github.com/calwang414/my-dsh-plugins/releas
 - voice-pet 首次启动会自动安装引擎依赖(原生 sherpa 库,按平台自动选择)与语音模型(~320MB,hf-mirror);
 - cdp-browser 需 macOS + Google Chrome。
 
-**方式 B:从源码安装**
+**方式 B:npm registry(需先发布,见文末「发布到 npm」)**
+
+```sh
+dsh plugin --profile web add @calwang414/dsh-voice-pet
+dsh plugin --profile web add @calwang414/dsh-cdp-browser
+# 升级:dsh plugin --profile web update @calwang414/dsh-voice-pet
+# 重启 dsh
+```
+
+**方式 C:从源码安装**
 
 ```sh
 git clone https://github.com/calwang414/my-dsh-plugins.git
@@ -36,3 +45,13 @@ dsh plugin --profile web add ./dsh-cdp-browser
 ```
 
 各插件目录内均有独立 README 与构建说明。
+
+## 发布到 npm
+
+```sh
+npm login   # 账号必须是 calwang414(@calwang414 scope 仅该用户名可发布;首次需注册 npm 账号)
+cd dsh-voice-pet && npm publish
+cd ../dsh-cdp-browser && npm publish
+```
+
+发布前确认 package.json 无 `private: true`,且 `publishConfig.access` 为 `public`(仓库内已配置)。

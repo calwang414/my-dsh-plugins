@@ -1,0 +1,117 @@
+# The `dsh-ui-design` agent preset: 设计模式 — a design-workflow agent that
+# shares one workspace-level `design/` project across every session using this
+# mode, paired with the plugin's Design conversation view.
+#
+# This file is written to the harness-home user preset root
+# (`<dshHome>/.agent-presets/dsh-ui-design/`) by the plugin on activation;
+# `__DSH_UI_DESIGN_PRESET_PATH__` and `__DSH_UI_DESIGN_SKILL_PATH__` are
+# replaced with the plugin's own `lib/preset.js` / `lib/skill.js` file URLs at
+# install time, so the rows below work from any install location. Editing the
+# installed copy under `.agent-presets` is fine; the plugin only rewrites it
+# when the file is missing or a path line is stale (the plugin moved). Do not
+# edit this template directly for local changes — edit the installed copy.
+
+# ── identity ────────────────────────────────────────────────────────────────
+
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    text: >-
+      You are a design agent powered by the {{model}} model. Your working directory is {{cwd}}.
+      You create and refine visual design work — websites, app prototypes, posters,
+      info cards, data reports — as real editable files in the shared design project,
+      and the user reviews and fine-tunes them in the Design view.
+
+- id: agent-instructions
+  name: '@deepseek-ai/dsh-agent-instructions'
+  config:
+    maxBytes: 65536
+
+# ── design workflow ─────────────────────────────────────────────────────────
+#
+# Registers the design-workflow system-prompt section and ensures the
+# workspace `design/` directory exists when a session starts in this mode;
+# the skill row makes the full workflow contract loadable from the catalog
+# (scoped to this preset's layer, so only design-mode agents see it).
+
+- id: dsh-ui-design-workflow
+  name: __DSH_UI_DESIGN_PRESET_PATH__
+
+- id: dsh-ui-design-workflow-skill
+  name: __DSH_UI_DESIGN_SKILL_PATH__
+
+# ── shell ───────────────────────────────────────────────────────────────────
+
+- id: tool-bash
+  name: '@deepseek-ai/dsh-tool-bash'
+  disabled: !!js process.platform === 'win32'
+
+- id: tool-pwsh
+  name: '@deepseek-ai/dsh-tool-pwsh'
+  disabled: !!js process.platform !== 'win32'
+
+# ── filesystem ──────────────────────────────────────────────────────────────
+
+- id: tool-fs
+  name: '@deepseek-ai/dsh-tool-fs'
+
+- id: tool-fs-search
+  name: '@deepseek-ai/dsh-tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+# ── background jobs ─────────────────────────────────────────────────────────
+
+- id: tool-jobs
+  name: '@deepseek-ai/dsh-tool-jobs'
+
+# ── skills ──────────────────────────────────────────────────────────────────
+
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+
+- id: tool-skill
+  name: '@deepseek-ai/dsh-tool-skill'
+
+# ── goals ───────────────────────────────────────────────────────────────────
+
+- id: tool-goal
+  name: '@deepseek-ai/dsh-tool-goal'
+
+# ── compaction ──────────────────────────────────────────────────────────────
+
+- id: compaction
+  name: cordis:group
+  group: true
+  isolate:
+    compaction: true
+    toolResultPruner: true
+  config:
+    - id: compaction-basic
+      name: '@deepseek-ai/dsh-compaction-basic'
+
+    - id: command-compact
+      name: '@deepseek-ai/dsh-command-compact'
+
+    - id: tool-result-pruner
+      name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+      config:
+        thresholdChars: 8192
+        headChars: 4096
+        tailChars: 1024
+
+# ── remaining model-facing rows ─────────────────────────────────────────────
+
+- id: tool-ask-user
+  name: '@deepseek-ai/dsh-tool-ask-user'
+
+- id: tool-todo
+  name: '@deepseek-ai/dsh-tool-todo'
+  config:
+    allowParallelInProgress: true
+
+- id: tool-web
+  name: '@deepseek-ai/dsh-tool-web'
+  config:
+    fetch: false
+    searchTimeoutMs: 60000

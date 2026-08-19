@@ -78,7 +78,7 @@ Studio 会向画布注入主题规则,以下类名/标签的样式会被 token �
 
 ## 约束
 
-- `manifest.json` 的 `style` 字段必须是以下枚举之一:`minimal`、`editorial`、`newsprint`、`bold`、`soft`、`pastel`、`dark`、`technical`、`playful`、`data`、`custom`(写其他值会导致 Design 页面加载失败);
+- `manifest.json` 的 `style` 字段必须是以下枚举之一:`minimal`、`editorial`、`newsprint`、`swiss`、`bold`、`soft`、`pastel`、`glass`、`dark`、`cyber`、`technical`、`playful`、`cinematic`、`data`、`brutalist`、`retro`、`sketch`、`custom`(写其他值会导致 Design 页面加载失败);
 - 只修改 `{{cwd}}/design/` 内的文件;
 - 除非用户要求整体重设计,否则保持现有结构;
 - design/ 被所有设计模式会话共享:保存前先读当前文件,避免覆盖他人的最新修改;

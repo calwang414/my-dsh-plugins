@@ -1,0 +1,84 @@
+/* ============================================================
+   Element+ 企业设计系统 · 设计令牌
+   依据《基于Element+设计系统规范 2025》(浙江高信 · 智慧交通事业部)
+   主色 #0073E5 / 功能色 / 中性色阶 / 圆角 0·2·4·8·20 / 阴影 4 级
+   ============================================================ */
+:root {
+  /* 主色 Primary */
+  --ipw-color-primary: #0073e5;
+  --ipw-color-primary-light: #3399ff;
+  --ipw-color-primary-lighter: #6bb5ff;
+  --ipw-color-primary-dim: #e5f2ff;
+
+  /* 辅助色 Success / Warning / Danger / Info */
+  --ipw-color-success: #67c23a;
+  --ipw-color-warning: #e6a23c;
+  --ipw-color-danger: #f56c6c;
+  --ipw-color-info: #909399;
+
+  /* 中性色 Text */
+  --ipw-color-text: #303133;
+  --ipw-color-text-2: #606266;
+  --ipw-color-text-3: #909399;
+  --ipw-color-text-4: #c0c4cc;
+  --ipw-color-muted: #606266;
+
+  /* 中性色 Border */
+  --ipw-color-border: #dcdfe6;
+  --ipw-color-border-light: #e4e7ed;
+  --ipw-color-border-lighter: #ebeef5;
+
+  /* 中性色 Fill / Background */
+  --ipw-color-fill: #f0f2f5;
+  --ipw-color-fill-light: #f5f7fa;
+  --ipw-color-bg: #f2f3f5;
+  --ipw-color-surface: #ffffff;
+
+  /* 文字反色(主按钮/深色底) */
+  --ipw-color-on-primary: #ffffff;
+
+  /* 字体:Helvetica 体系 */
+  --ipw-font-display: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  --ipw-font-body: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+
+  /* 字阶:正文默认 14px,行距 1.5 */
+  --ipw-type-scale: 1;
+  --ipw-body-line-height: 1.5;
+  --ipw-font-size-sm: 12px;
+  --ipw-font-size-base: 14px;
+  --ipw-font-size-lg: 16px;
+
+  /* 布局 */
+  --ipw-content-width: 1200px;
+  --ipw-page-padding: 20px;
+  --ipw-section-space: 24px;
+  --ipw-space-sm: 8px;
+  --ipw-space-base: 12px;
+  --ipw-space-lg: 16px;
+
+  /* 圆角:No 0 / Small 2 / Base 4 / Larger 8 / Round 20 */
+  --ipw-button-radius: 4px;
+  --ipw-card-radius: 4px;
+  --ipw-radius-sm: 2px;
+  --ipw-radius-base: 4px;
+  --ipw-radius-lg: 8px;
+  --ipw-radius-round: 20px;
+
+  /* 阴影:Lighter / Light / Basic / Dark */
+  --ipw-card-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --ipw-shadow-lighter: 0 0 12px rgba(0, 0, 0, 0.12);
+  --ipw-shadow-light: 0 0 12px rgba(0, 0, 0, 0.16);
+  --ipw-shadow-basic: 0 0 18px rgba(0, 0, 0, 0.2);
+  --ipw-shadow-dark: 0 0 24px rgba(0, 0, 0, 0.28);
+
+  --ipw-card-bg: #ffffff;
+  --ipw-card-border: #e4e7ed;
+}
+html { color-scheme: light; }
+body { background-color: var(--ipw-color-bg) !important; color: var(--ipw-color-text); font-family: var(--ipw-font-body); font-size: var(--ipw-font-size-base); line-height: var(--ipw-body-line-height); }
+h1, h2, h3, h4, h5, h6 { font-family: var(--ipw-font-display); }
+a, button, [role="button"] { border-radius: var(--ipw-button-radius); }
+::selection { background: color-mix(in srgb, var(--ipw-color-primary) 25%, transparent); }
+:is([class*="eyebrow"], [class*="kicker"], [class*="accent"]) { color: var(--ipw-color-primary) !important; }
+:is(button, [role="button"], a[class*="button"], a[class*="btn"], a[class*="cta"]) { border-color: var(--ipw-color-primary); }
+:is(article, [class*="card"]) { border-color: var(--ipw-card-border); border-radius: var(--ipw-card-radius); }

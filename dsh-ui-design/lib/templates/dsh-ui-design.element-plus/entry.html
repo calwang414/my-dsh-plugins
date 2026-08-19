@@ -1,0 +1,168 @@
+`<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Element+ 企业设计系统 · 示例页</title>
+<link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding-inline:var(--ipw-page-padding);background-color:var(--ipw-color-bg);color:var(--ipw-color-text);font-family:var(--ipw-font-body);font-size:var(--ipw-font-size-base);line-height:var(--ipw-body-line-height);-webkit-font-smoothing:antialiased}
+.wrap{width:min(var(--ipw-content-width),100%);margin:0 auto}
+
+/* ---- Topbar ---- */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:24px;height:56px;border-bottom:1px solid var(--ipw-color-border-lighter);background:var(--ipw-color-surface)}
+.topbar__left{display:flex;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:var(--ipw-font-size-lg);color:var(--ipw-color-text)}
+.brand-mark{width:20px;height:20px;border-radius:var(--ipw-radius-sm);background:var(--ipw-color-primary);display:grid;place-items:center;color:var(--ipw-color-on-primary);font-weight:700;font-size:11px}
+.menu{display:flex;gap:4px}
+.menu a{padding:6px 12px;border-radius:var(--ipw-radius-base);color:var(--ipw-color-text-2);text-decoration:none;font-size:var(--ipw-font-size-base)}
+.menu a:hover{color:var(--ipw-color-primary);background:var(--ipw-color-primary-dim)}
+.menu a.is-on{color:var(--ipw-color-primary);background:var(--ipw-color-primary-dim);font-weight:500}
+.topbar__right{display:flex;align-items:center;gap:12px;font-size:var(--ipw-font-size-base)}
+.topbar__user{display:flex;align-items:center;gap:8px;color:var(--ipw-color-text-2)}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--ipw-color-primary);color:var(--ipw-color-on-primary);display:grid;place-items:center;font-size:12px}
+
+/* ---- Page header ---- */
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-block:var(--ipw-section-space) var(--ipw-space-lg);flex-wrap:wrap}
+.page-head h1{margin:0;font-size:1.65rem;font-weight:600;line-height:1.25}
+.page-head p{margin:4px 0 0;color:var(--ipw-color-text-3);font-size:var(--ipw-font-size-sm)}
+.actions{display:flex;gap:var(--ipw-space-base)}
+
+/* ---- Buttons(Element 风格) ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 16px;border:1px solid var(--ipw-color-border);border-radius:var(--ipw-button-radius);background:var(--ipw-color-surface);color:var(--ipw-color-text);font-size:var(--ipw-font-size-base);font-family:inherit;text-decoration:none;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--ipw-color-primary);color:var(--ipw-color-primary)}
+.btn[data-ipw-theme-role="primary-action"]{background:var(--ipw-color-primary);border-color:var(--ipw-color-primary);color:var(--ipw-color-on-primary)}
+.btn[data-ipw-theme-role="primary-action"]:hover{background:var(--ipw-color-primary-light);border-color:var(--ipw-color-primary-light);color:var(--ipw-color-on-primary)}
+.btn[data-ipw-theme-role="secondary-action"]{background:var(--ipw-color-surface);border-color:var(--ipw-color-border);color:var(--ipw-color-text)}
+.btn.is-danger{background:var(--ipw-color-danger);border-color:var(--ipw-color-danger);color:var(--ipw-color-on-primary)}
+.btn.is-danger:hover{opacity:.85}
+.btn.is-text{border-color:transparent;background:transparent;color:var(--ipw-color-primary)}
+.btn.is-text:hover{background:var(--ipw-color-primary-dim)}
+
+/* ---- Stat cards ---- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--ipw-space-lg)}
+.stat{padding:18px 20px;background:var(--ipw-card-bg);border:1px solid var(--ipw-card-border);border-radius:var(--ipw-card-radius);box-shadow:var(--ipw-card-shadow)}
+.stat__label{font-size:var(--ipw-font-size-sm);color:var(--ipw-color-text-3)}
+.stat__value{margin:8px 0 4px;font-size:1.9rem;font-weight:600;line-height:1.25;letter-spacing:-.01em}
+.stat__delta{font-size:var(--ipw-font-size-sm);color:var(--ipw-color-text-3)}
+.stat__delta .up{color:var(--ipw-color-success)}
+.stat__delta .down{color:var(--ipw-color-danger)}
+
+/* ---- Cards / Table ---- */
+.grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--ipw-space-lg);margin-top:var(--ipw-space-lg);align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--ipw-card-bg);border:1px solid var(--ipw-card-border);border-radius:var(--ipw-card-radius);box-shadow:var(--ipw-card-shadow);overflow:hidden}
+.card__head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--ipw-color-border-lighter)}
+.card__head h3{margin:0;font-size:var(--ipw-font-size-lg);font-weight:600}
+.card__head .more{font-size:var(--ipw-font-size-sm);color:var(--ipw-color-primary);text-decoration:none}
+.card__body{padding:18px}
+.table{width:100%;border-collapse:collapse;font-size:var(--ipw-font-size-base)}
+.table th{padding:10px 12px;background:var(--ipw-color-fill);color:var(--ipw-color-text-2);font-weight:500;text-align:left;border-bottom:1px solid var(--ipw-color-border-light);white-space:nowrap}
+.table td{padding:10px 12px;border-bottom:1px solid var(--ipw-color-border-lighter);color:var(--ipw-color-text)}
+.table tbody tr:nth-child(even){background:var(--ipw-color-fill-light)}
+.table tbody tr:hover{background:var(--ipw-color-primary-dim)}
+.table .num{font-variant-numeric:tabular-nums}
+
+/* ---- Tag ---- */
+.tag{display:inline-flex;align-items:center;padding:0 8px;height:22px;border-radius:var(--ipw-radius-base);font-size:12px;line-height:1}
+.tag.is-primary{background:var(--ipw-color-primary-dim);color:var(--ipw-color-primary)}
+.tag.is-success{background:#f0f9eb;color:var(--ipw-color-success)}
+.tag.is-warning{background:#fdf6ec;color:var(--ipw-color-warning)}
+.tag.is-danger{background:#fef0f0;color:var(--ipw-color-danger)}
+.tag.is-info{background:#f4f4f5;color:var(--ipw-color-info)}
+
+/* ---- Side info ---- */
+.kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--ipw-color-border-lighter);font-size:var(--ipw-font-size-base)}
+.kv:last-child{border-bottom:none}
+.kv b{font-weight:500;color:var(--ipw-color-text)}
+.progress{height:6px;border-radius:var(--ipw-radius-round);background:var(--ipw-color-fill);overflow:hidden;margin-top:6px}
+.progress i{display:block;height:100%;background:var(--ipw-color-primary);border-radius:var(--ipw-radius-round)}
+
+/* ---- Footer ---- */
+.site-footer{padding-block:24px;margin-top:32px;border-top:1px solid var(--ipw-color-border-lighter);color:var(--ipw-color-text-3);font-size:var(--ipw-font-size-sm);text-align:center}
+@media (max-width:640px){.menu{display:none}.page-head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body data-ipw-theme-role="page">
+<header class="topbar wrap">
+  <div class="topbar__left">
+    <div class="brand"><span class="brand-mark">E</span>Element+ 企业平台</div>
+    <nav class="menu">
+      <a href="#" class="is-on">工作台</a>
+      <a href="#">设备管理</a>
+      <a href="#">数据报表</a>
+      <a href="#">系统设置</a>
+    </nav>
+  </div>
+  <div class="topbar__right">
+    <span class="topbar__user"><span class="avatar">高</span>高信科技</span>
+  </div>
+</header>
+<main class="wrap">
+  <section class="page-head" data-ipw-theme-role="section">
+    <div>
+      <h1 data-ipw-theme-role="heading">工作台</h1>
+      <p data-ipw-theme-role="muted">欢迎回来,今日全省高速路网运行平稳。</p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="#" data-ipw-theme-role="primary-action">新增</a>
+      <a class="btn" href="#" data-ipw-theme-role="secondary-action">批量操作</a>
+      <a class="btn is-danger" href="#">清空</a>
+    </div>
+  </section>
+
+  <section class="stats" data-ipw-theme-role="section">
+    <article class="stat" data-ipw-theme-role="card">
+      <div class="stat__label">在网设备</div>
+      <div class="stat__value">1,286</div>
+      <div class="stat__delta">较昨日 <span class="up">+12.4%</span></div>
+    </article>
+    <article class="stat" data-ipw-theme-role="card">
+      <div class="stat__label">今日告警</div>
+      <div class="stat__value">37</div>
+      <div class="stat__delta">较昨日 <span class="down">-8.2%</span></div>
+    </article>
+    <article class="stat" data-ipw-theme-role="card">
+      <div class="stat__label">断面流量(万辆)</div>
+      <div class="stat__value">86.5</div>
+      <div class="stat__delta">同比 <span class="up">+3.1%</span></div>
+    </article>
+    <article class="stat" data-ipw-theme-role="card">
+      <div class="stat__label">在线率</div>
+      <div class="stat__value">99.2%</div>
+      <div class="stat__delta">目标 99.0%</div>
+    </article>
+  </section>
+
+  <section class="grid" data-ipw-theme-role="section">
+    <article class="card" data-ipw-theme-role="card">
+      <div class="card__head"><h3>最新告警</h3><a class="more" href="#">查看全部 →</a></div>
+      <div class="card__body">
+        <table class="table">
+          <thead><tr><th>告警类型</th><th>设备名称</th><th>路段</th><th>时间</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr><td>门架通信中断</td><td>G25 门架 081</td><td>杭金衢 K228</td><td class="num">09:41:05</td><td><span class="tag is-danger">紧急</span></td></tr>
+            <tr><td>摄像机离线</td><td>枪机 0923</td><td>甬台温 K105</td><td class="num">09:22:17</td><td><span class="tag is-warning">重要</span></td></tr>
+            <tr><td>供电异常</td><td>情报板 014</td><td>诸永 K042</td><td class="num">08:55:40</td><td><span class="tag is-warning">重要</span></td></tr>
+            <tr><td>数据补传完成</td><td>称重站 3#</td><td>沈海 K312</td><td class="num">08:31:02</td><td><span class="tag is-success">已恢复</span></td></tr>
+            <tr><td>巡检任务下发</td><td>巡检车 07</td><td>沪昆 K160</td><td class="num">08:12:55</td><td><span class="tag is-primary">处理中</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+    <aside class="card" data-ipw-theme-role="card">
+      <div class="card__head"><h3>路网运行概览</h3><span class="tag is-info">今日</span></div>
+      <div class="card__body">
+        <div class="kv"><span>整体运行指数</span><b>87.4</b></div>
+        <div class="kv"><span>拥堵里程</span><b>12.6 km</b></div>
+        <div class="kv"><span>施工路段</span><b>3 处</b></div>
+        <div class="kv"><span>交通管制</span><b>1 处</b></div>
+        <div style="margin-top:14px"><span style="font-size:var(--ipw-font-size-sm);color:var(--ipw-color-text-3)">本月任务完成度</span><div class="progress"><i style="width:76%"></i></div></div>
+      </div>
+    </aside>
+  </section>
+</main>
+<footer class="site-footer" data-ipw-theme-role="muted"><div class="wrap">浙江高信 · 智慧交通事业部 · 基于 Element+ 设计系统规范 2025 · 由 dsh-ui-design 制作</div></footer>
+</body>
+</html>`;

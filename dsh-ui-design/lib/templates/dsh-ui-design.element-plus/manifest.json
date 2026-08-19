@@ -1,19 +1,20 @@
 {
   "schemaVersion": 1,
-  "id": "dsh-ui-design.custom-brand",
+  "id": "dsh-ui-design.element-plus",
   "version": "1.0.0",
   "kind": "design",
   "category": "site",
-  "subcategory": "brand",
+  "subcategory": "enterprise",
   "style": "custom",
   "tags": [
-    "custom",
-    "brand",
-    "personal"
+    "element-plus",
+    "enterprise",
+    "中后台",
+    "design-system"
   ],
   "surface": "design",
-  "title": "My Brand Template",
-  "description": "个人自定义品牌模板:配色、字体、布局完全由自己定义(编辑 design-tokens.css 与 entry.html 即可)。",
+  "title": "Element+ 企业设计系统",
+  "description": "基于《基于Element+设计系统规范 2025》实现的企业级模板:主色 #0073E5,Element Plus 色板/圆角/阴影/字体规范,适合中后台、数据平台类产品。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {
@@ -37,14 +38,26 @@
         "group": "theme"
       },
       {
-        "id": "--ipw-color-secondary",
-        "label": "Secondary",
+        "id": "--ipw-color-success",
+        "label": "Success",
         "type": "color",
         "group": "theme"
       },
       {
-        "id": "--ipw-color-accent",
-        "label": "Accent",
+        "id": "--ipw-color-warning",
+        "label": "Warning",
+        "type": "color",
+        "group": "theme"
+      },
+      {
+        "id": "--ipw-color-danger",
+        "label": "Danger",
+        "type": "color",
+        "group": "theme"
+      },
+      {
+        "id": "--ipw-color-info",
+        "label": "Info",
         "type": "color",
         "group": "theme"
       },
@@ -154,7 +167,8 @@
   },
   "applyChecklist": [
     "Replace all sample copy with the user's complete brief.",
-    "Apply the brand palette through declared variables without breaking the template hierarchy.",
+    "Apply the enterprise palette through declared variables without breaking the component hierarchy.",
+    "Keep the Element+ visual language (blue primary, 4px base radius, 14px body) coherent.",
     "Verify responsive layout, links, overflow and editable text before finishing."
   ],
   "minimumAppVersion": "0.17.20"

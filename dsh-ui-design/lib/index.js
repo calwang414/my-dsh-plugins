@@ -3886,6 +3886,14 @@ function bundledTemplates(runtime) {
 	});
 	return runtime.templatePromise;
 }
+const TEMPLATE_STYLES = new Set(["minimal","editorial","newsprint","swiss","bold","soft","pastel","glass","dark","cyber","technical","playful","cinematic","data","brutalist","retro","sketch","custom"]);
+function parseProjectManifest(text) {
+	const raw = JSON.parse(text);
+	if (raw && typeof raw === "object" && typeof raw.style === "string" && !TEMPLATE_STYLES.has(raw.style)) {
+		return templateManifestV1Schema.parse({ ...raw, style: "custom" });
+	}
+	return templateManifestV1Schema.parse(raw);
+}
 async function templateSession(root, sessionId, runtime) {
 	const projectId = projectSessionId(runtime, sessionId);
 	const projectRel = projectId ? `design/${projectId}` : "design";
@@ -3895,7 +3903,7 @@ async function templateSession(root, sessionId, runtime) {
 		if (errorCode(error) === "ENOENT") return null;
 		throw error;
 	});
-	const manifest = existingManifest ? templateManifestV1Schema.parse(JSON.parse(existingManifest)) : defaultManifest(runtime);
+	const manifest = existingManifest ? parseProjectManifest(existingManifest) : defaultManifest(runtime);
 	if (!allowsTemplate(runtime, manifest) && manifest.id !== runtime.defaultTemplateId) throw new HttpError(409, `This project belongs to a different ${runtime.studioTitle} catalog.`);
 	if (!existingManifest) await Promise.all([
 		ensureFile(resolve(directory, "index.html"), defaultHtml(runtime)),
@@ -4056,7 +4064,7 @@ async function applyTemplate(root, sessionId, templateId, runtime) {
 				recursive: true,
 				errorOnExist: true
 			});
-			const stagedManifest = templateManifestV1Schema.parse(JSON.parse(await readFile(resolve(staged, "manifest.json"), "utf8")));
+			const stagedManifest = parseProjectManifest(await readFile(resolve(staged, "manifest.json"), "utf8"));
 			if (stagedManifest.id !== template.manifest.id || stagedManifest.version !== template.manifest.version) throw new HttpError(409, "Template changed while it was being applied.");
 			await writeFile(resolve(staged, "brief.json"), "{}\n", "utf8");
 			const current = await lstat(target).catch((error) => {
@@ -4150,7 +4158,7 @@ async function pageOperation(runtime, root, sessionId, action, body) {
 		// 先幂等播种基础项目(index.html/design-tokens.css/brief.json/manifest),
 		// 避免直接调用页面 API 时项目文件不完整。
 		await templateSession(root, sessionId, runtime);
-		const manifest = templateManifestV1Schema.parse(JSON.parse(await readFile(manifestPath, "utf8")));
+		const manifest = parseProjectManifest(await readFile(manifestPath, "utf8"));
 		const pages = [...manifestPages(manifest)];
 		if (action === "create") {
 			const title = stringField(field(body, "title"), "title");

@@ -3771,13 +3771,13 @@ variables: [{id:"--ipw-color-primary",label:"Primary",type:"color",group:"theme"
 	};
 }
 function defaultHtml(runtime) {
-	if (runtime.mode === "slides") return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untitled Presentation</title><link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens><style>*{box-sizing:border-box}body{margin:0;background:#d9dce2;color:var(--ipw-color-text);font-family:var(--ipw-font-body)}.slide{position:relative;width:1600px;height:900px;overflow:hidden;padding:96px;background:var(--ipw-color-bg)}.eyebrow{color:var(--ipw-color-primary);font-weight:700;letter-spacing:.12em;text-transform:uppercase}h1{max-width:12ch;margin:28px 0;font-family:var(--ipw-font-display);font-size:112px;line-height:.94;letter-spacing:-.055em}p{max-width:48ch;color:var(--ipw-color-muted);font-size:28px;line-height:1.5}.hint{position:absolute;left:96px;bottom:56px;color:var(--ipw-color-muted);font-size:18px;letter-spacing:.04em;text-transform:uppercase}</style></head><body><main class="slide" data-ipw-slide><div class="eyebrow">dsh-ui-design Studio</div><h1>Shape the story.</h1><p>Ask DeepSeek Harness to build the narrative, then refine every slide directly in Studio.</p><div class="hint">1600 x 900 · one slide per frame</div></main></body></html>`;
+	if (runtime.mode === "slides") return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>未命名演示文稿</title><link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens><style>*{box-sizing:border-box}body{margin:0;background:#d9dce2;color:var(--ipw-color-text);font-family:var(--ipw-font-body)}.slide{position:relative;width:1600px;height:900px;overflow:hidden;padding:96px;background:var(--ipw-color-bg)}.eyebrow{color:var(--ipw-color-primary);font-weight:700;letter-spacing:.12em;text-transform:uppercase}h1{max-width:12ch;margin:28px 0;font-family:var(--ipw-font-display);font-size:112px;line-height:.94;letter-spacing:-.055em}p{max-width:48ch;color:var(--ipw-color-muted);font-size:28px;line-height:1.5}.hint{position:absolute;left:96px;bottom:56px;color:var(--ipw-color-muted);font-size:18px;letter-spacing:.04em;text-transform:uppercase}</style></head><body><main class="slide" data-ipw-slide><div class="eyebrow">dsh-ui-design 工作室</div><h1>塑造你的故事。</h1><p>让 DeepSeek Harness 搭建叙事，再在 Studio 中逐页精调。</p><div class="hint">1600 x 900 · 每帧一页</div></main></body></html>`;
 	return `<!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Untitled Design</title>
+<title>未命名设计</title>
 <link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens>
 <style>
 *{box-sizing:border-box}
@@ -3791,7 +3791,9 @@ body{margin:0;min-height:100vh;padding-inline:var(--ipw-page-padding);background
 .links a{color:var(--ipw-color-muted);text-decoration:none;transition:color .15s}
 .links a:hover{color:var(--ipw-color-text)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:.7em 1.5em;border:1px solid transparent;border-radius:var(--ipw-button-radius);font-weight:600;font-size:.95rem;text-decoration:none;cursor:pointer;transition:transform .12s,box-shadow .12s}
-.btn:hover{transform:translateY(-1px)}.btn[data-ipw-theme-role="primary-action"]{background:var(--ipw-color-primary);border-color:var(--ipw-color-primary);color:var(--ipw-color-on-primary)}.btn[data-ipw-theme-role="secondary-action"]{background:var(--ipw-color-surface);border-color:var(--ipw-color-border);color:var(--ipw-color-text)}
+.btn:hover{transform:translateY(-1px)}
+.btn[data-ipw-theme-role="primary-action"]{background:var(--ipw-color-primary);border-color:var(--ipw-color-primary);color:var(--ipw-color-on-primary)}
+.btn[data-ipw-theme-role="secondary-action"]{background:var(--ipw-color-surface);border-color:var(--ipw-color-border);color:var(--ipw-color-text)}
 .hero{padding-block:clamp(72px,14vh,140px);text-align:center}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase}
 .eyebrow::before,.eyebrow::after{content:"";width:28px;height:1px;background:currentColor;opacity:.5}
@@ -3813,50 +3815,50 @@ h1{max-width:16ch;margin:22px auto 0;font-family:var(--ipw-font-display);font-si
 </head>
 <body data-ipw-theme-role="page">
 <header class="site-nav wrap">
-  <div class="brand"><span class="brand-mark"></span>Acme Studio</div>
+  <div class="brand"><span class="brand-mark"></span>创意工坊</div>
   <nav class="links">
-    <a href="#">Features</a>
-    <a href="#">Showcase</a>
-    <a href="#">Pricing</a>
+    <a href="#">功能</a>
+    <a href="#">案例</a>
+    <a href="#">定价</a>
   </nav>
-  <a class="btn" href="#" data-ipw-theme-role="primary-action">Get started</a>
+  <a class="btn" href="#" data-ipw-theme-role="primary-action">开始使用</a>
 </header>
 <main>
   <section class="hero" data-ipw-theme-role="section">
     <div class="wrap">
-      <div class="eyebrow" data-ipw-theme-role="accent">Design, reimagined</div>
-      <h1 data-ipw-theme-role="heading">Every great product starts with a blank canvas.</h1>
-      <p class="lede" data-ipw-theme-role="muted">Ask DeepSeek Harness to build your idea, then refine every detail directly in Studio — colors, type, layout, and content.</p>
+      <div class="eyebrow" data-ipw-theme-role="accent">重新定义设计</div>
+      <h1 data-ipw-theme-role="heading">每个伟大的产品，都始于一张白纸。</h1>
+      <p class="lede" data-ipw-theme-role="muted">让 DeepSeek Harness 构建你的创意，再在 Studio 中直接精调每一个细节——颜色、字体、布局与内容。</p>
       <div class="actions">
-        <a class="btn" href="#" data-ipw-theme-role="primary-action">Start designing</a>
-        <a class="btn" href="#" data-ipw-theme-role="secondary-action">Explore templates</a>
+        <a class="btn" href="#" data-ipw-theme-role="primary-action">开始设计</a>
+        <a class="btn" href="#" data-ipw-theme-role="secondary-action">浏览模板</a>
       </div>
     </div>
   </section>
   <section class="features wrap" data-ipw-theme-role="section">
     <article class="feature" data-ipw-theme-role="card">
       <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg></div>
-      <h3>Token-driven theming</h3>
-      <p>Every color, font, radius, and spacing reads from design tokens, so the whole page restyles from one place.</p>
+      <h3>Token 驱动主题</h3>
+      <p>一切颜色、字体、圆角与间距都来自设计 token，一处修改，全站焕新。</p>
     </article>
     <article class="feature" data-ipw-theme-role="card">
       <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></div>
-      <h3>Editable in Studio</h3>
-      <p>Select any element on the canvas and fine-tune it directly — no code required.</p>
+      <h3>Studio 直接编辑</h3>
+      <p>在画布上点选任意元素即可精调，无需手写代码。</p>
     </article>
     <article class="feature" data-ipw-theme-role="card">
       <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/></svg></div>
-      <h3>AI-first workflow</h3>
-      <p>Describe what you want in chat; the agent writes the files, and you keep the final word in the canvas.</p>
+      <h3>AI 优先工作流</h3>
+      <p>在对话中描述你的想法，智能体负责写文件，你掌握画布上的最终决定权。</p>
     </article>
   </section>
   <section class="cta-band wrap" data-ipw-theme-role="section">
-    <h2>Ready to make something people remember?</h2>
-    <p>Start from this page or pick a template — then let the conversation carry the design forward.</p>
-    <a class="btn" href="#">Ask DeepSeek Harness</a>
+    <h2>准备好创造让人记住的作品了吗？</h2>
+    <p>从本页开始，或挑一个模板——让对话继续推进你的设计。</p>
+    <a class="btn" href="#">让 DeepSeek Harness 来做</a>
   </section>
 </main>
-<footer class="site-footer" data-ipw-theme-role="muted"><div class="wrap">Made with dsh-ui-design · DeepSeek Harness</div></footer>
+<footer class="site-footer" data-ipw-theme-role="muted"><div class="wrap">由 dsh-ui-design 制作 · DeepSeek Harness</div></footer>
 </body>
 </html>`;
 }

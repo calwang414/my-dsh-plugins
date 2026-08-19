@@ -3726,10 +3726,12 @@ const DEFAULT_TOKENS = `/* ipw-theme:start */
 :root {
   --ipw-color-bg: #f2f0eb; --ipw-color-surface: #ffffff; --ipw-color-text: #171717;
   --ipw-color-muted: #66645f; --ipw-color-border: #d7d3ca; --ipw-color-primary: #5b50e6;
-  --ipw-color-secondary: #dcd8ff; --ipw-color-accent: #f26b38; --ipw-font-display: Georgia, serif;
-  --ipw-font-body: Arial, sans-serif; --ipw-content-width: 1180px; --ipw-page-padding: 32px;
-  --ipw-section-space: 96px; --ipw-card-bg: #ffffff; --ipw-card-border: #d7d3ca;
-  --ipw-card-radius: 24px; --ipw-card-shadow: 0 24px 70px rgb(24 20 14 / 10%);
+  --ipw-color-secondary: #dcd8ff; --ipw-color-accent: #f26b38; --ipw-color-on-primary: #ffffff;
+  --ipw-font-display: Georgia, serif; --ipw-font-body: Arial, sans-serif;
+  --ipw-type-scale: 1; --ipw-body-line-height: 1.6; --ipw-content-width: 1180px;
+  --ipw-page-padding: 32px; --ipw-section-space: 96px; --ipw-button-radius: 999px;
+  --ipw-card-bg: #ffffff; --ipw-card-border: #d7d3ca; --ipw-card-radius: 24px;
+  --ipw-card-shadow: 0 24px 70px rgb(24 20 14 / 10%);
 }
 /* ipw-theme:end */
 `;
@@ -3762,17 +3764,101 @@ function defaultManifest(runtime) {
 				"components"
 			],
 			tokens: "design-tokens.css",
-			variables: []
+variables: [{id:"--ipw-color-primary",label:"Primary",type:"color",group:"theme"},{id:"--ipw-color-secondary",label:"Secondary",type:"color",group:"theme"},{id:"--ipw-color-accent",label:"Accent",type:"color",group:"theme"},{id:"--ipw-color-bg",label:"Page background",type:"color",group:"background"},{id:"--ipw-color-surface",label:"Surface",type:"color",group:"background"},{id:"--ipw-color-text",label:"Text",type:"color",group:"theme"},{id:"--ipw-color-muted",label:"Muted text",type:"color",group:"theme"},{id:"--ipw-color-border",label:"Border",type:"color",group:"components"},{id:"--ipw-font-display",label:"Display font",type:"font",group:"typography"},{id:"--ipw-font-body",label:"Body font",type:"font",group:"typography"},{id:"--ipw-type-scale",label:"Type scale",type:"number",group:"typography"},{id:"--ipw-body-line-height",label:"Line height",type:"number",group:"typography"},{id:"--ipw-content-width",label:"Content width",type:"number",group:"components"},{id:"--ipw-page-padding",label:"Page padding",type:"number",group:"components"},{id:"--ipw-section-space",label:"Section spacing",type:"number",group:"components"},{id:"--ipw-button-radius",label:"Button radius",type:"number",group:"components"},{id:"--ipw-card-bg",label:"Card background",type:"color",group:"components"},{id:"--ipw-card-border",label:"Card border",type:"color",group:"components"},{id:"--ipw-card-radius",label:"Card radius",type:"number",group:"components"},{id:"--ipw-card-shadow",label:"Card shadow",type:"text",group:"components"}]
 		},
 		applyChecklist: ["Preserve the current document structure and linked design token contract."],
 		minimumAppVersion: "0.21.2"
 	};
 }
 function defaultHtml(runtime) {
-	if (runtime.mode === "slides") return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untitled Presentation</title><link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens><style>*{box-sizing:border-box}body{margin:0;background:#d9dce2;color:var(--ipw-color-text);font-family:var(--ipw-font-body)}.slide{position:relative;width:1600px;height:900px;overflow:hidden;padding:96px;background:var(--ipw-color-bg)}.eyebrow{color:var(--ipw-color-primary);font-weight:700;letter-spacing:.12em;text-transform:uppercase}h1{max-width:12ch;margin:28px 0;font-family:var(--ipw-font-display);font-size:112px;line-height:.94;letter-spacing:-.055em}p{max-width:48ch;color:var(--ipw-color-muted);font-size:28px;line-height:1.5}</style></head><body><main class="slide" data-ipw-slide><div class="eyebrow">DeepSeek iPPT</div><h1>Shape the story.</h1><p>Ask DeepSeek Harness to build the narrative, then refine every slide directly in Studio.</p></main></body></html>`;
+	if (runtime.mode === "slides") return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untitled Presentation</title><link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens><style>*{box-sizing:border-box}body{margin:0;background:#d9dce2;color:var(--ipw-color-text);font-family:var(--ipw-font-body)}.slide{position:relative;width:1600px;height:900px;overflow:hidden;padding:96px;background:var(--ipw-color-bg)}.eyebrow{color:var(--ipw-color-primary);font-weight:700;letter-spacing:.12em;text-transform:uppercase}h1{max-width:12ch;margin:28px 0;font-family:var(--ipw-font-display);font-size:112px;line-height:.94;letter-spacing:-.055em}p{max-width:48ch;color:var(--ipw-color-muted);font-size:28px;line-height:1.5}.hint{position:absolute;left:96px;bottom:56px;color:var(--ipw-color-muted);font-size:18px;letter-spacing:.04em;text-transform:uppercase}</style></head><body><main class="slide" data-ipw-slide><div class="eyebrow">dsh-ui-design Studio</div><h1>Shape the story.</h1><p>Ask DeepSeek Harness to build the narrative, then refine every slide directly in Studio.</p><div class="hint">1600 x 900 · one slide per frame</div></main></body></html>`;
 	return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untitled Design</title><link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--ipw-color-bg);color:var(--ipw-color-text);font-family:var(--ipw-font-body)}main{width:min(var(--ipw-content-width),calc(100% - 2 * var(--ipw-page-padding)));margin:0 auto;padding:var(--ipw-section-space) 0}.eyebrow{color:var(--ipw-color-primary);font-weight:700;letter-spacing:.12em;text-transform:uppercase}h1{max-width:12ch;margin:18px 0;font-family:var(--ipw-font-display);font-size:clamp(3rem,9vw,7rem);line-height:.94;letter-spacing:-.055em}p{max-width:56ch;color:var(--ipw-color-muted);font-size:1.12rem;line-height:1.55}.card{margin-top:48px;padding:28px;border:1px solid var(--ipw-card-border);border-radius:var(--ipw-card-radius);background:var(--ipw-card-bg);box-shadow:var(--ipw-card-shadow)}</style></head><body data-ipw-theme-role="page"><main><div class="eyebrow">dsh-ui-design Design Studio</div><h1>Select anything. Shape everything.</h1><p>Ask DeepSeek Harness to create your design, then fine-tune every element directly in Studio.</p><section class="card" data-ipw-theme-role="card">Your design starts here.</section></main></body></html>`;
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Untitled Design</title>
+<link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens>
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;padding-inline:var(--ipw-page-padding);background-color:var(--ipw-color-bg);background-image:var(--ipw-bg-image,var(--ipw-bg-gradient,none));background-size:var(--ipw-bg-size,cover);background-position:var(--ipw-bg-position,50% 50%);background-repeat:no-repeat;color:var(--ipw-color-text);font-family:var(--ipw-font-body);line-height:var(--ipw-body-line-height);-webkit-font-smoothing:antialiased}
+.wrap{width:min(var(--ipw-content-width),100%);margin:0 auto}
+.site-nav{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-block:18px;border-bottom:1px solid var(--ipw-color-border)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--ipw-font-display);font-weight:700;font-size:1.15rem;letter-spacing:-.02em}
+.brand-mark{width:10px;height:10px;border-radius:50%;background:var(--ipw-color-accent)}
+.links{display:flex;gap:22px;font-size:.95rem}
+.links a{color:var(--ipw-color-muted);text-decoration:none;transition:color .15s}
+.links a:hover{color:var(--ipw-color-text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:.7em 1.5em;border:1px solid transparent;border-radius:var(--ipw-button-radius);font-weight:600;font-size:.95rem;text-decoration:none;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-1px)}.btn[data-ipw-theme-role="primary-action"]{background:var(--ipw-color-primary);border-color:var(--ipw-color-primary);color:var(--ipw-color-on-primary)}.btn[data-ipw-theme-role="secondary-action"]{background:var(--ipw-color-surface);border-color:var(--ipw-color-border);color:var(--ipw-color-text)}
+.hero{padding-block:clamp(72px,14vh,140px);text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase}
+.eyebrow::before,.eyebrow::after{content:"";width:28px;height:1px;background:currentColor;opacity:.5}
+h1{max-width:16ch;margin:22px auto 0;font-family:var(--ipw-font-display);font-size:clamp(2.6rem,7.5vw,5.4rem);line-height:1.04;letter-spacing:-.035em}
+.lede{max-width:52ch;margin:22px auto 0;color:var(--ipw-color-muted);font-size:clamp(1.02rem,1.6vw,1.2rem)}
+.actions{display:flex;justify-content:center;gap:14px;margin-top:38px;flex-wrap:wrap}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;padding-block:var(--ipw-section-space)}
+.feature{padding:30px 26px;border:1px solid var(--ipw-card-border);border-radius:var(--ipw-card-radius);background:var(--ipw-card-bg);box-shadow:var(--ipw-card-shadow)}
+.feature-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:var(--ipw-color-secondary);color:var(--ipw-color-primary);margin-bottom:18px}
+.feature h3{margin:0 0 8px;font-family:var(--ipw-font-display);font-size:1.3rem;letter-spacing:-.02em}
+.feature p{margin:0;color:var(--ipw-color-muted);font-size:.95rem}
+.cta-band{margin-block:calc(var(--ipw-section-space)*.5) var(--ipw-section-space);padding:clamp(40px,7vw,72px) clamp(28px,6vw,64px);border:1px solid var(--ipw-color-primary);border-radius:calc(var(--ipw-card-radius) + 8px);background:linear-gradient(135deg,var(--ipw-color-primary),color-mix(in srgb,var(--ipw-color-primary) 55%,var(--ipw-color-accent)));color:var(--ipw-color-on-primary);text-align:center}
+.cta-band h2{margin:0 0 12px;font-family:var(--ipw-font-display);font-size:clamp(1.7rem,3.6vw,2.6rem);letter-spacing:-.02em}
+.cta-band p{margin:0 auto;max-width:44ch;opacity:.9}
+.cta-band .btn{margin-top:26px;background:var(--ipw-color-on-primary);color:var(--ipw-color-primary)}
+.site-footer{padding-block:26px;border-top:1px solid var(--ipw-color-border);color:var(--ipw-color-muted);font-size:.85rem;text-align:center}
+@media (max-width:640px){.links{display:none}.actions{flex-direction:column}.actions .btn{width:100%}}
+</style>
+</head>
+<body data-ipw-theme-role="page">
+<header class="site-nav wrap">
+  <div class="brand"><span class="brand-mark"></span>Acme Studio</div>
+  <nav class="links">
+    <a href="#">Features</a>
+    <a href="#">Showcase</a>
+    <a href="#">Pricing</a>
+  </nav>
+  <a class="btn" href="#" data-ipw-theme-role="primary-action">Get started</a>
+</header>
+<main>
+  <section class="hero" data-ipw-theme-role="section">
+    <div class="wrap">
+      <div class="eyebrow" data-ipw-theme-role="accent">Design, reimagined</div>
+      <h1 data-ipw-theme-role="heading">Every great product starts with a blank canvas.</h1>
+      <p class="lede" data-ipw-theme-role="muted">Ask DeepSeek Harness to build your idea, then refine every detail directly in Studio — colors, type, layout, and content.</p>
+      <div class="actions">
+        <a class="btn" href="#" data-ipw-theme-role="primary-action">Start designing</a>
+        <a class="btn" href="#" data-ipw-theme-role="secondary-action">Explore templates</a>
+      </div>
+    </div>
+  </section>
+  <section class="features wrap" data-ipw-theme-role="section">
+    <article class="feature" data-ipw-theme-role="card">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg></div>
+      <h3>Token-driven theming</h3>
+      <p>Every color, font, radius, and spacing reads from design tokens, so the whole page restyles from one place.</p>
+    </article>
+    <article class="feature" data-ipw-theme-role="card">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <h3>Editable in Studio</h3>
+      <p>Select any element on the canvas and fine-tune it directly — no code required.</p>
+    </article>
+    <article class="feature" data-ipw-theme-role="card">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/></svg></div>
+      <h3>AI-first workflow</h3>
+      <p>Describe what you want in chat; the agent writes the files, and you keep the final word in the canvas.</p>
+    </article>
+  </section>
+  <section class="cta-band wrap" data-ipw-theme-role="section">
+    <h2>Ready to make something people remember?</h2>
+    <p>Start from this page or pick a template — then let the conversation carry the design forward.</p>
+    <a class="btn" href="#">Ask DeepSeek Harness</a>
+  </section>
+</main>
+<footer class="site-footer" data-ipw-theme-role="muted"><div class="wrap">Made with dsh-ui-design · DeepSeek Harness</div></footer>
+</body>
+</html>`;
 }
 function allowsTemplate(runtime, manifest) {
 	return manifest.surface === "design" && isCustomerVisibleBundledTemplate(manifest) && (runtime.mode === "slides" ? manifest.category === "slides" : manifest.category !== "slides");

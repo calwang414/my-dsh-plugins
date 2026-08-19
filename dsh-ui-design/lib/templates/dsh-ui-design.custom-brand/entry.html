@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Brand</title>
+<link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding-inline:var(--ipw-page-padding);background-color:var(--ipw-color-bg);color:var(--ipw-color-text);font-family:var(--ipw-font-body);line-height:var(--ipw-body-line-height);-webkit-font-smoothing:antialiased}
+.wrap{width:min(var(--ipw-content-width),100%);margin:0 auto}
+.site-nav{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-block:18px;border-bottom:1px solid var(--ipw-color-border)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--ipw-font-display);font-weight:700;font-size:1.15rem}
+.brand-mark{width:10px;height:10px;border-radius:50%;background:var(--ipw-color-accent)}
+.links{display:flex;gap:22px;font-size:.95rem}
+.links a{color:var(--ipw-color-muted);text-decoration:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:.7em 1.5em;border:1px solid transparent;border-radius:var(--ipw-button-radius);font-weight:600;font-size:.95rem;text-decoration:none}
+.btn[data-ipw-theme-role="primary-action"]{background:var(--ipw-color-primary);border-color:var(--ipw-color-primary);color:var(--ipw-color-on-primary)}
+.btn[data-ipw-theme-role="secondary-action"]{background:var(--ipw-color-surface);border-color:var(--ipw-color-border);color:var(--ipw-color-text)}
+.hero{padding-block:clamp(72px,14vh,140px);text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase}
+.eyebrow::before,.eyebrow::after{content:"";width:28px;height:1px;background:currentColor;opacity:.5}
+h1{max-width:16ch;margin:22px auto 0;font-family:var(--ipw-font-display);font-size:clamp(2.6rem,7.5vw,5.4rem);line-height:1.04;letter-spacing:-.035em}
+.lede{max-width:52ch;margin:22px auto 0;color:var(--ipw-color-muted);font-size:clamp(1.02rem,1.6vw,1.2rem)}
+.actions{display:flex;justify-content:center;gap:14px;margin-top:38px;flex-wrap:wrap}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;padding-block:var(--ipw-section-space)}
+.feature{padding:30px 26px;border:1px solid var(--ipw-card-border);border-radius:var(--ipw-card-radius);background:var(--ipw-card-bg);box-shadow:var(--ipw-card-shadow)}
+.feature-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:var(--ipw-color-secondary);color:var(--ipw-color-primary);margin-bottom:18px}
+.feature h3{margin:0 0 8px;font-family:var(--ipw-font-display);font-size:1.3rem}
+.feature p{margin:0;color:var(--ipw-color-muted);font-size:.95rem}
+.site-footer{padding-block:26px;border-top:1px solid var(--ipw-color-border);color:var(--ipw-color-muted);font-size:.85rem;text-align:center}
+@media (max-width:640px){.links{display:none}.actions{flex-direction:column}.actions .btn{width:100%}}
+</style>
+</head>
+<body data-ipw-theme-role="page">
+<header class="site-nav wrap">
+  <div class="brand"><span class="brand-mark"></span>My Brand</div>
+  <nav class="links"><a href="#">功能</a><a href="#">案例</a><a href="#">定价</a></nav>
+  <a class="btn" href="#" data-ipw-theme-role="primary-action">开始使用</a>
+</header>
+<main>
+  <section class="hero" data-ipw-theme-role="section">
+    <div class="wrap">
+      <div class="eyebrow" data-ipw-theme-role="accent">我的品牌</div>
+      <h1 data-ipw-theme-role="heading">你的品牌主张,在这里展开。</h1>
+      <p class="lede" data-ipw-theme-role="muted">替换这里的文案与设计令牌,让模板呈现你自己的品牌形象。</p>
+      <div class="actions">
+        <a class="btn" href="#" data-ipw-theme-role="primary-action">主要行动</a>
+        <a class="btn" href="#" data-ipw-theme-role="secondary-action">次要行动</a>
+      </div>
+    </div>
+  </section>
+  <section class="features wrap" data-ipw-theme-role="section">
+    <article class="feature" data-ipw-theme-role="card">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg></div>
+      <h3>特性一</h3>
+      <p>在这里描述你的第一个核心特性。</p>
+    </article>
+    <article class="feature" data-ipw-theme-role="card">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <h3>特性二</h3>
+      <p>在这里描述你的第二个核心特性。</p>
+    </article>
+    <article class="feature" data-ipw-theme-role="card">
+      <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/></svg></div>
+      <h3>特性三</h3>
+      <p>在这里描述你的第三个核心特性。</p>
+    </article>
+  </section>
+</main>
+<footer class="site-footer" data-ipw-theme-role="muted"><div class="wrap">My Brand · 由 dsh-ui-design 制作</div></footer>
+</body>
+</html>

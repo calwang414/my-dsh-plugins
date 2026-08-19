@@ -1,0 +1,35 @@
+/* ============================================================
+   My Brand · 自定义品牌模板 — 设计令牌
+   在这里定义你的品牌:颜色 / 字体 / 圆角 / 阴影 / 间距
+   ============================================================ */
+:root {
+  --ipw-color-primary: #5b50e6;
+  --ipw-color-secondary: #dcd8ff;
+  --ipw-color-accent: #f26b38;
+  --ipw-color-bg: #f2f0eb;
+  --ipw-color-surface: #ffffff;
+  --ipw-color-text: #171717;
+  --ipw-color-muted: #66645f;
+  --ipw-color-border: #d7d3ca;
+  --ipw-color-on-primary: #ffffff;
+  --ipw-font-display: Georgia, serif;
+  --ipw-font-body: Arial, sans-serif;
+  --ipw-type-scale: 1;
+  --ipw-body-line-height: 1.6;
+  --ipw-content-width: 1180px;
+  --ipw-page-padding: 32px;
+  --ipw-section-space: 96px;
+  --ipw-button-radius: 999px;
+  --ipw-card-bg: #ffffff;
+  --ipw-card-border: #d7d3ca;
+  --ipw-card-radius: 24px;
+  --ipw-card-shadow: 0 24px 70px rgb(24 20 14 / 10%);
+}
+html { color-scheme: light; }
+body { background-color: var(--ipw-color-bg) !important; color: var(--ipw-color-text); font-family: var(--ipw-font-body); line-height: var(--ipw-body-line-height); }
+h1, h2, h3, h4 { font-family: var(--ipw-font-display); }
+a, button, [role="button"] { border-radius: var(--ipw-button-radius); }
+::selection { background: color-mix(in srgb, var(--ipw-color-accent) 32%, transparent); }
+:is([class*="eyebrow"], [class*="kicker"], [class*="accent"]) { color: var(--ipw-color-accent) !important; }
+:is(button, [role="button"], a[class*="button"], a[class*="btn"], a[class*="cta"]) { border-color: var(--ipw-color-primary); }
+:is(article, [class*="card"]) { border-color: var(--ipw-card-border); border-radius: var(--ipw-card-radius); }

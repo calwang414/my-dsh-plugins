@@ -22,6 +22,28 @@ design/
 - 页面样式引用变量(`var(--ipw-color-primary)` 等),**不要**把具体值硬编码散落在页面里;
 - 换主题 = 改令牌,而不是逐元素改样式。
 
+### 样式必须内联(画布只加载内联样式)
+
+Design/PPT 画布用 iframe 渲染页面,**只内联 `design-tokens.css`**(带 `data-ipw-design-tokens` 的 link),其他外部 CSS 一律不加载(相对路径会 404):
+
+- 页面**所有样式必须写在 HTML 的 `<style>` 内**,不要创建 `app.css` 等额外 CSS 文件;
+- 多个页面需要共享样式时,把相同 `<style>` 复制到每个页面;
+- 外部资源(图片/字体)用绝对 URL,不要用相对路径(画布 iframe 的基准路径不是项目目录)。
+
+### 画布注入的类名规则(会被 !important 强制覆盖)
+
+Studio 会向画布注入主题规则,以下类名/标签的样式会被 token 值**强制覆盖**(无论页面怎么写):
+
+| 命中元素 | 被强制为 |
+|---|---|
+| `body[data-ipw-theme-role="page"]` / `.page` / `.shell` / `.app-shell` | 左右内边距 `--ipw-page-padding`、文字色 `--ipw-color-text` |
+| `article` / `.card` / `.panel` / `.tile` / `.task` / `[data-ipw-theme-role="card"]` | 卡片底色/边框/阴影/圆角(`--ipw-card-*`) |
+| `.primary` / `.cta-primary` / `.button-primary` / `.btn-primary` | 主色底 + `--ipw-color-on-primary` 文字 |
+| `.muted` / `.subtle` / `.lede` / `.subtitle` / `.description` | 弱化文字色 `--ipw-color-muted` |
+| `.eyebrow` / `.kicker` | 强调色 `--ipw-color-accent` |
+
+应对:**直接用 token 变量设计这些元素**(被覆盖后视觉一致),或改用不冲突的类名(如 `agent-card`、`hero-title`)。注意 `btn--primary`(双连字符)不匹配 `.btn-primary`,不受影响。`--ipw-color-on-primary` 若未在 tokens 定义,按钮文字色会失效——设计含按钮的页面时在 tokens.css 里定义它。
+
 ## 多页面
 
 一个项目可以包含多个页面,注册表在 `design/manifest.json` 的 `pages` 字段:
@@ -56,6 +78,7 @@ design/
 
 ## 约束
 
+- `manifest.json` 的 `style` 字段必须是以下枚举之一:`minimal`、`editorial`、`newsprint`、`swiss`、`bold`、`soft`、`pastel`、`glass`、`dark`、`cyber`、`technical`、`playful`、`cinematic`、`data`、`brutalist`、`retro`、`sketch`、`custom`(写其他值会导致 Design 页面加载失败);
 - 只修改 `{{cwd}}/design/` 内的文件;
 - 除非用户要求整体重设计,否则保持现有结构;
 - design/ 被所有设计模式会话共享:保存前先读当前文件,避免覆盖他人的最新修改;

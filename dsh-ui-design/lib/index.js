@@ -3449,14 +3449,11 @@ const templateStyleSchema = _enum([
 	"bold",
 	"soft",
 	"pastel",
-	"glass",
 	"dark",
 	"cyber",
 	"technical",
 	"playful",
 	"data",
-	"retro",
-	"sketch",
 	"custom"
 ]);
 const templateVariableSchema = object({
@@ -3883,7 +3880,7 @@ function bundledTemplates(runtime) {
 	});
 	return runtime.templatePromise;
 }
-const TEMPLATE_STYLES = new Set(["minimal","editorial","newsprint","bold","soft","pastel","glass","dark","cyber","technical","playful","data","retro","sketch","custom"]);
+const TEMPLATE_STYLES = new Set(["minimal","editorial","newsprint","bold","soft","pastel","dark","cyber","technical","playful","data","custom"]);
 function parseProjectManifest(text) {
 	const raw = JSON.parse(text);
 	if (raw && typeof raw === "object" && typeof raw.style === "string" && !TEMPLATE_STYLES.has(raw.style)) {

@@ -389,7 +389,20 @@ export function apply(ctx) {
     kind: 'exact',
     path: '/voice-pet/vrm',
     handler: (req, res) => {
-      const file = resolveVrmPath()
+      // ?id=default → 默认形象;?id=<数字> → 用户上传形象;无参数 → 当前激活形象(兼容旧调用)
+      let file
+      const u = new URL(req.url, 'http://localhost')
+      const id = u.searchParams.get('id')
+      if (id === 'default') {
+        file = path.join(ASSETS_DIR, 'cal-vrm.vrm')
+      } else if (id && /^\d+$/.test(id)) {
+        file = path.join(AVATARS_DIR, id + '.vrm')
+      } else if (id) {
+        res.writeHead(400).end()
+        return
+      } else {
+        file = resolveVrmPath()
+      }
       if (!fs.existsSync(file)) {
         res.writeHead(404).end()
         return

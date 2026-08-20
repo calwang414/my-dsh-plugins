@@ -4,6 +4,9 @@
  *  - settings.section:设置页「语音桌宠」(自建 /voice-pet/config 通道,settings 服务对第三方 namespace 有白名单限制)
  */
 import React from 'react'
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
 import { IconLoadingOutline16, IconPauseOutline16, IconPlayOutline16, IconStopFill16, IconWarningOutline16 } from '@deepseek-ai/dsh-client-ui-primitives'
 import { mountPet } from './pet.js'
 
@@ -118,6 +121,91 @@ function CardIcon({ kind }) {
   return React.createElement('svg', common,
     React.createElement('path', { d: 'M4.5 13h7a2.5 2.5 0 0 0 .4-4.97A4 4 0 0 0 4.2 6.3 3 3 0 0 0 4.5 13z' }))
 }
+// VRM 形象 3D 预览(慢速自转,便于辨认;卸载时释放渲染器)
+function VrmPreview({ id, height }) {
+  const ref = React.useRef(null)
+  const [failed, setFailed] = React.useState(false)
+  React.useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    setFailed(false)
+    let disposed = false
+    let renderer = null
+    let raf = 0
+    const scene = new THREE.Scene()
+    const camera = new THREE.PerspectiveCamera(30, el.clientWidth / Math.max(el.clientHeight, 1), 0.1, 20)
+    camera.position.set(0.45, 1.05, 2.5)
+    camera.lookAt(0, 0.85, 0)
+    const loader = new GLTFLoader()
+    loader.register((parser) => new VRMLoaderPlugin(parser))
+    fetch(id && id !== 'default' ? '/voice-pet/vrm?id=' + encodeURIComponent(id) : '/voice-pet/vrm?id=default')
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error('http ' + r.status))))
+      .then((buffer) => new Promise((resolve, reject) => loader.parse(buffer, '', resolve, reject)))
+      .then((gltf) => {
+        if (disposed) return
+        const vrm = gltf.userData.vrm
+        VRMUtils.removeUnnecessaryVertices(vrm.scene)
+        VRMUtils.rotateVRM0(vrm)
+        scene.add(vrm.scene)
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true })
+        renderer.setClearColor(0x000000, 0)
+        renderer.setSize(el.clientWidth, el.clientHeight)
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+        el.appendChild(renderer.domElement)
+        const tick = () => {
+          if (disposed) return
+          vrm.scene.rotation.y += 0.005
+          vrm.update(0.016)
+          renderer.render(scene, camera)
+          raf = requestAnimationFrame(tick)
+        }
+        tick()
+      })
+      .catch(() => {
+        if (!disposed) setFailed(true)
+      })
+    return () => {
+      disposed = true
+      cancelAnimationFrame(raf)
+      if (renderer) {
+        renderer.dispose()
+        renderer.domElement.remove()
+      }
+    }
+  }, [id])
+  return React.createElement('div', {
+    ref,
+    style: {
+      width: '100%', height: height ?? 80,
+      background: 'linear-gradient(180deg, var(--dsw-alias-bg-layer-2), var(--dsw-alias-bg-layer-1))',
+      borderRadius: 6, overflow: 'hidden',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: 'var(--dsw-alias-label-tertiary)', fontSize: 11,
+    },
+  }, failed ? '预览失败' : null)
+}
+
+// 形象选择卡片:VRM 3D 预览 + 名称 + 选中态
+function AvatarCard({ active, disabled, name, id, onClick }) {
+  return React.createElement('button', {
+    type: 'button', disabled, onClick, title: name,
+    style: {
+      flex: 1, minWidth: 0, padding: 4, borderRadius: 10, cursor: disabled ? 'not-allowed' : 'pointer',
+      textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'stretch',
+      border: '1px solid ' + (active ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-border-l1)'),
+      background: active ? 'color-mix(in srgb, var(--dsw-alias-brand-primary) 8%, var(--dsw-alias-bg-layer-1))' : 'var(--dsw-alias-bg-layer-1)',
+      opacity: disabled ? 0.45 : 1,
+      transition: 'border-color .15s, background .15s',
+    },
+  },
+    React.createElement(VrmPreview, { id: id ?? '', height: 74 }),
+    React.createElement('span', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4, padding: '0 4px 2px' } },
+      React.createElement('span', { style: { fontSize: 12, color: active ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-label-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, name),
+      active ? React.createElement('svg', { width: 13, height: 13, viewBox: '0 0 16 16', fill: 'none', stroke: 'var(--dsw-alias-brand-primary)', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', flexShrink: 0 },
+        React.createElement('path', { d: 'M3 8.5L6.5 12L13 4.5' })) : null),
+  )
+}
+
 // 桌宠显示模式卡片(选中:品牌色边框 + 浅品牌背景 + 勾选)
 function ModeCard({ active, disabled, title, desc, icon, onClick }) {
   return React.createElement('button', {
@@ -472,13 +560,15 @@ function VoiceSettingsPage() {
               React.createElement('input', { type: 'range', min: 50, max: sizeMax, step: 5, style: { width: 140 }, value: sizeShown, disabled: !writable, onChange: (e) => patch({ petSize: Number(e.target.value) / 100 }) }),
               React.createElement('span', { style: { fontSize: 13, color: 'var(--dsw-alias-label-secondary)', width: 44, textAlign: 'right' } }, sizeShown + '%')),
             React.createElement(Row, { title: '桌宠形象', desc: '上传 VRM 1.0/0.x 模型;动画需标准人形骨骼,非人形模型仅静态展示' },
-              React.createElement('select', { style: { ...inputStyle, width: 140 }, value: value?.avatarId ?? '', disabled: !writable, onChange: onAvatar },
-                React.createElement('option', { value: '' }, '默认形象'),
-                avatars.filter((a) => a.custom).map((a) => React.createElement('option', { key: a.id, value: a.id }, a.name))),
-              React.createElement('button', { type: 'button', style: { ...inputStyle, width: 'auto', flexShrink: 0, cursor: 'pointer' }, onClick: () => fileRef.current && fileRef.current.click() }, '上传'),
-              value?.avatarId ? React.createElement('button', { type: 'button', style: { ...inputStyle, width: 'auto', flexShrink: 0, cursor: 'pointer', color: 'var(--dsw-alias-state-error-primary)' }, onClick: onDeleteAvatar }, '删除') : null),
-            React.createElement('input', { ref: fileRef, type: 'file', accept: '.vrm', style: { display: 'none' }, onChange: onFileChosen }),
-            avatarMsg ? React.createElement('span', { style: { display: 'block', marginTop: 4, fontSize: 11, color: 'var(--dsw-alias-label-secondary)' } }, avatarMsg) : null),
+              React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 6, width: 300, flexShrink: 0 } },
+                React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 6 } },
+                  React.createElement(AvatarCard, { active: !value?.avatarId, disabled: !writable, name: '默认形象', id: 'default', onClick: () => onAvatar({ target: { value: '' } }) }),
+                  avatars.filter((a) => a.custom).map((a) => React.createElement(AvatarCard, { key: a.id, active: value?.avatarId === a.id, disabled: !writable, name: a.name, id: a.id, onClick: () => onAvatar({ target: { value: a.id } }) }))),
+                React.createElement('div', { style: { display: 'flex', gap: 6, alignItems: 'center' } },
+                  React.createElement('button', { type: 'button', style: { ...inputStyle, width: 'auto', flexShrink: 0, cursor: 'pointer', padding: '3px 10px' }, onClick: () => fileRef.current && fileRef.current.click() }, '上传新形象'),
+                  value?.avatarId ? React.createElement('button', { type: 'button', style: { ...inputStyle, width: 'auto', flexShrink: 0, cursor: 'pointer', padding: '3px 10px', color: 'var(--dsw-alias-state-error-primary)' }, onClick: onDeleteAvatar }, '删除') : null,
+                  avatarMsg ? React.createElement('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, avatarMsg) : null))),
+            React.createElement('input', { ref: fileRef, type: 'file', accept: '.vrm', style: { display: 'none' }, onChange: onFileChosen })),
           React.createElement(Group, { title: '唤醒' },
             React.createElement(Row, { title: '唤醒词', desc: '纯中文词命中率更高,如:小希小希' },
               React.createElement('textarea', { style: { ...inputStyle, width: 300, minHeight: 56, resize: 'vertical' }, value: wakeWords.join('\n'), disabled: !writable, onChange: onWakeWords }))),

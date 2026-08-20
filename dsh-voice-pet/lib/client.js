@@ -51605,6 +51605,122 @@ function CardIcon({ kind }) {
 	if (kind === "voice") return react.default.createElement("svg", common, react.default.createElement("path", { d: "M2 6.5v3a1 1 0 0 0 1 1h2l4.5 3.2V2.3L5 5.5H3a1 1 0 0 0-1 1z" }), react.default.createElement("path", { d: "M11 6.2a3.2 3.2 0 0 1 0 3.6M12.9 4.6a5.6 5.6 0 0 1 0 6.8" }));
 	return react.default.createElement("svg", common, react.default.createElement("path", { d: "M4.5 13h7a2.5 2.5 0 0 0 .4-4.97A4 4 0 0 0 4.2 6.3 3 3 0 0 0 4.5 13z" }));
 }
+function VrmPreview({ id, height }) {
+	const ref = react.default.useRef(null);
+	const [failed, setFailed] = react.default.useState(false);
+	react.default.useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+		setFailed(false);
+		let disposed = false;
+		let renderer = null;
+		let raf = 0;
+		const scene = new Scene();
+		const camera = new PerspectiveCamera(30, el.clientWidth / Math.max(el.clientHeight, 1), .1, 20);
+		camera.position.set(.45, 1.05, 2.5);
+		camera.lookAt(0, .85, 0);
+		const loader = new GLTFLoader();
+		loader.register((parser) => new VRMLoaderPlugin(parser));
+		fetch(id && id !== "default" ? "/voice-pet/vrm?id=" + encodeURIComponent(id) : "/voice-pet/vrm?id=default").then((r) => r.ok ? r.arrayBuffer() : Promise.reject(/* @__PURE__ */ new Error("http " + r.status))).then((buffer) => new Promise((resolve, reject) => loader.parse(buffer, "", resolve, reject))).then((gltf) => {
+			if (disposed) return;
+			const vrm = gltf.userData.vrm;
+			VRMUtils.removeUnnecessaryVertices(vrm.scene);
+			VRMUtils.rotateVRM0(vrm);
+			scene.add(vrm.scene);
+			renderer = new WebGLRenderer({
+				antialias: true,
+				alpha: true,
+				preserveDrawingBuffer: true
+			});
+			renderer.setClearColor(0, 0);
+			renderer.setSize(el.clientWidth, el.clientHeight);
+			renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+			el.appendChild(renderer.domElement);
+			const tick = () => {
+				if (disposed) return;
+				vrm.scene.rotation.y += .005;
+				vrm.update(.016);
+				renderer.render(scene, camera);
+				raf = requestAnimationFrame(tick);
+			};
+			tick();
+		}).catch(() => {
+			if (!disposed) setFailed(true);
+		});
+		return () => {
+			disposed = true;
+			cancelAnimationFrame(raf);
+			if (renderer) {
+				renderer.dispose();
+				renderer.domElement.remove();
+			}
+		};
+	}, [id]);
+	return react.default.createElement("div", {
+		ref,
+		style: {
+			width: "100%",
+			height: height ?? 80,
+			background: "linear-gradient(180deg, var(--dsw-alias-bg-layer-2), var(--dsw-alias-bg-layer-1))",
+			borderRadius: 6,
+			overflow: "hidden",
+			display: "flex",
+			alignItems: "center",
+			justifyContent: "center",
+			color: "var(--dsw-alias-label-tertiary)",
+			fontSize: 11
+		}
+	}, failed ? "预览失败" : null);
+}
+function AvatarCard({ active, disabled, name, id, onClick }) {
+	return react.default.createElement("button", {
+		type: "button",
+		disabled,
+		onClick,
+		title: name,
+		style: {
+			flex: 1,
+			minWidth: 0,
+			padding: 4,
+			borderRadius: 10,
+			cursor: disabled ? "not-allowed" : "pointer",
+			textAlign: "left",
+			display: "flex",
+			flexDirection: "column",
+			gap: 4,
+			alignItems: "stretch",
+			border: "1px solid " + (active ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-border-l1)"),
+			background: active ? "color-mix(in srgb, var(--dsw-alias-brand-primary) 8%, var(--dsw-alias-bg-layer-1))" : "var(--dsw-alias-bg-layer-1)",
+			opacity: disabled ? .45 : 1,
+			transition: "border-color .15s, background .15s"
+		}
+	}, react.default.createElement(VrmPreview, {
+		id: id ?? "",
+		height: 74
+	}), react.default.createElement("span", { style: {
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "space-between",
+		gap: 4,
+		padding: "0 4px 2px"
+	} }, react.default.createElement("span", { style: {
+		fontSize: 12,
+		color: active ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-label-primary)",
+		overflow: "hidden",
+		textOverflow: "ellipsis",
+		whiteSpace: "nowrap"
+	} }, name), active ? react.default.createElement("svg", {
+		width: 13,
+		height: 13,
+		viewBox: "0 0 16 16",
+		fill: "none",
+		stroke: "var(--dsw-alias-brand-primary)",
+		strokeWidth: 1.8,
+		strokeLinecap: "round",
+		strokeLinejoin: "round",
+		flexShrink: 0
+	}, react.default.createElement("path", { d: "M3 8.5L6.5 12L13 4.5" })) : null));
+}
 function ModeCard({ active, disabled, title, desc, icon, onClick }) {
 	return react.default.createElement("button", {
 		type: "button",
@@ -51995,48 +52111,67 @@ function VoiceSettingsPage() {
 	} }, sizeShown + "%")), react.default.createElement(Row, {
 		title: "桌宠形象",
 		desc: "上传 VRM 1.0/0.x 模型;动画需标准人形骨骼,非人形模型仅静态展示"
-	}, react.default.createElement("select", {
-		style: {
-			...inputStyle,
-			width: 140
-		},
-		value: value?.avatarId ?? "",
+	}, react.default.createElement("div", { style: {
+		display: "flex",
+		flexDirection: "column",
+		gap: 6,
+		width: 300,
+		flexShrink: 0
+	} }, react.default.createElement("div", { style: {
+		display: "grid",
+		gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+		gap: 6
+	} }, react.default.createElement(AvatarCard, {
+		active: !value?.avatarId,
 		disabled: false,
-		onChange: onAvatar
-	}, react.default.createElement("option", { value: "" }, "默认形象"), avatars.filter((a) => a.custom).map((a) => react.default.createElement("option", {
+		name: "默认形象",
+		id: "default",
+		onClick: () => onAvatar({ target: { value: "" } })
+	}), avatars.filter((a) => a.custom).map((a) => react.default.createElement(AvatarCard, {
 		key: a.id,
-		value: a.id
-	}, a.name))), react.default.createElement("button", {
-		type: "button",
-		style: {
-			...inputStyle,
-			width: "auto",
-			flexShrink: 0,
-			cursor: "pointer"
-		},
-		onClick: () => fileRef.current && fileRef.current.click()
-	}, "上传"), value?.avatarId ? react.default.createElement("button", {
+		active: value?.avatarId === a.id,
+		disabled: false,
+		name: a.name,
+		id: a.id,
+		onClick: () => onAvatar({ target: { value: a.id } })
+	}))), react.default.createElement("div", { style: {
+		display: "flex",
+		gap: 6,
+		alignItems: "center"
+	} }, react.default.createElement("button", {
 		type: "button",
 		style: {
 			...inputStyle,
 			width: "auto",
 			flexShrink: 0,
 			cursor: "pointer",
+			padding: "3px 10px"
+		},
+		onClick: () => fileRef.current && fileRef.current.click()
+	}, "上传新形象"), value?.avatarId ? react.default.createElement("button", {
+		type: "button",
+		style: {
+			...inputStyle,
+			width: "auto",
+			flexShrink: 0,
+			cursor: "pointer",
+			padding: "3px 10px",
 			color: "var(--dsw-alias-state-error-primary)"
 		},
 		onClick: onDeleteAvatar
-	}, "删除") : null), react.default.createElement("input", {
+	}, "删除") : null, avatarMsg ? react.default.createElement("span", { style: {
+		fontSize: 11,
+		color: "var(--dsw-alias-label-secondary)",
+		overflow: "hidden",
+		textOverflow: "ellipsis",
+		whiteSpace: "nowrap"
+	} }, avatarMsg) : null))), react.default.createElement("input", {
 		ref: fileRef,
 		type: "file",
 		accept: ".vrm",
 		style: { display: "none" },
 		onChange: onFileChosen
-	}), avatarMsg ? react.default.createElement("span", { style: {
-		display: "block",
-		marginTop: 4,
-		fontSize: 11,
-		color: "var(--dsw-alias-label-secondary)"
-	} }, avatarMsg) : null), react.default.createElement(Group, { title: "唤醒" }, react.default.createElement(Row, {
+	})), react.default.createElement(Group, { title: "唤醒" }, react.default.createElement(Row, {
 		title: "唤醒词",
 		desc: "纯中文词命中率更高,如:小希小希"
 	}, react.default.createElement("textarea", {

@@ -133,6 +133,14 @@ function VrmPreview({ id, height }) {
     let renderer = null
     let raf = 0
     const scene = new THREE.Scene()
+    // 与桌宠渲染一致的三点打光(VRM 材质无光时渲染为黑色)
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xbbbbbb, 0.9))
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2)
+    mainLight.position.set(1, 2, 3)
+    scene.add(mainLight)
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.6)
+    rimLight.position.set(-1, 1, -2)
+    scene.add(rimLight)
     const camera = new THREE.PerspectiveCamera(30, el.clientWidth / Math.max(el.clientHeight, 1), 0.1, 20)
     camera.position.set(0.45, 1.05, 2.5)
     camera.lookAt(0, 0.85, 0)

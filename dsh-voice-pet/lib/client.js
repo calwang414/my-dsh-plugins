@@ -51616,6 +51616,13 @@ function VrmPreview({ id, height }) {
 		let renderer = null;
 		let raf = 0;
 		const scene = new Scene();
+		scene.add(new HemisphereLight(16777215, 12303291, .9));
+		const mainLight = new DirectionalLight(16777215, 1.2);
+		mainLight.position.set(1, 2, 3);
+		scene.add(mainLight);
+		const rimLight = new DirectionalLight(16777215, .6);
+		rimLight.position.set(-1, 1, -2);
+		scene.add(rimLight);
 		const camera = new PerspectiveCamera(30, el.clientWidth / Math.max(el.clientHeight, 1), .1, 20);
 		camera.position.set(.45, 1.05, 2.5);
 		camera.lookAt(0, .85, 0);

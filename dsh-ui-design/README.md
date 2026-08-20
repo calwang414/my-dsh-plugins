@@ -86,13 +86,13 @@ dsh-ui-design/
 - **PSD**：基于 [ag-psd](https://github.com/Agamnentzar/ag-psd)（MIT），P0 方案为「分层截图」——
   每个可见元素用 html2canvas 单独截图生成一个图层（像素级保真、图层与 DOM 顺序一致），
   文本暂为图片层（可编辑文本层的语义映射为后续增强）。
-- **固定目录输出**（不是浏览器下载）：首次导出时浏览器弹出目录选择器，
-  选一次输出目录（建议工作区 `design/output/`），目录句柄存入 IndexedDB，
-  之后每次导出直接写入该固定目录（覆盖同名文件），不再询问。
+- **固定目录输出**（不是浏览器下载）：每次导出直接把文件写入工作区
+  `design/output/` 固定目录（自动创建，覆盖同名文件），通过 Host 的
+  `POST /api/design-source` 通道完成，浏览器不触发下载。
 - 两者复用同一导出骨架：隐藏 iframe 重建预览页面（无 sandbox）→ 锁定与预览一致的视口 →
   颜色烘焙（`color-mix`/`oklab` 等 CSS Color 4 语法计算值归一化为 rgba）→ 字体就绪 → 生成文件。
 - 新增静态资源：`studio/dist/assets/html2sketch.min.js`、`ag-psd.bundle.js`、`jszip-standalone.min.js`、
-  `design-source-export-v6.js`（导出逻辑，由主 bundle 动态 import）。
+  `design-source-export-v7.js`（导出逻辑，由主 bundle 动态 import）。
 
 **还原度边界**（设计源文件是绝对定位图层树，与 HTML 流式布局语义不同，导出为有损近似）：
 

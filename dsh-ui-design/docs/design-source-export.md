@@ -1,14 +1,15 @@
 # 集成设计：页面导出为 PSD / Sketch 设计源文件
 
-> **实现状态（2026-08-20，v2）**：P0 已实现并验证 —— design 模式「下载」菜单提供
+> **实现状态（2026-08-20，v3）**：P0 已实现并验证 —— design 模式「下载」菜单提供
 > 「导出 Sketch」（html2sketch + JSZip 组装）与「导出 PSD」（分层截图 + ag-psd），
-> PPT/slides 模式不提供。输出为**固定目录写入**而非浏览器下载：首次导出用
-> File System Access API（`showDirectoryPicker`）选择一次输出目录（建议
-> `design/output/`），句柄存 IndexedDB，之后直接写入（覆盖同名文件）。
-> 图标与 PPT 模式一致（下载箭头）；菜单项文案「导出 Sketch / 导出 PSD」。
+> PPT/slides 模式不提供。输出为**固定目录写入**：客户端把生成文件（base64）经
+> Host 新增的 `POST /api/design-source` 写入工作区 `design/[projectId]/output/`
+> 固定目录（自动创建，覆盖同名文件），不触发浏览器下载。图标与 PPT 模式一致
+> （下载箭头）；菜单项文案「导出 Sketch / 导出 PSD」；成功后 toast 显示保存路径。
 > 静态资源：`studio/dist/assets/html2sketch.min.js`、`ag-psd.bundle.js`、
-> `jszip-standalone.min.js`、`design-source-export-v6.js`。主 bundle `index-EPv19.js`
+> `jszip-standalone.min.js`、`design-source-export-v7.js`。主 bundle `index-EPv20.js`
 > （`window.__dshExportSource(kind)` 入口 + WP 菜单注入 + 10 语言 i18n）。
+> Host 侧：`lib/index.js` 新增 `/design-source` 路由（需重启应用生效，由用户执行）。
 > 未实现：PSD 语义图层映射（P1）、图层命名语义化（P1）、大文档阈值与降级（P1）。
 
 

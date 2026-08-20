@@ -4294,6 +4294,28 @@ async function handleApi(runtime, ctx, req, res, url) {
 		sendJson(res, 200, await writeText(workspaceRoot(ctx, bodyWorkspaceId), path, content, typeof rawBaseUpdatedAt === "number" ? rawBaseUpdatedAt : null, field(body, "force") === true));
 		return;
 	}
+	if (req.method === "POST" && action === "/design-source") {
+		// 设计源文件导出(PSD/Sketch):把客户端生成的二进制(base64)写入项目的
+		// design/[projectId]/output/ 固定目录,不触发浏览器下载。
+		const body = await requestJson(req);
+		const root = workspaceRoot(ctx, stringField(field(body, "workspaceId"), "workspaceId"));
+		const sessionId = stringField(field(body, "sessionId"), "sessionId");
+		const filename = stringField(field(body, "filename"), "filename");
+		const data = field(body, "data");
+		if (typeof data !== "string" || data.length === 0) throw new HttpError(400, "Missing data.");
+		const projectId = projectSessionId(runtime, sessionId);
+		const projectRel = projectId ? `design/${projectId}` : "design";
+		const output = await verifiedWritePath(root, `${projectRel}/output`);
+		// verifiedWritePath 把末段视为文件名,这里补建 output 目录本身。
+		await mkdir(output, { recursive: true });
+		const safeName = basename(filename).replace(/[^\w.\-]/g, "_") || "design-source";
+		const target = resolve(output, safeName);
+		if (!inside(output, target)) throw new HttpError(403, "Design source filename escaped its directory.");
+		const content = Buffer.from(data, "base64");
+		await writeFile(target, content);
+		sendJson(res, 200, { path: `${projectRel}/output/${safeName}`, size: content.length });
+		return;
+	}
 	if (req.method === "GET" && action === "/raw") {
 		const path = url.searchParams.get("path")?.trim();
 		if (!workspaceId || !path) throw new HttpError(400, "Missing workspaceId or path.");

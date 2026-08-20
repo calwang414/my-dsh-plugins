@@ -180,6 +180,12 @@ window.__ModuleLoader__.load({
 						frame.contentWindow.postMessage({ channel: "dsh-ui-design-studio-host-v1", type: "open-templates" }, window.location.origin);
 					}
 				};
+				const openDesignSystem = () => {
+					const frame = iframeRef.current;
+					if (frame?.contentWindow) {
+						frame.contentWindow.postMessage({ channel: "dsh-ui-design-studio-host-v1", type: "open-design-system" }, window.location.origin);
+					}
+				};
 
 				const pageBar = pageModel && pageModel.pages.length > 0
 					? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
@@ -246,17 +252,26 @@ window.__ModuleLoader__.load({
 						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("strong", {
 							style: titleStyle,
 							children: options.studioTitle
-						})] }), pageBar, /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
-							type: "button",
-							style: buttonStyle,
-							onClick: () => inputActions.setDraft([
-								`Help me improve the current ${options.studioTitle} document.`,
-								"Project: design/",
-								"Read manifest.json, then read its entry file and linked design-tokens.css before editing.",
-								"Preserve the existing structure unless I request a redesign.",
-								"My requested change:"
-							].join("\n")),
-							children: "Ask AI"
+						})] }), pageBar, /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+							style: headerActionsStyle,
+							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								style: buttonStyle,
+								onClick: () => inputActions.setDraft([
+									`Help me improve the current ${options.studioTitle} document.`,
+									"Project: design/",
+									"Read manifest.json, then read its entry file and linked design-tokens.css before editing.",
+									"Preserve the existing structure unless I request a redesign.",
+									"My requested change:"
+								].join("\n")),
+								children: "Ask AI"
+							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								style: buttonStyle,
+								onClick: () => void openDesignSystem(),
+								title: "选择全局设计规范",
+								children: "设计规范"
+							})]
 						})]
 					}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("iframe", {
 						key: reloadKey,
@@ -318,6 +333,12 @@ window.__ModuleLoader__.load({
 		const titleStyle = {
 			fontSize: 14,
 			lineHeight: 1.3
+		};
+		const headerActionsStyle = {
+			display: "flex",
+			flexDirection: "column",
+			alignItems: "stretch",
+			gap: 6
 		};
 		const buttonStyle = {
 			border: "1px solid color-mix(in srgb, currentColor 14%, transparent)",

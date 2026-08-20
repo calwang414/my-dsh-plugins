@@ -52124,7 +52124,12 @@ function VoiceSettingsPage() {
 		textAlign: "right"
 	} }, sizeShown + "%")), react.default.createElement(Row, {
 		title: "桌宠形象",
-		desc: "上传 VRM 1.0/0.x 模型;动画需标准人形骨骼,非人形模型仅静态展示"
+		desc: react.default.createElement(react.default.Fragment, null, "上传 VRM 1.0/0.x 模型;可用 ", react.default.createElement("a", {
+			href: "https://vroid.com/studio",
+			target: "_blank",
+			rel: "noreferrer",
+			style: { color: "var(--dsw-alias-brand-primary)" }
+		}, "VRoid Studio"), " 免费生成自己的形象;动画需标准人形骨骼,非人形模型仅静态展示")
 	}, react.default.createElement("div", { style: {
 		display: "flex",
 		flexDirection: "column",

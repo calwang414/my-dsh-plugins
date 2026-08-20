@@ -51599,7 +51599,7 @@ function ModeCard({ active, disabled, title, desc, icon, onClick }) {
 		style: {
 			flex: 1,
 			minWidth: 0,
-			padding: "10px 12px",
+			padding: "8px 10px",
 			borderRadius: 10,
 			cursor: disabled ? "not-allowed" : "pointer",
 			textAlign: "left",
@@ -51943,11 +51943,12 @@ function VoiceSettingsPage() {
 		fontSize: 13
 	} }, "加载中…") : react.default.createElement(react.default.Fragment, null, react.default.createElement(Group, { title: "桌宠设置" }, react.default.createElement(Row, {
 		title: "桌宠显示",
-		desc: isDesktop ? "独立桌宠需重启桌面应用后生效" : "独立桌宠仅桌面版可用",
-		block: true
+		desc: isDesktop ? "独立桌宠需重启桌面应用后生效" : "独立桌宠仅桌面版可用"
 	}, react.default.createElement("div", { style: {
 		display: "flex",
-		gap: 8
+		gap: 6,
+		width: 300,
+		flexShrink: 0
 	} }, react.default.createElement(ModeCard, {
 		active: (value.petMode ?? "off") === "off",
 		disabled: false,

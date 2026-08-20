@@ -109,7 +109,7 @@ function ModeCard({ active, disabled, title, desc, icon, onClick }) {
   return React.createElement('button', {
     type: 'button', disabled, onClick, title: disabled ? '独立桌宠仅桌面版可用' : title,
     style: {
-      flex: 1, minWidth: 0, padding: '10px 12px', borderRadius: 10, cursor: disabled ? 'not-allowed' : 'pointer',
+      flex: 1, minWidth: 0, padding: '8px 10px', borderRadius: 10, cursor: disabled ? 'not-allowed' : 'pointer',
       textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start',
       border: '1px solid ' + (active ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-border-l1)'),
       background: active ? 'color-mix(in srgb, var(--dsw-alias-brand-primary) 8%, var(--dsw-alias-bg-layer-1))' : 'var(--dsw-alias-bg-layer-1)',
@@ -448,8 +448,8 @@ function VoiceSettingsPage() {
       ? React.createElement('p', { style: { color: 'var(--dsw-alias-label-secondary)', fontSize: 13 } }, '加载中…')
       : React.createElement(React.Fragment, null,
           React.createElement(Group, { title: '桌宠设置' },
-            React.createElement(Row, { title: '桌宠显示', desc: isDesktop ? '独立桌宠需重启桌面应用后生效' : '独立桌宠仅桌面版可用', block: true },
-              React.createElement('div', { style: { display: 'flex', gap: 8 } },
+            React.createElement(Row, { title: '桌宠显示', desc: isDesktop ? '独立桌宠需重启桌面应用后生效' : '独立桌宠仅桌面版可用' },
+              React.createElement('div', { style: { display: 'flex', gap: 6, width: 300, flexShrink: 0 } },
                 React.createElement(ModeCard, { active: (value.petMode ?? 'off') === 'off', disabled: !writable, title: '关闭', desc: '不显示桌宠', icon: 'off', onClick: () => onPickMode('off') }),
                 React.createElement(ModeCard, { active: (value.petMode ?? 'off') === 'page', disabled: !writable, title: '页面桌宠', desc: '悬浮在主界面', icon: 'page', onClick: () => onPickMode('page') }),
                 React.createElement(ModeCard, { active: (value.petMode ?? 'off') === 'standalone', disabled: !writable || !isDesktop, title: '独立桌宠', desc: '独立悬浮窗口', icon: 'standalone', onClick: () => onPickMode('standalone') }))),

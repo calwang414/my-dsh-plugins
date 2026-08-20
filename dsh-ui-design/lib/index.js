@@ -4119,6 +4119,12 @@ function escapeHtmlText(value) {
 /** 新建页面的起始 HTML:引用 design-tokens.css,结构可被 Studio 选中编辑。 */
 function pageStarterHtml(runtime, title) {
 	const safe = escapeHtmlText(title);
+	// 幻灯片模式:新页面必须是 deck + slide 结构(1600×900),否则不会被
+	// Studio 识别为演示页(无 deck 导航、无导出菜单)。
+	if (runtime.mode === "slides") {
+		return `<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safe}</title><link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens><style>*{box-sizing:border-box}body{margin:0;background:#d9dce2;color:var(--ipw-color-text);font-family:var(--ipw-font-body)}.slide{position:relative;width:1600px;height:900px;overflow:hidden;padding:96px;background:var(--ipw-color-bg)}.eyebrow{color:var(--ipw-color-primary);font-weight:700;letter-spacing:.12em;text-transform:uppercase}h1{max-width:12ch;margin:28px 0;font-family:var(--ipw-font-display);font-size:112px;line-height:.94;letter-spacing:-.055em}p{max-width:48ch;color:var(--ipw-color-muted);font-size:28px;line-height:1.5}.hint{position:absolute;left:96px;bottom:56px;color:var(--ipw-color-muted);font-size:18px;letter-spacing:.04em;text-transform:uppercase}</style></head><body><main class="deck"><section class="slide" data-ipw-slide><div class="eyebrow">${runtime.studioTitle}</div><h1>${safe}</h1><p>新幻灯片页面。让 DeepSeek Harness 设计本页,再在 Studio 中逐页精调。</p><div class="hint">1600 x 900 · 每帧一页</div></section></main></body></html>`;
+	}
 	return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safe}</title><link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens></head><body data-ipw-theme-role="page"><main style="max-width:var(--ipw-content-width);margin:0 auto;padding:var(--ipw-page-padding)"><div class="eyebrow" style="color:var(--ipw-color-primary);font-weight:700;letter-spacing:.12em;text-transform:uppercase">${runtime.studioTitle}</div><h1 style="font-family:var(--ipw-font-display);font-size:clamp(2.5rem,6vw,4.5rem);line-height:1.05;margin:16px 0">${safe}</h1><p style="max-width:56ch;color:var(--ipw-color-muted);font-size:1.1rem;line-height:1.6">New page. Ask DeepSeek Harness to design this page, then fine-tune it in Studio.</p></main></body></html>`;
 }

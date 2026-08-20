@@ -170,7 +170,7 @@ window.__ModuleLoader__.load({
 						style: pageBarStyle,
 						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
 							style: thumbStripStyle,
-							children: pageModel.pages.map((page) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+							children: [pageModel.pages.map((page) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
 								style: page.entry === pageModel.active ? { ...thumbCardStyle, ...thumbCardActiveStyle } : thumbCardStyle,
 								onClick: () => void pageApi({ action: "switch", pageId: page.id }),
 								title: page.title,
@@ -186,14 +186,14 @@ window.__ModuleLoader__.load({
 									}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", { style: thumbPlaceholderStyle }),
 									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { style: thumbLabelStyle, children: page.title })
 								]
-							}, page.id))
-						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
-							type: "button",
-							style: pageIconStyle,
-							onClick: () => void openTemplatePicker(),
-							title: "新建页面或选择模板",
-							"aria-label": "新建页面或选择模板",
-							children: "+"
+							}, page.id)), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+								type: "button",
+								style: thumbAddStyle,
+								onClick: () => void openTemplatePicker(),
+								title: "新建页面或选择模板",
+								"aria-label": "新建页面或选择模板",
+								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { style: thumbAddIconStyle, children: "+" }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { style: thumbAddLabelStyle, children: "新建" })]
+							})]
 						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 							type: "button",
 							style: pageIconStyle,
@@ -374,7 +374,7 @@ window.__ModuleLoader__.load({
 		};
 		const thumbFrameStyle = {
 			width: "100%",
-			height: 96,
+			height: 64,
 			border: 0,
 			display: "block",
 			pointerEvents: "none",
@@ -390,14 +390,39 @@ window.__ModuleLoader__.load({
 			pointerEvents: "none",
 			overflow: "hidden"
 		};
+		const thumbAddStyle = {
+			flex: "0 0 auto",
+			width: 92,
+			border: "1px dashed color-mix(in srgb, currentColor 30%, transparent)",
+			borderRadius: 8,
+			display: "flex",
+			flexDirection: "column",
+			alignItems: "center",
+			justifyContent: "center",
+			gap: 2,
+			cursor: "pointer",
+			background: "transparent",
+			color: "inherit",
+			font: "inherit",
+			padding: "0 8px",
+			minHeight: 84
+		};
+		const thumbAddIconStyle = {
+			fontSize: 18,
+			lineHeight: 1
+		};
+		const thumbAddLabelStyle = {
+			fontSize: 10,
+			color: "color-mix(in srgb, currentColor 60%, transparent)"
+		};
 		const thumbPlaceholderStyle = {
 			width: "100%",
-			height: 96,
+			height: 64,
 			background: "color-mix(in srgb, currentColor 6%, transparent)"
 		};
 		const thumbLabelStyle = {
 			display: "block",
-			padding: "3px 6px",
+			padding: "2px 6px",
 			fontSize: 10,
 			lineHeight: 1.2,
 			whiteSpace: "nowrap",

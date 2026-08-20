@@ -591,11 +591,15 @@ function VoiceSettingsPage() {
                   avatarMsg ? React.createElement('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, avatarMsg) : null))),
             React.createElement('input', { ref: fileRef, type: 'file', accept: '.vrm', style: { display: 'none' }, onChange: onFileChosen })),
           React.createElement(Group, { title: '唤醒' },
+            React.createElement(Row, { title: '启用唤醒', desc: '关闭后不加载唤醒模型,不再常驻监听' },
+              React.createElement(Switch, { label: '启用唤醒', checked: value.enableWakeword !== false, disabled: !writable, onChange: onCheck('enableWakeword') })),
             React.createElement(Row, { title: '唤醒词', desc: '纯中文词命中率更高,如:小希小希' },
-              React.createElement('textarea', { style: { ...inputStyle, width: 300, minHeight: 56, resize: 'vertical' }, value: wakeWords.join('\n'), disabled: !writable, onChange: onWakeWords }))),
+              React.createElement('textarea', { style: { ...inputStyle, width: 300, minHeight: 56, resize: 'vertical' }, value: wakeWords.join('\n'), disabled: !writable || value.enableWakeword === false, onChange: onWakeWords })),
+            React.createElement(Row, { title: '说完判定', desc: '唤醒后说话停顿超过该时长视为说完(2-15 秒)' },
+              React.createElement('input', { type: 'number', style: { ...inputStyle, width: 100 }, value: value.vadSilenceSeconds ?? 5, min: 2, max: 15, disabled: !writable || value.enableWakeword === false, onChange: onNum('vadSilenceSeconds') }))),
           React.createElement(Group, { title: '语音输入' },
-            React.createElement(Row, { title: '说完判定(VAD)', desc: '说话停顿超过该时长视为说完(2-15 秒)' },
-              React.createElement('input', { type: 'number', style: { ...inputStyle, width: 100 }, value: value.vadSilenceSeconds ?? 5, min: 2, max: 15, disabled: !writable, onChange: onNum('vadSilenceSeconds') }))),
+            React.createElement(Row, { title: '启用语音输入', desc: '输入框按住说话转写;关闭后不加载识别模型' },
+              React.createElement(Switch, { label: '启用语音输入', checked: value.enableMicInput !== false, disabled: !writable, onChange: onCheck('enableMicInput') }))),
           React.createElement(Group, { title: '语音合成' },
             React.createElement(Row, { title: 'TTS 引擎', desc: '选择朗读引擎,Melo 离线、Edge 在线' },
               React.createElement('div', { style: { display: 'flex', gap: 6, width: 300, flexShrink: 0 } },
@@ -622,10 +626,21 @@ function VoiceSettingsPage() {
 function MicInputButton(props) {
   const { useInput, inputActions } = props
   const [state, setState] = React.useState('idle') // idle | recording | transcribing | error
+  const [micEnabled, setMicEnabled] = React.useState(true)
   const recorderRef = React.useRef(null)
   const input = typeof useInput === 'function' ? useInput((s) => s) : null
   const inputRef = React.useRef(null)
   inputRef.current = input
+  // 语音输入开关:关闭时输入框不显示麦克风按钮(配置变更实时联动)
+  React.useEffect(() => {
+    fetchConfig().then((cfg) => setMicEnabled(cfg.enableMicInput !== false)).catch(() => {})
+    const onCfg = (e) => {
+      const c = e.detail || {}
+      if (c.enableMicInput !== undefined) setMicEnabled(c.enableMicInput !== false)
+    }
+    window.addEventListener('voice-pet-config', onCfg)
+    return () => window.removeEventListener('voice-pet-config', onCfg)
+  }, [])
 
   const onStart = async (e) => {
     e.preventDefault()
@@ -679,6 +694,7 @@ function MicInputButton(props) {
     display: 'inline-flex', alignItems: 'center', gap: 4,
     ...(state === 'recording' ? { background: 'var(--dsw-alias-state-error-primary)', color: '#fff', borderRadius: '50%' } : {}),
   }
+  if (!micEnabled) return null // 语音输入关闭:不渲染麦克风按钮
   return React.createElement('button', {
     type: 'button', title: '按住说话,松开识别', style,
     onPointerDown: onStart, onPointerUp: onEnd, onPointerLeave: onEnd, onPointerCancel: onEnd,

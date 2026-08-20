@@ -17,7 +17,7 @@ import path from 'node:path'
 import readline from 'node:readline'
 import pkg from 'sherpa-onnx-node'
 import { VoiceManager } from './voice-manager.js'
-import { loadSherpaEngines, modelsRoot, createTtsEngine, preprocessText, createVadEngine, createKwsEngine } from './sherpa-engines.js'
+import { modelsRoot, createTtsEngine, preprocessText, createVadEngine, createKwsEngine, createAsrEngine } from './sherpa-engines.js'
 import { createEdgeTtsEngine } from './edge-tts-engine.js'
 import { writeKeywordsFile } from './wake-words.js'
 
@@ -42,6 +42,8 @@ let config = {
   edgeVoice: 'zh-CN-XiaoxiaoNeural',
   speed: 1,
   speakEnabled: true,
+  enableWakeword: true,
+  enableMicInput: true,
   vadSilenceSeconds: Math.max(2, Math.min(15, Number(process.env.VAD_SILENCE_MS) || 5)),
   wakeWords: defaultWakeWords(),
 }
@@ -152,8 +154,28 @@ function prepareSamples(samples, sampleRate) {
 }
 
 function initVoice() {
-  const engines = loadSherpaEngines(modelsRoot())
-  engines.tts = buildWakeCachedTts(buildTtsEngine(config))
+  // 按配置按需加载模型:唤醒关 → 不加载 KWS/VAD;语音输入关且唤醒关 → 不加载 ASR;
+  // 播报关 → 不加载 TTS(Melo)。控制应用启动时的内存与 CPU 占用。
+  const engines = { kws: null, vad: null, asr: null, tts: null }
+  if (config.enableWakeword) {
+    try {
+      writeKeywordsFile(path.join(modelsRoot(), 'kws'), config.wakeWords)
+      engines.kws = createKwsEngine(path.join(modelsRoot(), 'kws'))
+      engines.vad = createVadEngine(path.join(modelsRoot(), 'vad', 'silero_vad.onnx'), config.vadSilenceSeconds)
+    } catch (e) {
+      console.error('[voice-engine] 唤醒组件初始化失败:', e.message)
+    }
+  }
+  if (config.enableWakeword || config.enableMicInput) {
+    try {
+      engines.asr = createAsrEngine(path.join(modelsRoot(), 'asr'))
+    } catch (e) {
+      console.error('[voice-engine] 识别组件初始化失败:', e.message)
+    }
+  }
+  if (config.speakEnabled) {
+    engines.tts = buildWakeCachedTts(buildTtsEngine(config))
+  }
   vm = new VoiceManager({
     ...engines,
     wakeWords: config.wakeWords,
@@ -183,9 +205,8 @@ function initVoice() {
     }
   }
   vm.onSpeakError = () => out({ event: 'speaking-done' })
-  writeKeywordsFile(path.join(modelsRoot(), 'kws'), config.wakeWords)
-  setTimeout(() => engines.tts.warmUp?.(), 1000)
-  vm.startListening()
+  if (config.enableWakeword && engines.kws) vm.startListening()
+  setTimeout(() => engines.tts?.warmUp?.(), 1000)
   out({ event: 'state', state: vm.state })
   return vm
 }
@@ -200,25 +221,46 @@ function applyConfig(patch) {
   next.vadSilenceSeconds = Math.max(2, Math.min(15, Number(next.vadSilenceSeconds) || 5))
   next.wakeWords = Array.isArray(next.wakeWords) && next.wakeWords.length > 0 ? next.wakeWords : defaultWakeWords()
   next.speakEnabled = next.speakEnabled !== false
+  next.enableWakeword = next.enableWakeword !== false
+  next.enableMicInput = next.enableMicInput !== false
   const changed = JSON.stringify(next) !== JSON.stringify(config)
   config = next
   if (!changed || !vm) return
   invalidateWakeCache()
-  vm.tts = buildWakeCachedTts(buildTtsEngine(config))
+  // TTS:播报关 → 置空(释放 Melo 模型);开 → 重建(引擎切换也走这里)
+  vm.tts = config.speakEnabled ? buildWakeCachedTts(buildTtsEngine(config)) : null
   const wasRunning = vm.kwsRunning
   if (wasRunning) vm.stopListening()
-  try {
-    writeKeywordsFile(path.join(modelsRoot(), 'kws'), config.wakeWords)
-    vm.setKws(createKwsEngine(path.join(modelsRoot(), 'kws')))
-  } catch (e) {
-    console.error('[voice-engine] 唤醒词重建失败:', e.message)
+  // 唤醒开关:KWS + VAD 按 enableWakeword 增减(唤醒词/说完秒数变更也走这里)
+  if (config.enableWakeword) {
+    try {
+      writeKeywordsFile(path.join(modelsRoot(), 'kws'), config.wakeWords)
+      vm.setKws(createKwsEngine(path.join(modelsRoot(), 'kws')))
+    } catch (e) {
+      console.error('[voice-engine] 唤醒词重建失败:', e.message)
+    }
+    try {
+      vm.setVad(createVadEngine(path.join(modelsRoot(), 'vad', 'silero_vad.onnx'), config.vadSilenceSeconds))
+    } catch (e) {
+      console.error('[voice-engine] VAD 重建失败:', e.message)
+    }
+  } else {
+    vm.setKws(null)
+    vm.setVad(null)
   }
-  try {
-    vm.setVad(createVadEngine(path.join(modelsRoot(), 'vad', 'silero_vad.onnx'), config.vadSilenceSeconds))
-  } catch (e) {
-    console.error('[voice-engine] VAD 重建失败:', e.message)
+  // 语音输入/唤醒任一开启时确保 ASR 就绪,否则释放
+  if (config.enableWakeword || config.enableMicInput) {
+    if (!vm.asr) {
+      try {
+        vm.setAsr(createAsrEngine(path.join(modelsRoot(), 'asr')))
+      } catch (e) {
+        console.error('[voice-engine] ASR 加载失败:', e.message)
+      }
+    }
+  } else {
+    vm.setAsr(null)
   }
-  if (wasRunning) vm.startListening()
+  if (wasRunning && config.enableWakeword) vm.startListening()
 }
 
 // ---------------- 命令循环 ----------------
@@ -276,6 +318,8 @@ rl.on('line', async (line) => {
         break
       case 'transcribe': {
         if (!vm) throw new Error('语音引擎未就绪')
+        if (!config.enableMicInput) throw new Error('语音输入已关闭')
+        if (!vm.asr) throw new Error('语音识别模型未加载')
         const samples = Array.isArray(args.samples) ? args.samples : []
         if (samples.length === 0) throw new Error('samples required')
         const rebuilt = prepareSamples(samples, args.sampleRate)
@@ -284,6 +328,7 @@ rl.on('line', async (line) => {
         break
       }
       case 'speak-sync': {
+        if (!config.speakEnabled) throw new Error('语音播报已关闭')
         if (!vm?.tts) throw new Error('语音引擎未就绪')
         const text = preprocessText(String(args.text ?? ''))
         if (!text.trim()) {

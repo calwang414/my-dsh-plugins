@@ -52191,6 +52191,14 @@ function VoiceSettingsPage() {
 		style: { display: "none" },
 		onChange: onFileChosen
 	})), react.default.createElement(Group, { title: "唤醒" }, react.default.createElement(Row, {
+		title: "启用唤醒",
+		desc: "关闭后不加载唤醒模型,不再常驻监听"
+	}, react.default.createElement(Switch, {
+		label: "启用唤醒",
+		checked: value.enableWakeword !== false,
+		disabled: false,
+		onChange: onCheck("enableWakeword")
+	})), react.default.createElement(Row, {
 		title: "唤醒词",
 		desc: "纯中文词命中率更高,如:小希小希"
 	}, react.default.createElement("textarea", {
@@ -52201,11 +52209,11 @@ function VoiceSettingsPage() {
 			resize: "vertical"
 		},
 		value: wakeWords.join("\n"),
-		disabled: false,
+		disabled: value.enableWakeword === false,
 		onChange: onWakeWords
-	}))), react.default.createElement(Group, { title: "语音输入" }, react.default.createElement(Row, {
-		title: "说完判定(VAD)",
-		desc: "说话停顿超过该时长视为说完(2-15 秒)"
+	})), react.default.createElement(Row, {
+		title: "说完判定",
+		desc: "唤醒后说话停顿超过该时长视为说完(2-15 秒)"
 	}, react.default.createElement("input", {
 		type: "number",
 		style: {
@@ -52215,8 +52223,16 @@ function VoiceSettingsPage() {
 		value: value.vadSilenceSeconds ?? 5,
 		min: 2,
 		max: 15,
-		disabled: false,
+		disabled: value.enableWakeword === false,
 		onChange: onNum("vadSilenceSeconds")
+	}))), react.default.createElement(Group, { title: "语音输入" }, react.default.createElement(Row, {
+		title: "启用语音输入",
+		desc: "输入框按住说话转写;关闭后不加载识别模型"
+	}, react.default.createElement(Switch, {
+		label: "启用语音输入",
+		checked: value.enableMicInput !== false,
+		disabled: false,
+		onChange: onCheck("enableMicInput")
 	}))), react.default.createElement(Group, { title: "语音合成" }, react.default.createElement(Row, {
 		title: "TTS 引擎",
 		desc: "选择朗读引擎,Melo 离线、Edge 在线"
@@ -52284,10 +52300,20 @@ function VoiceSettingsPage() {
 function MicInputButton(props) {
 	const { useInput, inputActions } = props;
 	const [state, setState] = react.default.useState("idle");
+	const [micEnabled, setMicEnabled] = react.default.useState(true);
 	const recorderRef = react.default.useRef(null);
 	const input = typeof useInput === "function" ? useInput((s) => s) : null;
 	const inputRef = react.default.useRef(null);
 	inputRef.current = input;
+	react.default.useEffect(() => {
+		fetchConfig().then((cfg) => setMicEnabled(cfg.enableMicInput !== false)).catch(() => {});
+		const onCfg = (e) => {
+			const c = e.detail || {};
+			if (c.enableMicInput !== void 0) setMicEnabled(c.enableMicInput !== false);
+		};
+		window.addEventListener("voice-pet-config", onCfg);
+		return () => window.removeEventListener("voice-pet-config", onCfg);
+	}, []);
 	const onStart = async (e) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -52342,6 +52368,7 @@ function MicInputButton(props) {
 			borderRadius: "50%"
 		} : {}
 	};
+	if (!micEnabled) return null;
 	return react.default.createElement("button", {
 		type: "button",
 		title: "按住说话,松开识别",

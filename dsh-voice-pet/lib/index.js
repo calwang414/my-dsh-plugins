@@ -40,6 +40,8 @@ const CONFIG_DEFAULTS = {
   speed: 1,
   edgeVoice: 'zh-CN-XiaoxiaoNeural',
   speakEnabled: true,
+  enableWakeword: true,
+  enableMicInput: true,
   /** off | page(主界面浮层) | standalone(桌面独立窗口) */
   petMode: 'page',
   /** 桌宠缩放 0.5-2.0 */
@@ -534,6 +536,8 @@ export function apply(ctx) {
         speed: cfg.speed,
         edgeVoice: cfg.edgeVoice,
         speakEnabled: cfg.speakEnabled,
+        enableWakeword: cfg.enableWakeword,
+        enableMicInput: cfg.enableMicInput,
       }).catch((e) => consoleError('dsh-voice-pet: 配置下发失败:', e.message))
     }
   }
@@ -687,6 +691,10 @@ export function apply(ctx) {
     path: '/voice-pet/transcribe',
     handler: async (req, res) => {
       try {
+        if (readConfig().enableMicInput === false) {
+          sendJson(res, 200, { ok: false, error: '语音输入已关闭' })
+          return
+        }
         const body = await readJsonBody(req)
         const samples = body.samples
         if (!Array.isArray(samples) || samples.length === 0) {

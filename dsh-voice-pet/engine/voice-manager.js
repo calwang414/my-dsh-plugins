@@ -37,20 +37,26 @@ export class VoiceManager {
 	this.vad.onSegment = (seg) => this.#onSegment(seg);
 	}
 
-	// 热替换 VAD 引擎（说完判定秒数变更时重建；保持 onSegment 绑定）
+	// 热替换 VAD 引擎（说完判定秒数变更时重建；保持 onSegment 绑定；null 表示关闭）
 	setVad(vad) {
 		this.vad = vad;
-		vad.onSegment = (seg) => this.#onSegment(seg);
+		if (vad) vad.onSegment = (seg) => this.#onSegment(seg);
 	}
 
-	// 热替换 KWS 引擎（唤醒词变更时重建；保持 onKeyword 绑定）
+	// 热替换 KWS 引擎（唤醒词变更时重建；保持 onKeyword 绑定；null 表示关闭）
 	setKws(kws) {
 		this.kws = kws;
-		kws.onKeyword = (keyword) => this.#onWake(keyword);
+		if (kws) kws.onKeyword = (keyword) => this.#onWake(keyword);
 	}
 
-	// 开始常驻监听（桌宠开启时调用）
+	// 热替换 ASR 引擎（输入能力开关变化时增减；null 表示关闭）
+	setAsr(asr) {
+		this.asr = asr;
+	}
+
+	// 开始常驻监听（桌宠开启时调用；KWS 未加载时保持 idle）
 	startListening() {
+		if (!this.kws) return;
 		if (this.state !== "idle") this.stopListening();
 		this.state = "listening";
 		this.kwsRunning = true;
@@ -63,13 +69,14 @@ export class VoiceManager {
 		this.#clearTimers();
 		this.state = "idle";
 		this.kwsRunning = false;
-		this.kws.stop();
-		this.vad.stop();
+		this.kws?.stop();
+		this.vad?.stop();
 	}
 
 	// 按钮路径：进入倾听态听一句（不进 KWS 命中流程）
 	// 与唤醒开关解耦：关闭常驻监听（idle）时按钮路径仍可用（临时采集）
 	triggerManual() {
+		if (!this.vad || !this.asr) return; // 识别能力未加载时按钮路径不可用
 		if (this.state === "woken" || this.state === "processing" || this.state === "speaking") return;
 		this.manual = true;
 		this.dialogue = false; // 按钮路径单次提问（播完不续听）
@@ -87,8 +94,8 @@ export class VoiceManager {
 	// 采集端流式喂入音频帧（float32 @16k）
 	feedAudio(samples) {
 		// speaking（播报中）也喂 KWS：喊唤醒词可打断播报并提新问题
-		if (this.state === "listening" || this.state === "speaking") this.kws.feed(samples);
-		else if (this.state === "woken") this.vad.feed(samples);
+		if ((this.state === "listening" || this.state === "speaking") && this.kws) this.kws.feed(samples);
+		else if (this.state === "woken" && this.vad) this.vad.feed(samples);
 	}
 
 	// 文本 → 流式 TTS 合成（每块音频经 onAudio 回调交给播放端）。

@@ -3,15 +3,17 @@
  * 注册 bundled 技能候选。因为注册发生在预设的 scope 层,只有使用设计模式
  * 的会话能看到/加载它们,其他模式不可见。
  *
+ * 技能 = 只注入元数据(name/description)、正文按需加载的知识。**两份工作流
+ * (网页/PPT)不是技能**:它们是常驻完整注入的 system-prompt 契约,由
+ * lib/preset.js 按当前视图模式整体注入,不在此注册。
+ *
  * 形状对齐官方 `@deepseek-ai/dsh-skill-badge` 的 bundled provider;刻意不
  * 引入 @deepseek-ai 运行时依赖(rank 直接用协议常量,见 dsh-skill 的
  * BUNDLED_SKILL_RANK = 600),保证插件从任意安装位置(link 或 tarball)都能加载。
  *
- * 技能清单(模式归属来自各技能文档 frontmatter 的 `metadata.modes` 标签):
- * - `design-workflow`(modes: design):网页设计工作流契约(design/ 项目结构/令牌系统/工作流/约束);
- * - `ppt-workflow`(modes: slides):演示文稿工作流契约(design/ppt/ 项目、1600×900 slide 结构、导出规则);
+ * 技能清单(模式归属来自技能正文 frontmatter 的 `metadata.modes` 标签):
  * - `frontend-design`(modes: design):来自 anthropics/skills 仓库(Apache-2.0,见
- *   assets/frontend-design/LICENSE.txt),指导有辨识度的视觉设计决策。
+ *   assets/frontend-design/LICENSE.txt),指导有辨识度的视觉设计决策,按需加载。
  *
  * 后续添加技能:把技能正文放进 assets/(或子目录),在文档 frontmatter 声明
  * `metadata.modes` 标签(`- design` 仅网页、`- slides` 仅 PPT、两者或省略为
@@ -41,26 +43,6 @@ const RANK = 600
 
 /** 技能候选清单:name 是技能 id,locator 指向包内正文;模式归属读文档 frontmatter。 */
 const CANDIDATES = [
-  {
-    name: 'design-workflow',
-    description: 'Design-mode workflow contract for DeepSeek Harness: the shared design/ project layout, the --ipw-* design-token system, and how to create and refine websites, app prototypes, posters, info cards, and data reports that the user reviews in the Design view. Load before starting any design task while in design mode; also use when the user asks to create or change a design, page, poster, prototype, or report.',
-    invocation: INVOCATION,
-    provider: PROVIDER_NAME,
-    source: 'bundled',
-    resourceBase: RESOURCE_BASE,
-    rank: RANK,
-    locator: new URL('../assets/design-workflow.md', import.meta.url),
-  },
-  {
-    name: 'ppt-workflow',
-    description: 'Presentation (PPT) workflow contract for DeepSeek Harness design mode: the shared design/ppt/ project layout, the 1600x900 .slide/.deck structure, the --ipw-* design-token system, and PPTX/PDF export coverage rules. Load before starting any slide-deck task while in design mode; also use when the user asks to create or change a presentation, slide deck, or PPT.',
-    invocation: INVOCATION,
-    provider: PROVIDER_NAME,
-    source: 'bundled',
-    resourceBase: RESOURCE_BASE,
-    rank: RANK,
-    locator: new URL('../assets/ppt-workflow.md', import.meta.url),
-  },
   {
     name: 'frontend-design',
     description: 'Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don\'t read as templated defaults. (Apache-2.0, from anthropics/skills.)',

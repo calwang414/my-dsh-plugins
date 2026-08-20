@@ -4318,7 +4318,7 @@ async function handleApi(runtime, ctx, req, res, url) {
 	}
 	if (req.method === "POST" && action === "/versions") {
 		// 版本管理(design/ppt 项目各自独立):版本快照存于项目的
-		// design/[projectId]/.versions/<sessionId>/ 目录(list/create/delete)。
+		// design/[projectId]/.versions/ 目录(list/create/delete),项目级共享。
 		const body = await requestJson(req);
 		const root = workspaceRoot(ctx, stringField(field(body, "workspaceId"), "workspaceId"));
 		const sessionId = stringField(field(body, "sessionId"), "sessionId");
@@ -4338,7 +4338,7 @@ async function handleApi(runtime, ctx, req, res, url) {
 				const info = await stat(resolve(versionsDir, name)).catch(() => null);
 				if (!info) continue;
 				if (info.isDirectory()) {
-					// 按页面子目录:design/.versions/<sessionId>/<pageId>/*.html
+					// 按页面子目录:design/.versions/<pageId>/*.html
 					for (const sub of await readdir(resolve(versionsDir, name)).catch(() => [])) {
 						if (!sub.endsWith(".html")) continue;
 						const subInfo = await stat(resolve(versionsDir, name, sub)).catch(() => null);
@@ -4356,10 +4356,10 @@ async function handleApi(runtime, ctx, req, res, url) {
 		if (versionAction === "create") {
 			const content = field(body, "content");
 			if (typeof content !== "string" || content.length === 0) throw new HttpError(400, "Missing content.");
-			// 版本按页面隔离:design/[projectId]/.versions/<sessionId>/<pageId>/<ts>.html
+			// 版本按页面隔离(项目级,不绑定会话):design/[projectId]/.versions/<pageId>/<ts>.html
 			const pageId = stringField(field(body, "pageId"), "pageId");
 			if (!/^[a-zA-Z0-9._-]{1,80}$/.test(pageId)) throw new HttpError(400, "Invalid page id.");
-			const pageDir = await verifiedWritePath(root, `${projectRel}/.versions/${sessionId}/${pageId}`);
+			const pageDir = await verifiedWritePath(root, `${projectRel}/.versions/${pageId}`);
 			await mkdir(pageDir, { recursive: true });
 			const id = `${Date.now()}.html`;
 			await writeFile(resolve(pageDir, id), content, { encoding: "utf8" });

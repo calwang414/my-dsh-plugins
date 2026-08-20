@@ -51548,7 +51548,7 @@ function Switch({ checked, disabled, onChange, label }) {
 		boxShadow: "0 1px 2px rgba(0,0,0,.2)"
 	} })));
 }
-function PetModeIcon({ kind }) {
+function CardIcon({ kind }) {
 	const common = {
 		width: 16,
 		height: 16,
@@ -51582,13 +51582,27 @@ function PetModeIcon({ kind }) {
 		x2: 13.5,
 		y2: 6
 	}));
-	return react.default.createElement("svg", common, react.default.createElement("rect", {
+	if (kind === "standalone") return react.default.createElement("svg", common, react.default.createElement("rect", {
 		x: 2.5,
 		y: 4.5,
 		width: 8.5,
 		height: 8.5,
 		rx: 1.5
 	}), react.default.createElement("path", { d: "M8 2.5h5.5V8" }), react.default.createElement("path", { d: "M13.5 2.5L8.5 7.5" }));
+	if (kind === "local") return react.default.createElement("svg", common, react.default.createElement("rect", {
+		x: 3,
+		y: 3,
+		width: 10,
+		height: 10,
+		rx: 1.5
+	}), react.default.createElement("rect", {
+		x: 6,
+		y: 6,
+		width: 4,
+		height: 4,
+		rx: .5
+	}), react.default.createElement("path", { d: "M6 1.5v3M10 1.5v3M6 11.5v3M10 11.5v3M1.5 6h3M1.5 10h3M11.5 6h3M11.5 10h3" }));
+	return react.default.createElement("svg", common, react.default.createElement("path", { d: "M4.5 13h7a2.5 2.5 0 0 0 .4-4.97A4 4 0 0 0 4.2 6.3 3 3 0 0 0 4.5 13z" }));
 }
 function ModeCard({ active, disabled, title, desc, icon, onClick }) {
 	return react.default.createElement("button", {
@@ -51620,7 +51634,7 @@ function ModeCard({ active, disabled, title, desc, icon, onClick }) {
 	} }, react.default.createElement("span", { style: {
 		display: "inline-flex",
 		color: active ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-label-secondary)"
-	} }, react.default.createElement(PetModeIcon, { kind: icon })), react.default.createElement("span", { style: {
+	} }, react.default.createElement(CardIcon, { kind: icon })), react.default.createElement("span", { style: {
 		flex: 1,
 		fontSize: 13,
 		fontWeight: 600,
@@ -51918,6 +51932,7 @@ function VoiceSettingsPage() {
 		}
 		patch({ petMode: v });
 	};
+	const onPickTts = (v) => patch({ ttsEngine: v });
 	const onCheck = (field) => (e) => patch({ [field]: e.target.checked });
 	const isDesktop = typeof window !== "undefined" && Boolean(window.__TAURI__);
 	const petSizePct = Math.round((value?.petSize ?? 1) * 100);
@@ -52060,16 +52075,27 @@ function VoiceSettingsPage() {
 		onChange: onNum("vadSilenceSeconds")
 	}))), react.default.createElement(Group, { title: "语音合成" }, react.default.createElement(Row, {
 		title: "TTS 引擎",
-		desc: "melo = 本地离线;edge = 微软免费在线(需网络)"
-	}, react.default.createElement("select", {
-		style: {
-			...inputStyle,
-			width: 160
-		},
-		value: value.ttsEngine ?? "melo",
+		desc: "选择朗读引擎,Melo 离线、Edge 在线"
+	}, react.default.createElement("div", { style: {
+		display: "flex",
+		gap: 6,
+		width: 300,
+		flexShrink: 0
+	} }, react.default.createElement(ModeCard, {
+		active: (value.ttsEngine ?? "melo") === "melo",
 		disabled: false,
-		onChange: onSelect("ttsEngine")
-	}, react.default.createElement("option", { value: "melo" }, "MeloTTS(本地)"), react.default.createElement("option", { value: "edge" }, "Edge TTS(在线)"))), react.default.createElement(Row, {
+		title: "MeloTTS",
+		desc: "本地离线",
+		icon: "local",
+		onClick: () => onPickTts("melo")
+	}), react.default.createElement(ModeCard, {
+		active: (value.ttsEngine ?? "melo") === "edge",
+		disabled: false,
+		title: "Edge TTS",
+		desc: "在线,需网络",
+		icon: "cloud",
+		onClick: () => onPickTts("edge")
+	}))), react.default.createElement(Row, {
 		title: "语速",
 		desc: "0.5-1.5"
 	}, react.default.createElement("input", {

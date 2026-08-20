@@ -85,7 +85,7 @@ function Switch({ checked, disabled, onChange, label }) {
 }
 
 // 线性小图标(16px 视图,strokeWidth 1.6,与 MicIcon16 同一风格)
-function PetModeIcon({ kind }) {
+function CardIcon({ kind }) {
   const common = { width: 16, height: 16, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round', xmlns: 'http://www.w3.org/2000/svg' }
   if (kind === 'off') {
     return React.createElement('svg', common,
@@ -97,11 +97,21 @@ function PetModeIcon({ kind }) {
       React.createElement('rect', { x: 2.5, y: 3.5, width: 11, height: 9, rx: 1.5 }),
       React.createElement('line', { x1: 2.5, y1: 6, x2: 13.5, y2: 6 }))
   }
-  // standalone:小窗 + 弹出箭头
+  if (kind === 'standalone') {
+    return React.createElement('svg', common,
+      React.createElement('rect', { x: 2.5, y: 4.5, width: 8.5, height: 8.5, rx: 1.5 }),
+      React.createElement('path', { d: 'M8 2.5h5.5V8' }),
+      React.createElement('path', { d: 'M13.5 2.5L8.5 7.5' }))
+  }
+  if (kind === 'local') {
+    return React.createElement('svg', common,
+      React.createElement('rect', { x: 3, y: 3, width: 10, height: 10, rx: 1.5 }),
+      React.createElement('rect', { x: 6, y: 6, width: 4, height: 4, rx: 0.5 }),
+      React.createElement('path', { d: 'M6 1.5v3M10 1.5v3M6 11.5v3M10 11.5v3M1.5 6h3M1.5 10h3M11.5 6h3M11.5 10h3' }))
+  }
+  // cloud(在线)
   return React.createElement('svg', common,
-    React.createElement('rect', { x: 2.5, y: 4.5, width: 8.5, height: 8.5, rx: 1.5 }),
-    React.createElement('path', { d: 'M8 2.5h5.5V8' }),
-    React.createElement('path', { d: 'M13.5 2.5L8.5 7.5' }))
+    React.createElement('path', { d: 'M4.5 13h7a2.5 2.5 0 0 0 .4-4.97A4 4 0 0 0 4.2 6.3 3 3 0 0 0 4.5 13z' }))
 }
 
 // 桌宠显示模式卡片(选中:品牌色边框 + 浅品牌背景 + 勾选)
@@ -119,7 +129,7 @@ function ModeCard({ active, disabled, title, desc, icon, onClick }) {
   },
     React.createElement('span', { style: { display: 'flex', alignItems: 'center', gap: 6, width: '100%' } },
       React.createElement('span', { style: { display: 'inline-flex', color: active ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-label-secondary)' } },
-        React.createElement(PetModeIcon, { kind: icon })),
+        React.createElement(CardIcon, { kind: icon })),
       React.createElement('span', { style: { flex: 1, fontSize: 13, fontWeight: 600, color: active ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-label-primary)' } }, title),
       active ? React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 16 16', fill: 'none', stroke: 'var(--dsw-alias-brand-primary)', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' },
         React.createElement('path', { d: 'M3 8.5L6.5 12L13 4.5' })) : null),
@@ -433,6 +443,7 @@ function VoiceSettingsPage() {
     }
     patch({ petMode: v })
   }
+  const onPickTts = (v) => patch({ ttsEngine: v })
   const onCheck = (field) => (e) => patch({ [field]: e.target.checked })
   // Tauri 桌面壳暴露 __TAURI__ 全局,浏览器(Web)没有 → 独立桌宠仅桌面端可选
   const isDesktop = typeof window !== 'undefined' && Boolean(window.__TAURI__)
@@ -471,10 +482,10 @@ function VoiceSettingsPage() {
             React.createElement(Row, { title: '说完判定(VAD)', desc: '说话停顿超过该时长视为说完(2-15 秒)' },
               React.createElement('input', { type: 'number', style: { ...inputStyle, width: 100 }, value: value.vadSilenceSeconds ?? 5, min: 2, max: 15, disabled: !writable, onChange: onNum('vadSilenceSeconds') }))),
           React.createElement(Group, { title: '语音合成' },
-            React.createElement(Row, { title: 'TTS 引擎', desc: 'melo = 本地离线;edge = 微软免费在线(需网络)' },
-              React.createElement('select', { style: { ...inputStyle, width: 160 }, value: value.ttsEngine ?? 'melo', disabled: !writable, onChange: onSelect('ttsEngine') },
-                React.createElement('option', { value: 'melo' }, 'MeloTTS(本地)'),
-                React.createElement('option', { value: 'edge' }, 'Edge TTS(在线)'))),
+            React.createElement(Row, { title: 'TTS 引擎', desc: '选择朗读引擎,Melo 离线、Edge 在线' },
+              React.createElement('div', { style: { display: 'flex', gap: 6, width: 300, flexShrink: 0 } },
+                React.createElement(ModeCard, { active: (value.ttsEngine ?? 'melo') === 'melo', disabled: !writable, title: 'MeloTTS', desc: '本地离线', icon: 'local', onClick: () => onPickTts('melo') }),
+                React.createElement(ModeCard, { active: (value.ttsEngine ?? 'melo') === 'edge', disabled: !writable, title: 'Edge TTS', desc: '在线,需网络', icon: 'cloud', onClick: () => onPickTts('edge') }))),
             React.createElement(Row, { title: '语速', desc: '0.5-1.5' },
               React.createElement('input', { type: 'number', style: { ...inputStyle, width: 100 }, value: value.speed ?? 1, step: 0.1, min: 0.5, max: 1.5, disabled: !writable, onChange: onNum('speed') })),
             React.createElement(Row, { title: 'Edge 音色', desc: '仅 TTS 引擎为 edge 时生效' },

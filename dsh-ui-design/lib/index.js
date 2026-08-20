@@ -4335,10 +4335,19 @@ async function handleApi(runtime, ctx, req, res, url) {
 			});
 			const versions = [];
 			for (const name of files) {
-				if (!name.endsWith(".html")) continue;
 				const info = await stat(resolve(versionsDir, name)).catch(() => null);
 				if (!info) continue;
-				versions.push({ id: name, size: info.size, updatedAt: info.mtimeMs });
+				if (info.isDirectory()) {
+					// 按页面子目录:design/.versions/<sessionId>/<pageId>/*.html
+					for (const sub of await readdir(resolve(versionsDir, name)).catch(() => [])) {
+						if (!sub.endsWith(".html")) continue;
+						const subInfo = await stat(resolve(versionsDir, name, sub)).catch(() => null);
+						if (!subInfo) continue;
+						versions.push({ id: `${name}/${sub}`, pageId: name, size: subInfo.size, updatedAt: subInfo.mtimeMs });
+					}
+				} else if (name.endsWith(".html")) {
+					versions.push({ id: name, pageId: null, size: info.size, updatedAt: info.mtimeMs });
+				}
 			}
 			versions.sort((a, b) => b.updatedAt - a.updatedAt);
 			sendJson(res, 200, { ok: true, versions });
@@ -4347,14 +4356,20 @@ async function handleApi(runtime, ctx, req, res, url) {
 		if (versionAction === "create") {
 			const content = field(body, "content");
 			if (typeof content !== "string" || content.length === 0) throw new HttpError(400, "Missing content.");
+			// 版本按页面隔离:design/[projectId]/.versions/<sessionId>/<pageId>/<ts>.html
+			const pageId = stringField(field(body, "pageId"), "pageId");
+			if (!/^[a-zA-Z0-9._-]{1,80}$/.test(pageId)) throw new HttpError(400, "Invalid page id.");
+			const pageDir = await verifiedWritePath(root, `${projectRel}/.versions/${sessionId}/${pageId}`);
+			await mkdir(pageDir, { recursive: true });
 			const id = `${Date.now()}.html`;
-			await writeFile(resolve(versionsDir, id), content, { encoding: "utf8" });
-			sendJson(res, 200, { ok: true, id, path: `${projectRel}/.versions/${sessionId}/${id}` });
+			await writeFile(resolve(pageDir, id), content, { encoding: "utf8" });
+			sendJson(res, 200, { ok: true, id, path: `${projectRel}/.versions/${sessionId}/${pageId}/${id}` });
 			return;
 		}
 		if (versionAction === "delete") {
 			const id = stringField(field(body, "id"), "id");
-			if (basename(id) !== id || !id.endsWith(".html")) throw new HttpError(400, "Invalid version id.");
+			// id 形如 <pageId>/<ts>.html(相对版本根目录)
+			if (!id.endsWith(".html") || id.includes("\0") || id.split("/").some((part) => !part || part === "." || part === "..")) throw new HttpError(400, "Invalid version id.");
 			const target = resolve(versionsDir, id);
 			if (!inside(versionsDir, target)) throw new HttpError(403, "Version id escaped its directory.");
 			await unlink(target).catch((error) => {

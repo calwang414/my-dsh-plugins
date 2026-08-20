@@ -216,16 +216,6 @@ window.__ModuleLoader__.load({
 								"aria-label": "新建页面或选择模板",
 								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { style: thumbAddIconStyle, children: "+" }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { style: thumbAddLabelStyle, children: "新建" })]
 							})]
-						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
-							type: "button",
-							style: pageIconStyle,
-							disabled: pageModel.pages.length <= 1,
-							onClick: () => {
-								if (activePage && window.confirm(`移除页面「${activePage.title}」?`)) void pageApi({ action: "remove", pageId: activePage.id });
-							},
-							title: "移除当前页面",
-							"aria-label": "移除当前页面",
-							children: "−"
 						})]
 					})
 					: null;

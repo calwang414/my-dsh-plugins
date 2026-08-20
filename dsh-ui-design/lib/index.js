@@ -4180,6 +4180,13 @@ async function pageOperation(runtime, root, sessionId, action, body) {
 			const page = pages.find((candidate) => candidate.id === stringField(field(body, "pageId"), "pageId"));
 			if (!page) throw new HttpError(404, "Page was not found in this project.");
 			manifest.entry = page.entry;
+		} else if (action === "rename") {
+			const pageId = stringField(field(body, "pageId"), "pageId");
+			const title = stringField(field(body, "title"), "title").trim();
+			if (!title) throw new HttpError(400, "Page title must not be empty.");
+			const page = pages.find((candidate) => candidate.id === pageId);
+			if (!page) throw new HttpError(404, "Page was not found in this project.");
+			page.title = title;
 		} else if (action === "remove") {
 			const pageId = stringField(field(body, "pageId"), "pageId");
 			const index = pages.findIndex((candidate) => candidate.id === pageId);

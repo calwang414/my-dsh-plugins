@@ -4325,7 +4325,7 @@ async function handleApi(runtime, ctx, req, res, url) {
 		const versionAction = stringField(field(body, "action"), "action");
 		const projectId = projectSessionId(runtime, sessionId);
 		const projectRel = projectId ? `design/${projectId}` : "design";
-		const versionsDir = await verifiedWritePath(root, `${projectRel}/.versions/${sessionId}`);
+		const versionsDir = await verifiedWritePath(root, `${projectRel}/.versions`);
 		// verifiedWritePath 把末段视为文件名,这里补建版本目录本身。
 		await mkdir(versionsDir, { recursive: true });
 		if (versionAction === "list") {
@@ -4363,12 +4363,12 @@ async function handleApi(runtime, ctx, req, res, url) {
 			await mkdir(pageDir, { recursive: true });
 			const id = `${Date.now()}.html`;
 			await writeFile(resolve(pageDir, id), content, { encoding: "utf8" });
-			sendJson(res, 200, { ok: true, id, path: `${projectRel}/.versions/${sessionId}/${pageId}/${id}` });
+			sendJson(res, 200, { ok: true, id, path: `${projectRel}/.versions/${pageId}/${id}` });
 			return;
 		}
 		if (versionAction === "delete") {
 			const id = stringField(field(body, "id"), "id");
-			// id 形如 <pageId>/<ts>.html(相对版本根目录)
+			// id 形如 <pageId>/<ts>.html(相对项目版本根目录 .versions)
 			if (!id.endsWith(".html") || id.includes("\0") || id.split("/").some((part) => !part || part === "." || part === "..")) throw new HttpError(400, "Invalid version id.");
 			const target = resolve(versionsDir, id);
 			if (!inside(versionsDir, target)) throw new HttpError(403, "Version id escaped its directory.");

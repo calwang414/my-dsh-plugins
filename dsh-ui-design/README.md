@@ -109,9 +109,9 @@ design 与 PPT 模式都有完整的版本管理（工具栏「Design version」
 - **版本列表**：current（V{n+1}）+ V1..Vn 倒序，下拉直接切换/恢复；
 - **保存到版本**：选中某版本后点保存，把改动写回该版本文件；
 - **管理版本**：对话框列出全部版本（恢复 / 删除，删除有确认）；
-- **版本存储**：各项目独立目录且**按页面隔离** —— design 存
-  `design/.versions/<sessionId>/<pageId>/`，PPT 存
-  `design/ppt/.versions/<sessionId>/<pageId>/`（互不干扰），
+- **版本存储**：项目级 + 页面级双层隔离 —— design 存
+  `design/.versions/<pageId>/`，PPT 存 `design/ppt/.versions/<pageId>/`，
+  不绑定会话（切换会话/新对话仍可见同一项目的版本历史），
   每个页面有自己的版本线，版本为完整 HTML 快照；
 - **会话记忆**：当前打开的版本记录在 localStorage（`ipollowork.session-design-version.*`）。
 - Host 侧：`POST /api/versions`（list / create / delete），需重启应用生效。

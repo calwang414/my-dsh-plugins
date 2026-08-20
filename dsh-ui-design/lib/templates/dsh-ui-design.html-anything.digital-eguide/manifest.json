@@ -14,8 +14,8 @@
     "playbook"
   ],
   "surface": "design",
-  "title": "Digital E-Guide",
-  "description": "Digital E-Guide is an editable editorial template with a editorial visual system, reusable brand controls, and polished sample content.",
+  "title": "数字电子指南",
+  "description": "可编辑的数字指南模板,编辑风视觉。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

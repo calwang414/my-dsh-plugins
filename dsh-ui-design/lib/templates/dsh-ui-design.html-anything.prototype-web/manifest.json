@@ -12,8 +12,8 @@
     "landing"
   ],
   "surface": "design",
-  "title": "Web Prototype",
-  "description": "Web Prototype is an editable website template with a minimal visual system, reusable brand controls, and polished sample content.",
+  "title": "Web 原型",
+  "description": "可编辑的网站模板,极简视觉语言。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

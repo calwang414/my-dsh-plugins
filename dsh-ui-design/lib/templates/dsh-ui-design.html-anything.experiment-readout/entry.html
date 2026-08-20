@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-ipw-template="experiment-readout" data-ipw-style="data">
+<html lang="zh-CN" data-ipw-template="experiment-readout" data-ipw-style="data">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Experiment Readout · Onboarding Checklist</title>
+  <title>实验简报 · 新手引导清单</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,58 +21,58 @@
   <main class="page">
     <section class="card p-7">
       <div class="flex flex-wrap justify-between gap-3 mb-7">
-        <div class="flex flex-wrap gap-2"><span class="pill bg-[#e8f8ef] text-[var(--green)]">Experiment readout</span><span class="pill bg-white border border-[var(--line)]">2026-05-06 �?2026-05-20</span><span class="pill bg-white border border-[var(--line)]">Owner: Growth PM</span></div>
-        <span class="pill bg-[#fff7e6] text-[var(--amber)]">Directional, no p-value yet</span>
+        <div class="flex flex-wrap gap-2"><span class="pill bg-[#e8f8ef] text-[var(--green)]">实验简报</span><span class="pill bg-white border border-[var(--line)]">2026-05-06 →2026-05-20</span><span class="pill bg-white border border-[var(--line)]">负责人：增长 PM</span></div>
+        <span class="pill bg-[#fff7e6] text-[var(--amber)]">方向性结果，尚无 p 值</span>
       </div>
       <div class="grid md:grid-cols-[1fr_340px] gap-8 items-end">
         <div>
-          <div class="label mb-2">Decision</div>
-          <h1 class="text-5xl md:text-6xl font-extrabold leading-[.95] tracking-tight">Iterate and ship to 50%.</h1>
-          <p class="mt-5 text-lg leading-8 text-[var(--muted)] max-w-3xl">The onboarding checklist increased 7-day activation by 5.5 absolute points, mostly through teammate invites. The data-source step created support friction and should be softened before full rollout.</p>
+          <div class="label mb-2">决策</div>
+          <h1 class="text-5xl md:text-6xl font-extrabold leading-[.95] tracking-tight">迭代并推广至 50%。</h1>
+          <p class="mt-5 text-lg leading-8 text-[var(--muted)] max-w-3xl">新手引导清单使 7 日激活率提升了 5.5 个百分点，主要来自成员邀请。数据源步骤造成了一定的支持负担，应在全面上线前加以简化。</p>
         </div>
         <div class="card p-5 bg-[#eefbf4]">
-          <div class="label text-[var(--green)]">Primary metric</div>
+          <div class="label text-[var(--green)]">核心指标</div>
           <div class="mt-2 text-6xl font-extrabold">+5.5pp</div>
-          <p class="mt-2 text-sm text-[var(--muted)]">Activation within 7 days: 21.4% �?26.9%</p>
+          <p class="mt-2 text-sm text-[var(--muted)]">7 日激活率：21.4% →26.9%</p>
         </div>
       </div>
     </section>
 
     <section class="grid md:grid-cols-3 gap-4 mt-5">
-      <div class="card p-5"><div class="label">Hypothesis</div><p class="mt-3 text-sm leading-6">A guided checklist will help new teams invite teammates and complete a first shared workflow.</p></div>
-      <div class="card p-5"><div class="label">Audience</div><p class="mt-3 text-sm leading-6">New workspaces with 2-20 invited users.</p></div>
-      <div class="card p-5"><div class="label">Guardrails</div><p class="mt-3 text-sm leading-6">Support tickets rose from 6.2 to 7.1 per 100 workspaces; deletion stayed flat.</p></div>
+      <div class="card p-5"><div class="label">假设</div><p class="mt-3 text-sm leading-6">引导式清单将帮助新团队邀请成员并完成首个共享工作流。</p></div>
+      <div class="card p-5"><div class="label">受众</div><p class="mt-3 text-sm leading-6">邀请 2-20 名用户的新工作区。</p></div>
+      <div class="card p-5"><div class="label">护栏</div><p class="mt-3 text-sm leading-6">每 100 个工作区的支持工单从 6.2 升至 7.1；删除率保持平稳。</p></div>
     </section>
 
     <section class="grid lg:grid-cols-[1.05fr_.95fr] gap-5 mt-5">
       <div class="card overflow-hidden">
-        <div class="p-5 border-b border-[var(--line)]"><div class="label">Metric table</div></div>
+        <div class="p-5 border-b border-[var(--line)]"><div class="label">指标表</div></div>
         <table>
-          <thead><tr><th>Metric</th><th>Control</th><th>Variant</th><th>Read</th></tr></thead>
+          <thead><tr><th>指标</th><th>对照组</th><th>实验组</th><th>结论</th></tr></thead>
           <tbody>
-            <tr><td><b>Activation</b></td><td>21.4%</td><td>26.9%</td><td class="text-[var(--green)] font-bold">Positive signal</td></tr>
-            <tr><td><b>Invite teammate</b></td><td>38.1%</td><td>47.4%</td><td>Largest movement</td></tr>
-            <tr><td><b>Create workflow</b></td><td>44.8%</td><td>46.1%</td><td>Minor lift</td></tr>
-            <tr><td><b>Support tickets / 100</b></td><td>6.2</td><td>7.1</td><td class="text-[var(--amber)] font-bold">Watch</td></tr>
-            <tr><td><b>Workspace deletion</b></td><td>4.8%</td><td>5.0%</td><td>Flat guardrail</td></tr>
+            <tr><td><b>激活</b></td><td>21.4%</td><td>26.9%</td><td class="text-[var(--green)] font-bold">正向信号</td></tr>
+            <tr><td><b>邀请成员</b></td><td>38.1%</td><td>47.4%</td><td>变化最大</td></tr>
+            <tr><td><b>创建工作流</b></td><td>44.8%</td><td>46.1%</td><td>小幅提升</td></tr>
+            <tr><td><b>支持工单 / 100</b></td><td>6.2</td><td>7.1</td><td class="text-[var(--amber)] font-bold">关注</td></tr>
+            <tr><td><b>工作区删除</b></td><td>4.8%</td><td>5.0%</td><td>护栏平稳</td></tr>
           </tbody>
         </table>
       </div>
       <div class="card p-5">
-        <div class="label mb-5">Activation funnel movement</div>
+        <div class="label mb-5">激活漏斗变化</div>
         <div class="space-y-5">
-          <div><div class="flex justify-between text-sm mb-2"><b>Control activation</b><span>21.4%</span></div><div class="bar"><span style="width:21.4%"></span></div></div>
-          <div><div class="flex justify-between text-sm mb-2"><b>Variant activation</b><span>26.9%</span></div><div class="bar"><span style="width:26.9%"></span></div></div>
-          <div><div class="flex justify-between text-sm mb-2"><b>Control invite</b><span>38.1%</span></div><div class="bar"><span style="width:38.1%;background:var(--blue)"></span></div></div>
-          <div><div class="flex justify-between text-sm mb-2"><b>Variant invite</b><span>47.4%</span></div><div class="bar"><span style="width:47.4%;background:var(--blue)"></span></div></div>
+          <div><div class="flex justify-between text-sm mb-2"><b>对照组激活</b><span>21.4%</span></div><div class="bar"><span style="width:21.4%"></span></div></div>
+          <div><div class="flex justify-between text-sm mb-2"><b>实验组激活</b><span>26.9%</span></div><div class="bar"><span style="width:26.9%"></span></div></div>
+          <div><div class="flex justify-between text-sm mb-2"><b>对照组邀请</b><span>38.1%</span></div><div class="bar"><span style="width:38.1%;background:var(--blue)"></span></div></div>
+          <div><div class="flex justify-between text-sm mb-2"><b>实验组邀请</b><span>47.4%</span></div><div class="bar"><span style="width:47.4%;background:var(--blue)"></span></div></div>
         </div>
       </div>
     </section>
 
     <section class="grid md:grid-cols-3 gap-4 mt-5">
-      <article class="card p-5"><span class="pill bg-[#e8f8ef] text-[var(--green)]">Ship next</span><h3 class="mt-4 text-xl font-extrabold">Roll out to 50%</h3><p class="mt-3 text-sm leading-6 text-[var(--muted)]">Keep checklist visible, but reduce pressure around data-source connection.</p></article>
-      <article class="card p-5"><span class="pill bg-[#fff7e6] text-[var(--amber)]">Fix friction</span><h3 class="mt-4 text-xl font-extrabold">Split data-source step</h3><p class="mt-3 text-sm leading-6 text-[var(--muted)]">Add "skip for now" and "connect later"; engineering estimates 2 days.</p></article>
-      <article class="card p-5"><span class="pill bg-[#eef2ff] text-[var(--blue)]">Measure</span><h3 class="mt-4 text-xl font-extrabold">Calculate significance</h3><p class="mt-3 text-sm leading-6 text-[var(--muted)]">Add p-value or Bayesian read before 100% rollout.</p></article>
+      <article class="card p-5"><span class="pill bg-[#e8f8ef] text-[var(--green)]">下一步上线</span><h3 class="mt-4 text-xl font-extrabold">推广至 50%</h3><p class="mt-3 text-sm leading-6 text-[var(--muted)]">保持清单可见，同时减轻数据源连接环节的压力。</p></article>
+      <article class="card p-5"><span class="pill bg-[#fff7e6] text-[var(--amber)]">消除摩擦</span><h3 class="mt-4 text-xl font-extrabold">拆分数据源步骤</h3><p class="mt-3 text-sm leading-6 text-[var(--muted)]">增加“暂不连接”与“稍后连接”选项；工程评估约需 2 天。</p></article>
+      <article class="card p-5"><span class="pill bg-[#eef2ff] text-[var(--blue)]">衡量</span><h3 class="mt-4 text-xl font-extrabold">计算显著性</h3><p class="mt-3 text-sm leading-6 text-[var(--muted)]">在 100% 上线前补充 p 值或贝叶斯结论。</p></article>
     </section>
   </main>
 </body>

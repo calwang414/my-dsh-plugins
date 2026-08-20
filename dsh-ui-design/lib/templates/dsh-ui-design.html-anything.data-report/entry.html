@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" data-ipw-template="data-report" data-ipw-style="data">
+<html lang="zh-CN" data-ipw-template="data-report" data-ipw-style="data">
 <head>
 <meta charset="UTF-8" />
-<title>Summary</title>
+<title>摘要</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -26,98 +26,98 @@
   <header class="pb-7 mb-8 border-b border-[#e7e5e0]">
     <div class="flex items-baseline justify-between flex-wrap gap-3">
       <div>
-        <div class="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#c96442] mb-2">Weekly Report · Week 19</div>
-        <h1 class="text-4xl font-extrabold tracking-tight">Performance</h1>
+        <div class="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#c96442] mb-2">每周报告 · 第 19 周</div>
+        <h1 class="text-4xl font-extrabold tracking-tight">表现</h1>
       </div>
       <div class="text-xs text-[#5a564e] text-right">
-        <div>Revenue <span class="font-semibold text-[#15140f]">Growth</span></div>
-        <div>Insights <span class="font-mono text-[#15140f]">2025-05-11</span></div>
+        <div>收入 <span class="font-semibold text-[#15140f]">增长</span></div>
+        <div>洞察 <span class="font-mono text-[#15140f]">2025-05-11</span></div>
       </div>
     </div>
-    <p class="mt-3 text-sm text-[#5a564e] max-w-2xl leading-relaxed">A structured reporting system that turns data, evidence, and commentary into a clear executive narrative.</p>
+    <p class="mt-3 text-sm text-[#5a564e] max-w-2xl leading-relaxed">一个结构化的汇报系统，将数据、证据和评述转化为清晰的管理层叙事。</p>
   </header>
 
   <section class="section mb-10">
-    <h2>Outlook</h2>
+    <h2>展望</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="rounded-2xl bg-white p-5 border border-[#e7e5e0] shadow-[0_1px_0_#f0ece5]">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-[#5a564e] mb-2">Method</div>
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-[#5a564e] mb-2">方法</div>
         <div class="text-3xl font-extrabold num">23,950</div>
-        <div class="text-xs mt-2"><span class="delta-up">�?16.0%</span> <span class="text-[#5a564e]">Details</span></div>
+        <div class="text-xs mt-2"><span class="delta-up">▲16.0%</span> <span class="text-[#5a564e]">详情</span></div>
         <div class="mt-3" style="position:relative;height:40px"><canvas id="kpi1"></canvas></div>
       </div>
       <div class="rounded-2xl bg-white p-5 border border-[#e7e5e0] shadow-[0_1px_0_#f0ece5]">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-[#5a564e] mb-2">Summary</div>
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-[#5a564e] mb-2">摘要</div>
         <div class="text-3xl font-extrabold num">4,250</div>
-        <div class="text-xs mt-2"><span class="delta-up">�?15.5%</span> <span class="text-[#5a564e]">Performance</span></div>
+        <div class="text-xs mt-2"><span class="delta-up">▲15.5%</span> <span class="text-[#5a564e]">表现</span></div>
         <div class="mt-3" style="position:relative;height:40px"><canvas id="kpi2"></canvas></div>
       </div>
       <div class="rounded-2xl bg-white p-5 border border-[#e7e5e0] shadow-[0_1px_0_#f0ece5]">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-[#5a564e] mb-2">Revenue</div>
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-[#5a564e] mb-2">收入</div>
         <div class="text-3xl font-extrabold num">2,418 <span class="text-base text-[#5a564e]">/ 10.1%</span></div>
-        <div class="text-xs mt-2"><span class="delta-up">�?18.5%</span> <span class="text-[#5a564e]">Growth</span></div>
+        <div class="text-xs mt-2"><span class="delta-up">▲18.5%</span> <span class="text-[#5a564e]">增长</span></div>
         <div class="mt-3" style="position:relative;height:40px"><canvas id="kpi3"></canvas></div>
       </div>
       <div class="rounded-2xl bg-white p-5 border border-[#e7e5e0] shadow-[0_1px_0_#f0ece5]">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-[#5a564e] mb-2">Insights</div>
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-[#5a564e] mb-2">洞察</div>
         <div class="text-3xl font-extrabold num">1.8%</div>
-        <div class="text-xs mt-2"><span class="delta-up">�?0.1pp</span> <span class="text-[#5a564e]">Outlook</span></div>
+        <div class="text-xs mt-2"><span class="delta-up">▲0.1pp</span> <span class="text-[#5a564e]">展望</span></div>
         <div class="mt-3" style="position:relative;height:40px"><canvas id="kpi4"></canvas></div>
       </div>
     </div>
   </section>
 
   <section class="section mb-10">
-    <h2>Method</h2>
+    <h2>方法</h2>
     <div class="grid lg:grid-cols-3 gap-4">
       <div class="lg:col-span-2 rounded-2xl bg-white p-5 border border-[#e7e5e0]">
-        <div class="text-sm font-semibold mb-3">Details</div>
+        <div class="text-sm font-semibold mb-3">详情</div>
         <div style="position:relative;height:260px"><canvas id="chart-main"></canvas></div>
       </div>
       <div class="rounded-2xl bg-white p-5 border border-[#e7e5e0]">
-        <div class="text-sm font-semibold mb-3">Summary</div>
+        <div class="text-sm font-semibold mb-3">摘要</div>
         <div style="position:relative;height:260px"><canvas id="chart-churn"></canvas></div>
       </div>
     </div>
   </section>
 
   <section class="section mb-10">
-    <h2>Performance</h2>
+    <h2>表现</h2>
     <div class="rounded-2xl border border-[#e7e5e0] overflow-hidden bg-white">
       <table>
-        <thead><tr><th>Revenue</th><th class="text-right">MAU</th><th class="text-right">Growth</th><th class="text-right">Insights</th><th class="text-right">Outlook</th></tr></thead>
+        <thead><tr><th>收入</th><th class="text-right">MAU</th><th class="text-right">增长</th><th class="text-right">洞察</th><th class="text-right">展望</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
   </section>
 
   <section class="section mb-10">
-    <h2>Method</h2>
+    <h2>方法</h2>
     <div class="grid md:grid-cols-3 gap-4">
       <div class="rounded-2xl bg-white p-5 border border-[#e7e5e0]">
         <div class="text-3xl mb-2">📈</div>
-        <div class="font-semibold mb-1.5">Details</div>
-        <div class="text-sm text-[#5a564e] leading-relaxed">Data Visualization Report</div>
+        <div class="font-semibold mb-1.5">详情</div>
+        <div class="text-sm text-[#5a564e] leading-relaxed">数据可视化报告</div>
       </div>
       <div class="rounded-2xl bg-white p-5 border border-[#e7e5e0]">
         <div class="text-3xl mb-2">💰</div>
-        <div class="font-semibold mb-1.5">Summary</div>
-        <div class="text-sm text-[#5a564e] leading-relaxed">Performance at a glance</div>
+        <div class="font-semibold mb-1.5">摘要</div>
+        <div class="text-sm text-[#5a564e] leading-relaxed">表现一览</div>
       </div>
       <div class="rounded-2xl bg-white p-5 border border-[#e7e5e0]">
         <div class="text-3xl mb-2">🎯</div>
-        <div class="font-semibold mb-1.5">Performance</div>
-        <div class="text-sm text-[#5a564e] leading-relaxed">What changed and why</div>
+        <div class="font-semibold mb-1.5">表现</div>
+        <div class="text-sm text-[#5a564e] leading-relaxed">变化与原因</div>
       </div>
     </div>
   </section>
 
   <details class="mt-12 rounded-xl border border-[#e7e5e0] bg-white p-5">
     <summary class="cursor-pointer text-sm font-semibold text-[#5a564e] flex items-center justify-between">
-      Revenue <span class="text-[#5a564e]">�?/span>
+      收入 <span class="text-[#5a564e]"></span>
     </summary>
     <div class="text-xs text-[#5a564e] leading-relaxed mt-3 max-w-3xl">
-      Use the editable metrics, charts, and sections to explain performance without losing the important context.
+      使用可编辑的指标、图表和区块来说明表现，同时保留重要的背景信息。
     </div>
   </details>
 

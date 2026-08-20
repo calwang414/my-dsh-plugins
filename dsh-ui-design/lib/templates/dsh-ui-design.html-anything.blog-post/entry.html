@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" data-ipw-template="blog-post" data-ipw-style="minimal">
+<html lang="zh-CN" data-ipw-template="blog-post" data-ipw-style="minimal">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Why we rewrote our sync engine in Rust �?UI Design</title>
+  <title>我们为什么用 Rust 重写同步引擎 — UI Design</title>
   <style>
     :root {
       --bg: #fafaf9; --fg: #1c1b1a; --muted: #6b6964; --border: #e6e4e0;
@@ -33,48 +33,48 @@
     .endnote a { color: var(--accent); text-decoration: none; }
   </style>
 <link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens></head>
-<body><div class="ipw-brand-slot" data-ipw-brand-slot><img src="assets/ipollowork-logo.svg?v=20260729" alt="UI Design logo" data-ipw-logo><span data-ipw-text="brand.name">UI Design</span></div>
+<body><div class="ipw-brand-slot" data-ipw-brand-slot><img src="assets/ipollowork-logo.svg?v=20260729" alt="UI Design 标志" data-ipw-logo><span data-ipw-text="brand.name">UI Design</span></div>
   <article class="wrap" data-od-id="article">
-    <nav class="top"><a href="#">�?UI Design blog</a></nav>
-    <div class="eyebrow">Engineering</div>
-    <h1>Why we rewrote our sync engine in Rust</h1>
+    <nav class="top"><a href="#">←UI Design 博客</a></nav>
+    <div class="eyebrow">工程</div>
+    <h1>我们为什么用 Rust 重写同步引擎</h1>
     <div class="byline">
       <div class="avatar"></div>
-      <span>By Mira Hassan · April 22, 2026 · 8 min read</span>
+      <span>作者：Mira Hassan · 2026 年 4 月 22 日 · 8 分钟阅读</span>
     </div>
-    <p class="lede">For two years our Go sync engine was good enough. Then video editors started joining the customer list, and the GC pauses we'd been politely ignoring turned into bug reports we couldn't ignore.</p>
+    <p class="lede">两年来，我们的 Go 同步引擎一直够用。直到视频剪辑师开始加入客户名单，我们一直礼貌性忽略的 GC 停顿，变成了无法再忽视的 bug 报告。</p>
     <div class="hero-figure" data-od-id="hero-figure"></div>
 
-    <p>The decision wasn't sudden. We'd been watching the GC pause distribution shift for six months before we admitted what the data was telling us. P50 latency was great. P99 was a horror movie. Customers syncing 30 GB of <code>.psd</code> files in active editing sessions were the ones writing in.</p>
+    <p>这个决定并非突然。我们观察 GC 停顿分布的变化已有六个月，才承认数据在告诉我们什么。P50 延迟表现优异，P99 却像一部恐怖片。那些在活跃编辑会话中同步 30 GB <code>.psd</code> 文件的客户，正是最先来反馈的人。</p>
 
-    <p>Rewriting an entire sync engine sounds like the kind of project a startup is told never to do. We did it anyway. Here's how it went, what surprised us, and the parts I'd do differently.</p>
+    <p>重写整个同步引擎，听起来就像那种所有人都告诫初创公司千万别碰的项目。我们还是做了。以下是过程、令我们意外的部分，以及我会做出不同选择的地方。</p>
 
-    <h2>The trigger: GC pauses we couldn't fix</h2>
-    <p>Go's garbage collector is brilliant. It is also, fundamentally, a tradeoff. Our hot path allocated short-lived buffer slices on every block diff �?and at our scale, on a heavy uploader, the collector ran often enough that the P99 pause crept past 50ms.</p>
+    <h2>导火索：无法修复的 GC 停顿</h2>
+    <p>Go 的垃圾回收器很出色，但本质上也是一种取舍。我们的热路径在每次块差异计算时都会分配短命的缓冲区切片——在大量上传的规模下，回收器运行得足够频繁，P99 停顿悄悄超过了 50ms。</p>
 
-    <p>We tried the usual fixes: pooling buffers with <code>sync.Pool</code>, tuning <code>GOGC</code>, reducing allocations in the merge path. They each helped a little. None of them got us under 20ms, and the customers we cared about needed under 5.</p>
+    <p>我们尝试了常规方案：用 <code>sync.Pool</code> 池化缓冲区、调优 <code>GOGC</code>、减少合并路径中的分配。每项都有点帮助，但没有一项能把延迟压到 20ms 以下，而我们在意的客户需要的是 5ms 以下。</p>
 
-    <blockquote>"We can't fix this in Go. We can fix it in something without a GC."</blockquote>
+    <blockquote>“我们无法在 Go 中修复它，但可以用一种没有 GC 的语言来修复。”</blockquote>
 
-    <p>Our staff engineer Sasha said this in a meeting in October. He was right. The question wasn't whether to leave Go. It was what to leave it for, and how much we could keep.</p>
+    <p>我们的高级工程师 Sasha 在十月的会议上说了这句话。他说得对。问题不在于要不要离开 Go，而在于用什么替代它，以及我们能保留多少。</p>
 
-    <h2>What we kept; what we threw out</h2>
-    <p>The CLI stayed in Go. The control plane stayed in Go. The bit that does block-level diffing in a hot loop on a customer's laptop �?that became Rust. The boundary became a single FFI surface with a small, opinionated protocol.</p>
+    <h2>保留了什么，舍弃了什么</h2>
+    <p>CLI 留在 Go，控制平面也留在 Go。而那个在客户笔记本热循环中做块级差异计算的模块，改成了 Rust。边界收敛为单一的 FFI 接口，配上一个精简而强约定的协议。</p>
 
     <figure class="numbers">
-      <div class="stat"><div class="value">38ms �?4ms</div><div class="label">P99 sync latency</div></div>
-      <div class="stat"><div class="value">62%</div><div class="label">Memory drop</div></div>
-      <div class="stat"><div class="value">11 weeks</div><div class="label">From RFC to ship</div></div>
+      <div class="stat"><div class="value">38ms →4ms</div><div class="label">P99 同步延迟</div></div>
+      <div class="stat"><div class="value">62%</div><div class="label">内存下降</div></div>
+      <div class="stat"><div class="value">11 周</div><div class="label">从 RFC 到上线</div></div>
     </figure>
 
-    <p>The numbers above are real and from production. They are also misleading without context: the Rust port doesn't just remove the GC, it also removes a layer of abstraction we'd been carrying since the Go MVP.</p>
+    <p>以上数字真实来自生产环境，但脱离上下文也有误导性：Rust 移植版不只是去掉了 GC，还去掉了一层我们从 Go MVP 时期就一直背着的抽象。</p>
 
-    <h2>What I'd do differently</h2>
-    <p>One thing: the FFI boundary. We chose <code>cgo</code> for symmetry �?Go calling Rust feels right when you already have Go everywhere. But the binding ceremony is brittle, and we ate two production incidents from string lifetime mistakes before we wrote a wrapper layer that handled them once.</p>
+    <h2>如果重来，我会怎么做</h2>
+    <p>只有一点：FFI 边界。当初为了对称性，我们选了 <code>cgo</code>——当你的代码库里到处都是 Go 时，让 Go 调用 Rust 感觉很自然。但绑定过程很脆弱，在写出一次性处理这些问题的包装层之前，字符串生命周期错误让我们吃了两次生产事故。</p>
 
-    <p>If I were starting today, I'd reach for <code>uniffi</code> or generate the bindings from a schema. The lessons isn't <em>don't use cgo</em>; it's <em>treat the boundary like an external API the moment you cross language families</em>.</p>
+    <p>如果今天重新开始，我会选择 <code>uniffi</code>，或根据 schema 生成绑定。教训不是<em>别用 cgo</em>，而是<em>一旦跨越语言体系，就把边界当作外部 API 来对待</em>。</p>
 
-    <div class="endnote">UI Design is hiring engineers who like writing this kind of post. <a href="#">See open roles �?/a></div>
+    <div class="endnote">UI Design 正在招聘喜欢写这类文章的工程师。<a href="#">查看开放职位 →</a></div>
   </article>
 </body>
 </html>

@@ -13,8 +13,8 @@
     "teleprompter"
   ],
   "surface": "design",
-  "title": "Presenter Mode Deck",
-  "description": "Presenter Mode Deck is an editable presentation template with a dark visual system, reusable brand controls, and polished sample content.",
+  "title": "演讲者模式",
+  "description": "可编辑的演示模板,深色演讲风格。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

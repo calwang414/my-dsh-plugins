@@ -11,8 +11,8 @@
     "workspace"
   ],
   "surface": "design",
-  "title": "Creator Studio",
-  "description": "A bold creator workspace prototype with media and analytics zones.",
+  "title": "创作工坊",
+  "description": "面向创作者的工作台原型,集成媒体与数据分析区域。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

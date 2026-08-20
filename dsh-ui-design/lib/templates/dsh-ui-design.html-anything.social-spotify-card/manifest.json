@@ -15,8 +15,8 @@
     "overlay"
   ],
   "surface": "design",
-  "title": "Spotify Now-Playing Card",
-  "description": "Spotify Now-Playing Card is an editable social card template with a dark visual system, reusable brand controls, and polished sample content.",
+  "title": "Spotify 播放卡",
+  "description": "可编辑的社交卡片模板(仿 Spotify 正在播放样式)。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

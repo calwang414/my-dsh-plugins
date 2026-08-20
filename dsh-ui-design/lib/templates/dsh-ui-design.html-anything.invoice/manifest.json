@@ -12,8 +12,8 @@
     "bill"
   ],
   "surface": "design",
-  "title": "Printable Invoice",
-  "description": "A printable, editable invoice layout for billing documents and client-ready records.",
+  "title": "可打印发票",
+  "description": "可打印、可编辑的发票排版,用于账单与报价文档。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

@@ -15,8 +15,8 @@
     "html-in-canvas"
   ],
   "surface": "design",
-  "title": "Device 3D Showcase",
-  "description": "An editable 3D device mockup for product previews, launch assets and visual experiments.",
+  "title": "3D 设备展示",
+  "description": "可编辑的 3D 设备样机,适用于产品预览与发布场景。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

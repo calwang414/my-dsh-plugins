@@ -16,8 +16,8 @@
     "vfx"
   ],
   "surface": "design",
-  "title": "Liquid Background Hero",
-  "description": "An editable liquid motion background for hero sections, visual experiments and campaign assets.",
+  "title": "液态背景 Hero",
+  "description": "液态动效背景,适用于 Hero 区块与视觉焦点场景。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

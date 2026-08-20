@@ -14,8 +14,8 @@
     "data"
   ],
   "surface": "design",
-  "title": "Experiment Readout",
-  "description": "Experiment Readout is an editable data report template with a data visual system, reusable brand controls, and polished sample content.",
+  "title": "实验报告",
+  "description": "可编辑的实验数据报告模板。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

@@ -13,8 +13,8 @@
     "explainer"
   ],
   "surface": "design",
-  "title": "Sprite Animation",
-  "description": "An editable retro sprite animation for explainers, playful product moments and motion studies.",
+  "title": "精灵动画",
+  "description": "复古像素精灵动画,适用于讲解与趣味演示。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

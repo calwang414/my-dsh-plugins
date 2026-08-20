@@ -11,8 +11,8 @@
     "product"
   ],
   "surface": "design",
-  "title": "Calm Mobile App",
-  "description": "A refined mobile product prototype with an accessible card system.",
+  "title": "静逸移动 App",
+  "description": "精致优雅的移动端产品原型,内置无障碍友好的卡片系统。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

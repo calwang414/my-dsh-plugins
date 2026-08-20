@@ -13,8 +13,8 @@
     "dashboard"
   ],
   "surface": "design",
-  "title": "Orbit Data Cloud",
-  "description": "A dark data and AI platform website with product metrics, technical value pillars, use cases, and a conversion flow.",
+  "title": "轨道数据云",
+  "description": "深色数据与 AI 平台网站,含产品指标与技术叙事。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

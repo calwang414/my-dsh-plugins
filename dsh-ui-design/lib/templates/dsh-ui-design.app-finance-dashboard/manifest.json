@@ -11,8 +11,8 @@
     "dashboard"
   ],
   "surface": "design",
-  "title": "Finance Dashboard",
-  "description": "A desktop dashboard prototype for balances, trends and actions.",
+  "title": "金融仪表盘",
+  "description": "桌面端金融仪表盘原型,覆盖余额、趋势与账户操作。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

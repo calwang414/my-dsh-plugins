@@ -13,8 +13,8 @@
     "themeable"
   ],
   "surface": "design",
-  "title": "Afterglow Festival",
-  "description": "An expressive music festival site with schedule, stages, artist discovery, ticket tiers, and practical information.",
+  "title": "余晖音乐节",
+  "description": "表现力丰富的音乐节网站,含日程、舞台与艺人阵容。",
   "cover": "cover.png",
   "entry": "entry.html",
   "source": {

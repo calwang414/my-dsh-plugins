@@ -51602,6 +51602,7 @@ function CardIcon({ kind }) {
 		height: 4,
 		rx: .5
 	}), react.default.createElement("path", { d: "M6 1.5v3M10 1.5v3M6 11.5v3M10 11.5v3M1.5 6h3M1.5 10h3M11.5 6h3M11.5 10h3" }));
+	if (kind === "voice") return react.default.createElement("svg", common, react.default.createElement("path", { d: "M2 6.5v3a1 1 0 0 0 1 1h2l4.5 3.2V2.3L5 5.5H3a1 1 0 0 0-1 1z" }), react.default.createElement("path", { d: "M11 6.2a3.2 3.2 0 0 1 0 3.6M12.9 4.6a5.6 5.6 0 0 1 0 6.8" }));
 	return react.default.createElement("svg", common, react.default.createElement("path", { d: "M4.5 13h7a2.5 2.5 0 0 0 .4-4.97A4 4 0 0 0 4.2 6.3 3 3 0 0 0 4.5 13z" }));
 }
 function ModeCard({ active, disabled, title, desc, icon, onClick }) {
@@ -51911,17 +51912,6 @@ function VoiceSettingsPage() {
 		const n = Number(e.target.value);
 		if (Number.isFinite(n)) patch({ [field]: n });
 	};
-	const onSelect = (field) => (e) => {
-		const v = e.target.value;
-		if (field === "petMode" && v === "standalone" && (value.petSize ?? 1) > 1.5) {
-			patch({
-				petMode: v,
-				petSize: 1.5
-			});
-			return;
-		}
-		patch({ [field]: v });
-	};
 	const onPickMode = (v) => {
 		if (v === "standalone" && (value.petSize ?? 1) > 1.5) {
 			patch({
@@ -52113,19 +52103,21 @@ function VoiceSettingsPage() {
 	})), react.default.createElement(Row, {
 		title: "Edge 音色",
 		desc: "仅 TTS 引擎为 edge 时生效"
-	}, react.default.createElement("select", {
-		style: {
-			...inputStyle,
-			width: 160
-		},
-		value: value.edgeVoice ?? "zh-CN-XiaoxiaoNeural",
-		disabled: (value.ttsEngine ?? "melo") !== "edge",
-		onChange: onSelect("edgeVoice")
-	}, EDGE_VOICES.map((v) => react.default.createElement("option", {
+	}, react.default.createElement("div", { style: {
+		display: "grid",
+		gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+		gap: 6,
+		width: 300,
+		flexShrink: 0
+	} }, EDGE_VOICES.map((v) => react.default.createElement(ModeCard, {
 		key: v.code,
-		value: v.code,
-		title: v.code
-	}, v.name)))), react.default.createElement(Row, {
+		active: (value.edgeVoice ?? "zh-CN-XiaoxiaoNeural") === v.code,
+		disabled: (value.ttsEngine ?? "melo") !== "edge",
+		title: v.name,
+		desc: v.code,
+		icon: "voice",
+		onClick: () => patch({ edgeVoice: v.code })
+	})))), react.default.createElement(Row, {
 		title: "语音播报",
 		desc: "开启 voice_speak 与回复朗读"
 	}, react.default.createElement(Switch, {

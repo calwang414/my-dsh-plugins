@@ -109,11 +109,15 @@ function CardIcon({ kind }) {
       React.createElement('rect', { x: 6, y: 6, width: 4, height: 4, rx: 0.5 }),
       React.createElement('path', { d: 'M6 1.5v3M10 1.5v3M6 11.5v3M10 11.5v3M1.5 6h3M1.5 10h3M11.5 6h3M11.5 10h3' }))
   }
+  if (kind === 'voice') {
+    return React.createElement('svg', common,
+      React.createElement('path', { d: 'M2 6.5v3a1 1 0 0 0 1 1h2l4.5 3.2V2.3L5 5.5H3a1 1 0 0 0-1 1z' }),
+      React.createElement('path', { d: 'M11 6.2a3.2 3.2 0 0 1 0 3.6M12.9 4.6a5.6 5.6 0 0 1 0 6.8' }))
+  }
   // cloud(在线)
   return React.createElement('svg', common,
     React.createElement('path', { d: 'M4.5 13h7a2.5 2.5 0 0 0 .4-4.97A4 4 0 0 0 4.2 6.3 3 3 0 0 0 4.5 13z' }))
 }
-
 // 桌宠显示模式卡片(选中:品牌色边框 + 浅品牌背景 + 勾选)
 function ModeCard({ active, disabled, title, desc, icon, onClick }) {
   return React.createElement('button', {
@@ -489,8 +493,14 @@ function VoiceSettingsPage() {
             React.createElement(Row, { title: '语速', desc: '0.5-1.5' },
               React.createElement('input', { type: 'number', style: { ...inputStyle, width: 100 }, value: value.speed ?? 1, step: 0.1, min: 0.5, max: 1.5, disabled: !writable, onChange: onNum('speed') })),
             React.createElement(Row, { title: 'Edge 音色', desc: '仅 TTS 引擎为 edge 时生效' },
-              React.createElement('select', { style: { ...inputStyle, width: 160 }, value: value.edgeVoice ?? 'zh-CN-XiaoxiaoNeural', disabled: !writable || (value.ttsEngine ?? 'melo') !== 'edge', onChange: onSelect('edgeVoice') },
-                EDGE_VOICES.map((v) => React.createElement('option', { key: v.code, value: v.code, title: v.code }, v.name)))),
+              React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 6, width: 300, flexShrink: 0 } },
+                EDGE_VOICES.map((v) => React.createElement(ModeCard, {
+                  key: v.code,
+                  active: (value.edgeVoice ?? 'zh-CN-XiaoxiaoNeural') === v.code,
+                  disabled: !writable || (value.ttsEngine ?? 'melo') !== 'edge',
+                  title: v.name, desc: v.code, icon: 'voice',
+                  onClick: () => patch({ edgeVoice: v.code }),
+                })))),
             React.createElement(Row, { title: '语音播报', desc: '开启 voice_speak 与回复朗读' },
               React.createElement(Switch, { label: '语音播报', checked: value.speakEnabled !== false, disabled: !writable, onChange: onCheck('speakEnabled') }))),
         ),

@@ -4163,7 +4163,22 @@ async function pageOperation(runtime, root, sessionId, action, body) {
 		if (action === "create") {
 			const title = stringField(field(body, "title"), "title");
 			const id = pageIdFrom(title, new Set(pages.map((page) => page.id)));
-			await ensureFile(resolve(directory, `${id}.html`), pageStarterHtml(runtime, title));
+			const templateId = field(body, "templateId");
+			if (typeof templateId === "string" && templateId.length > 0) {
+				// 用模板内容播种新页面:保留项目其他页面,仅替换页面 HTML 与设计令牌。
+				const template = await templateById(runtime, templateId);
+				let html = await readFile(resolve(template.directory, safeTemplatePath(template.manifest.entry)), "utf8");
+				html = html.replace(/<title>[^<]*<\/title>/i, `<title>${title.replace(/[<>&"']/g, (ch) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "\"": "&quot;", "'": "&#39;" }[ch]))}</title>`);
+				await ensureFile(resolve(directory, `${id}.html`), html);
+				try {
+					const tokensPath = resolve(template.directory, "design-tokens.css");
+					await ensureFile(resolve(directory, "design-tokens.css"), await readFile(tokensPath, "utf8"));
+				} catch {
+					// 模板未附带令牌文件时保留项目现有令牌。
+				}
+			} else {
+				await ensureFile(resolve(directory, `${id}.html`), pageStarterHtml(runtime, title));
+			}
 			pages.push({ id, title, entry: `${id}.html` });
 			manifest.pages = pages;
 			manifest.entry = `${id}.html`;

@@ -1,10 +1,14 @@
 # 集成设计：页面导出为 PSD / Sketch 设计源文件
 
-> **实现状态（2026-08-20）**：P0 已实现并验证 —— design 模式「更多设计操作」菜单
-> 提供「下载 Sketch」（html2sketch + JSZip 组装）与「下载 PSD」（分层截图 + ag-psd），
-> PPT/slides 模式不提供。静态资源：`studio/dist/assets/html2sketch.min.js`、
-> `ag-psd.bundle.js`、`jszip-standalone.min.js`、`design-source-export-v5.js`。
-> 主 bundle `index-EPv17.js`（`window.__dshExportSource(kind)` 入口 + WP 菜单注入 + 10 语言 i18n）。
+> **实现状态（2026-08-20，v2）**：P0 已实现并验证 —— design 模式「下载」菜单提供
+> 「导出 Sketch」（html2sketch + JSZip 组装）与「导出 PSD」（分层截图 + ag-psd），
+> PPT/slides 模式不提供。输出为**固定目录写入**而非浏览器下载：首次导出用
+> File System Access API（`showDirectoryPicker`）选择一次输出目录（建议
+> `design/output/`），句柄存 IndexedDB，之后直接写入（覆盖同名文件）。
+> 图标与 PPT 模式一致（下载箭头）；菜单项文案「导出 Sketch / 导出 PSD」。
+> 静态资源：`studio/dist/assets/html2sketch.min.js`、`ag-psd.bundle.js`、
+> `jszip-standalone.min.js`、`design-source-export-v6.js`。主 bundle `index-EPv19.js`
+> （`window.__dshExportSource(kind)` 入口 + WP 菜单注入 + 10 语言 i18n）。
 > 未实现：PSD 语义图层映射（P1）、图层命名语义化（P1）、大文档阈值与降级（P1）。
 
 

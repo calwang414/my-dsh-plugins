@@ -77,8 +77,8 @@ dsh-ui-design/
 
 ## 设计源文件导出（PSD / Sketch）
 
-网页设计（design）模式的「更多设计操作」菜单提供 **下载 Sketch** 与 **下载 PSD**，
-把当前页面导出为可编辑的设计源文件（纯浏览器内完成，无需服务端）：
+网页设计（design）模式的「下载」菜单提供 **导出 Sketch** 与 **导出 PSD**，
+把当前页面导出为可编辑的设计源文件（纯浏览器内完成，无服务端改动）：
 
 - **Sketch**：基于 [html2sketch](https://github.com/ant-design/html2sketch)（Ant Design，MIT）解析 DOM
   为 Sketch 图层树，再用 JSZip 组装 `.sketch` 文件（document.json / pages / meta.json / user.json）。
@@ -86,10 +86,13 @@ dsh-ui-design/
 - **PSD**：基于 [ag-psd](https://github.com/Agamnentzar/ag-psd)（MIT），P0 方案为「分层截图」——
   每个可见元素用 html2canvas 单独截图生成一个图层（像素级保真、图层与 DOM 顺序一致），
   文本暂为图片层（可编辑文本层的语义映射为后续增强）。
-- 两者都复用现有导出骨架：隐藏 iframe 重建预览页面（无 sandbox）→ 锁定与预览一致的视口 →
+- **固定目录输出**（不是浏览器下载）：首次导出时浏览器弹出目录选择器，
+  选一次输出目录（建议工作区 `design/output/`），目录句柄存入 IndexedDB，
+  之后每次导出直接写入该固定目录（覆盖同名文件），不再询问。
+- 两者复用同一导出骨架：隐藏 iframe 重建预览页面（无 sandbox）→ 锁定与预览一致的视口 →
   颜色烘焙（`color-mix`/`oklab` 等 CSS Color 4 语法计算值归一化为 rgba）→ 字体就绪 → 生成文件。
 - 新增静态资源：`studio/dist/assets/html2sketch.min.js`、`ag-psd.bundle.js`、`jszip-standalone.min.js`、
-  `design-source-export-v5.js`（导出逻辑，由主 bundle 动态 import）。
+  `design-source-export-v6.js`（导出逻辑，由主 bundle 动态 import）。
 
 **还原度边界**（设计源文件是绝对定位图层树，与 HTML 流式布局语义不同，导出为有损近似）：
 

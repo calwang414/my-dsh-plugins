@@ -4165,17 +4165,11 @@ async function pageOperation(runtime, root, sessionId, action, body) {
 			const id = pageIdFrom(title, new Set(pages.map((page) => page.id)));
 			const templateId = field(body, "templateId");
 			if (typeof templateId === "string" && templateId.length > 0) {
-				// 用模板内容播种新页面:保留项目其他页面,仅替换页面 HTML 与设计令牌。
+				// 用模板布局播种新页面:只引入页面 HTML,不改变项目设计规范(design-tokens.css)。
 				const template = await templateById(runtime, templateId);
 				let html = await readFile(resolve(template.directory, safeTemplatePath(template.manifest.entry)), "utf8");
 				html = html.replace(/<title>[^<]*<\/title>/i, `<title>${title.replace(/[<>&"']/g, (ch) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "\"": "&quot;", "'": "&#39;" }[ch]))}</title>`);
 				await ensureFile(resolve(directory, `${id}.html`), html);
-				try {
-					const tokensPath = resolve(template.directory, "design-tokens.css");
-					await ensureFile(resolve(directory, "design-tokens.css"), await readFile(tokensPath, "utf8"));
-				} catch {
-					// 模板未附带令牌文件时保留项目现有令牌。
-				}
 			} else {
 				await ensureFile(resolve(directory, `${id}.html`), pageStarterHtml(runtime, title));
 			}

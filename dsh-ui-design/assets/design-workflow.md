@@ -1,3 +1,10 @@
+---
+name: design-workflow
+metadata:
+  modes:
+    - design
+---
+
 # design-workflow
 
 DeepSeek Harness **设计模式**的可视化设计工作流契约(网页设计)。进入设计模式后、开始任何设计任务前,先读本技能。本技能对应 **Design 视图(网页设计项目,`{{cwd}}/design/`)**;演示文稿(PPT)项目的工作流见 `ppt-workflow` 技能。

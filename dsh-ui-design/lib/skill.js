@@ -7,16 +7,16 @@
  * 引入 @deepseek-ai 运行时依赖(rank 直接用协议常量,见 dsh-skill 的
  * BUNDLED_SKILL_RANK = 600),保证插件从任意安装位置(link 或 tarball)都能加载。
  *
- * 技能清单:
+ * 技能清单(模式归属来自各技能文档 frontmatter 的 `metadata.modes` 标签):
  * - `design-workflow`(modes: design):网页设计工作流契约(design/ 项目结构/令牌系统/工作流/约束);
  * - `ppt-workflow`(modes: slides):演示文稿工作流契约(design/ppt/ 项目、1600×900 slide 结构、导出规则);
  * - `frontend-design`(modes: design):来自 anthropics/skills 仓库(Apache-2.0,见
  *   assets/frontend-design/LICENSE.txt),指导有辨识度的视觉设计决策。
  *
- * 后续添加技能:在 CANDIDATES 增加候选并声明 `modes`(`['design']` 仅网页、
- * `['slides']` 仅 PPT、`['design','slides']` 或省略为全模式)。过滤逻辑自动
- * 按当前视图模式生效,无需改动 provider。自定义 provider 也可复用
- * `skillCandidatesForMode()` 与 `getActiveMode()` 做同样的区分。
+ * 后续添加技能:把技能正文放进 assets/(或子目录),在文档 frontmatter 声明
+ * `metadata.modes` 标签(`- design` 仅网页、`- slides` 仅 PPT、两者或省略为
+ * 全模式),并在 CANDIDATES 增加一行注册(name/locator)。过滤逻辑自动按当前
+ * 视图模式生效,无需再改代码。
  * @module @calwang414/dsh-ui-design/skill
  */
 
@@ -27,7 +27,7 @@ import { getActiveMode } from './active-mode.js'
 /** 提供者名(技能目录里以此分组)。 */
 const PROVIDER_NAME = 'dsh-ui-design'
 
-/** 技能可用资源:assets/ 目录(覆盖两个技能的正文与附属文件)。 */
+/** 技能可用资源:assets/ 目录(覆盖技能的正文与附属文件)。 */
 const RESOURCE_BASE = {
   kind: 'directory',
   path: fileURLToPath(new URL('../assets/', import.meta.url)),
@@ -39,11 +39,10 @@ const INVOCATION = { modelInvocable: true, userInvocable: true }
 // dsh-skill 的 BUNDLED_SKILL_RANK 协议常量
 const RANK = 600
 
-/** 技能候选清单:name 是技能 id,locator 指向包内正文,modes 声明可见模式。 */
+/** 技能候选清单:name 是技能 id,locator 指向包内正文;模式归属读文档 frontmatter。 */
 const CANDIDATES = [
   {
     name: 'design-workflow',
-    modes: ['design'],
     description: 'Design-mode workflow contract for DeepSeek Harness: the shared design/ project layout, the --ipw-* design-token system, and how to create and refine websites, app prototypes, posters, info cards, and data reports that the user reviews in the Design view. Load before starting any design task while in design mode; also use when the user asks to create or change a design, page, poster, prototype, or report.',
     invocation: INVOCATION,
     provider: PROVIDER_NAME,
@@ -54,7 +53,6 @@ const CANDIDATES = [
   },
   {
     name: 'ppt-workflow',
-    modes: ['slides'],
     description: 'Presentation (PPT) workflow contract for DeepSeek Harness design mode: the shared design/ppt/ project layout, the 1600x900 .slide/.deck structure, the --ipw-* design-token system, and PPTX/PDF export coverage rules. Load before starting any slide-deck task while in design mode; also use when the user asks to create or change a presentation, slide deck, or PPT.',
     invocation: INVOCATION,
     provider: PROVIDER_NAME,
@@ -65,7 +63,6 @@ const CANDIDATES = [
   },
   {
     name: 'frontend-design',
-    modes: ['design'],
     description: 'Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don\'t read as templated defaults. (Apache-2.0, from anthropics/skills.)',
     invocation: INVOCATION,
     provider: PROVIDER_NAME,
@@ -78,34 +75,57 @@ const CANDIDATES = [
 
 const byName = new Map(CANDIDATES.map((candidate) => [candidate.name, candidate]))
 
-/** 候选省略 modes 时的默认可见模式(全模式通用)。 */
-const DEFAULT_MODES = ['design', 'slides']
+/** 进程内 frontmatter 解析缓存(locator.href -> { modes?: string[] })。 */
+const frontmatterCache = new Map()
+
+/** 从 YAML frontmatter 文本解析 `modes:` 列表(支持内联数组与块式列表,允许缩进)。 */
+function parseModesFromYaml(yaml) {
+  const inline = /(?:^|\n)[ \t]*modes\s*:\s*\[([^\]]*)\]/.exec(yaml)
+  if (inline) return inline[1].split(',').map((value) => value.trim()).filter(Boolean)
+  const block = /(?:^|\n)[ \t]*modes\s*:\s*\n((?:[ \t]*-\s*[^\n]+\n?)+)/.exec(yaml)
+  if (block) return block[1].split('\n').map((line) => line.trim().replace(/^-\s*/, '')).filter(Boolean)
+  return undefined
+}
+
+/**
+ * 读取技能正文 frontmatter 中的 `metadata.modes` 标签(带进程内缓存)。
+ * @param locator - 技能正文文件 URL。
+ * @returns modes 标签数组;文档无 frontmatter 或无标签时返回 undefined(视为全模式)。
+ */
+async function modesFromFrontmatter(locator) {
+  const cached = frontmatterCache.get(locator.href)
+  if (cached !== undefined) return cached
+  const content = await readFile(locator, 'utf8')
+  const block = /^---\r?\n([\s\S]*?)\r?\n---/.exec(content)
+  // metadata 对象下的 modes 与顶层 modes 均可识别。
+  const modes = block ? parseModesFromYaml(block[1]) : undefined
+  frontmatterCache.set(locator.href, modes)
+  return modes
+}
 
 /**
  * 按模式过滤技能候选。
  * @param mode - 视图模式:"design" | "slides" | null(未检测,返回全量)。
- * @returns 该模式下可见的候选列表。
+ * @returns 该模式下可见的候选列表(frontmatter 无 modes 标签视为全模式)。
  */
-export function skillCandidatesForMode(mode) {
-  if (mode === null) return [...CANDIDATES]
-  return CANDIDATES.filter((candidate) => (candidate.modes ?? DEFAULT_MODES).includes(mode))
-}
-
-/** 当前模式可见的技能名集合(未检测时全量,由 agent 按 manifest 自判)。 */
-function visibleSkillNames() {
-  return skillCandidatesForMode(getActiveMode()).map((candidate) => candidate.name)
+export async function skillCandidatesForMode(mode) {
+  const visible = []
+  for (const candidate of CANDIDATES) {
+    const modes = await modesFromFrontmatter(candidate.locator)
+    if (mode === null || modes === undefined || modes.includes(mode)) visible.push(candidate)
+  }
+  return visible
 }
 
 const provider = {
   name: PROVIDER_NAME,
-  list: () => {
-    const allowed = new Set(visibleSkillNames())
-    return Promise.resolve(CANDIDATES.filter((candidate) => allowed.has(candidate.name)))
-  },
+  list: () => skillCandidatesForMode(getActiveMode()),
   async get(candidate) {
     const known = byName.get(candidate?.name)
     if (!known) throw new Error(`dsh-ui-design: unknown skill candidate ${candidate?.name}`)
-    if (!visibleSkillNames().includes(known.name)) {
+    const modes = await modesFromFrontmatter(known.locator)
+    const mode = getActiveMode()
+    if (mode !== null && modes !== undefined && !modes.includes(mode)) {
       throw new Error(`dsh-ui-design: skill ${known.name} is not available in the current view mode`)
     }
     return {
@@ -116,6 +136,7 @@ const provider = {
       source: known.source,
       resourceBase: known.resourceBase,
       content: await readFile(known.locator, 'utf8'),
+      ...(modes !== undefined ? { metadata: { modes } } : {}),
     }
   },
 }

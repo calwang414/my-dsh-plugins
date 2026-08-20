@@ -1,3 +1,10 @@
+---
+name: ppt-workflow
+metadata:
+  modes:
+    - slides
+---
+
 # ppt-workflow
 
 DeepSeek Harness **设计模式**的演示文稿(PPT)工作流契约。进入设计模式后、在 **PPT 视图**下开始任何幻灯片任务前,先读本技能。本技能对应 **PPT 视图(演示文稿项目,`{{cwd}}/design/ppt/`,可导出 .pptx/.pdf)**;网页设计项目的工作流见 `design-workflow` 技能。

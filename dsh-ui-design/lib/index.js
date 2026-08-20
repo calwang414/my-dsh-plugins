@@ -5,6 +5,7 @@ import { basename, dirname, extname, isAbsolute, relative, resolve, sep } from "
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { homedir } from "node:os";
 import { env as processEnv } from "node:process";
+import { recordActiveMode } from "./active-mode.js";
 Object.freeze({ status: "aborted" });
 function $constructor(name, initializer, params) {
 	function init(inst, def) {
@@ -4219,6 +4220,9 @@ function contentType(path) {
 }
 async function handleApi(runtime, ctx, req, res, url) {
 	requireToken(req, runtime);
+	// 视图信号:能鉴权通过说明用户当前正打开该路由对应的视图(Design/PPT),
+	// 记录到共享状态,preset 端按模式动态注入差异化约束与自查清单。
+	recordActiveMode(runtime.mode);
 	const action = url.pathname.slice(`${runtime.routeRoot}/api`.length);
 	const workspaceId = url.searchParams.get("workspaceId")?.trim();
 	if (req.method === "GET" && action === "/session") {

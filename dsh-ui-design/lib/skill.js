@@ -8,10 +8,15 @@
  * BUNDLED_SKILL_RANK = 600),保证插件从任意安装位置(link 或 tarball)都能加载。
  *
  * 技能清单:
- * - `design-workflow`:网页设计工作流契约(design/ 项目结构/令牌系统/工作流/约束);
- * - `ppt-workflow`:演示文稿工作流契约(design/ppt/ 项目、1600×900 slide 结构、导出规则);
- * - `frontend-design`:来自 anthropics/skills 仓库(Apache-2.0,见
+ * - `design-workflow`(modes: design):网页设计工作流契约(design/ 项目结构/令牌系统/工作流/约束);
+ * - `ppt-workflow`(modes: slides):演示文稿工作流契约(design/ppt/ 项目、1600×900 slide 结构、导出规则);
+ * - `frontend-design`(modes: design):来自 anthropics/skills 仓库(Apache-2.0,见
  *   assets/frontend-design/LICENSE.txt),指导有辨识度的视觉设计决策。
+ *
+ * 后续添加技能:在 CANDIDATES 增加候选并声明 `modes`(`['design']` 仅网页、
+ * `['slides']` 仅 PPT、`['design','slides']` 或省略为全模式)。过滤逻辑自动
+ * 按当前视图模式生效,无需改动 provider。自定义 provider 也可复用
+ * `skillCandidatesForMode()` 与 `getActiveMode()` 做同样的区分。
  * @module @calwang414/dsh-ui-design/skill
  */
 
@@ -34,10 +39,11 @@ const INVOCATION = { modelInvocable: true, userInvocable: true }
 // dsh-skill 的 BUNDLED_SKILL_RANK 协议常量
 const RANK = 600
 
-/** 技能候选清单:name 是技能 id,locator 指向包内正文。 */
+/** 技能候选清单:name 是技能 id,locator 指向包内正文,modes 声明可见模式。 */
 const CANDIDATES = [
   {
     name: 'design-workflow',
+    modes: ['design'],
     description: 'Design-mode workflow contract for DeepSeek Harness: the shared design/ project layout, the --ipw-* design-token system, and how to create and refine websites, app prototypes, posters, info cards, and data reports that the user reviews in the Design view. Load before starting any design task while in design mode; also use when the user asks to create or change a design, page, poster, prototype, or report.',
     invocation: INVOCATION,
     provider: PROVIDER_NAME,
@@ -48,6 +54,7 @@ const CANDIDATES = [
   },
   {
     name: 'ppt-workflow',
+    modes: ['slides'],
     description: 'Presentation (PPT) workflow contract for DeepSeek Harness design mode: the shared design/ppt/ project layout, the 1600x900 .slide/.deck structure, the --ipw-* design-token system, and PPTX/PDF export coverage rules. Load before starting any slide-deck task while in design mode; also use when the user asks to create or change a presentation, slide deck, or PPT.',
     invocation: INVOCATION,
     provider: PROVIDER_NAME,
@@ -58,6 +65,7 @@ const CANDIDATES = [
   },
   {
     name: 'frontend-design',
+    modes: ['design'],
     description: 'Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don\'t read as templated defaults. (Apache-2.0, from anthropics/skills.)',
     invocation: INVOCATION,
     provider: PROVIDER_NAME,
@@ -70,17 +78,22 @@ const CANDIDATES = [
 
 const byName = new Map(CANDIDATES.map((candidate) => [candidate.name, candidate]))
 
-/** 按当前激活视图模式暴露的技能:网页模式含 frontend-design,PPT 模式只有 ppt-workflow。 */
-const SKILLS_BY_MODE = {
-  design: ['design-workflow', 'frontend-design'],
-  slides: ['ppt-workflow'],
-  null: ['design-workflow', 'ppt-workflow', 'frontend-design'],
+/** 候选省略 modes 时的默认可见模式(全模式通用)。 */
+const DEFAULT_MODES = ['design', 'slides']
+
+/**
+ * 按模式过滤技能候选。
+ * @param mode - 视图模式:"design" | "slides" | null(未检测,返回全量)。
+ * @returns 该模式下可见的候选列表。
+ */
+export function skillCandidatesForMode(mode) {
+  if (mode === null) return [...CANDIDATES]
+  return CANDIDATES.filter((candidate) => (candidate.modes ?? DEFAULT_MODES).includes(mode))
 }
 
-/** 当前模式允许的技能名集合(未检测时全量,由 agent 按 manifest 自判)。 */
+/** 当前模式可见的技能名集合(未检测时全量,由 agent 按 manifest 自判)。 */
 function visibleSkillNames() {
-  const mode = getActiveMode()
-  return SKILLS_BY_MODE[mode] ?? SKILLS_BY_MODE.null
+  return skillCandidatesForMode(getActiveMode()).map((candidate) => candidate.name)
 }
 
 const provider = {

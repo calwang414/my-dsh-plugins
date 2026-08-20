@@ -51623,9 +51623,10 @@ function VrmPreview({ id, height }) {
 		const rimLight = new DirectionalLight(16777215, .6);
 		rimLight.position.set(-1, 1, -2);
 		scene.add(rimLight);
-		const camera = new PerspectiveCamera(30, el.clientWidth / Math.max(el.clientHeight, 1), .1, 20);
-		camera.position.set(.45, 1.05, 2.5);
-		camera.lookAt(0, .85, 0);
+		const FOV = 30;
+		const camera = new PerspectiveCamera(FOV, el.clientWidth / Math.max(el.clientHeight, 1), .1, 20);
+		camera.position.set(0, .9, 2.5);
+		camera.lookAt(0, .9, 0);
 		const loader = new GLTFLoader();
 		loader.register((parser) => new VRMLoaderPlugin(parser));
 		fetch(id && id !== "default" ? "/voice-pet/vrm?id=" + encodeURIComponent(id) : "/voice-pet/vrm?id=default").then((r) => r.ok ? r.arrayBuffer() : Promise.reject(/* @__PURE__ */ new Error("http " + r.status))).then((buffer) => new Promise((resolve, reject) => loader.parse(buffer, "", resolve, reject))).then((gltf) => {
@@ -51634,6 +51635,12 @@ function VrmPreview({ id, height }) {
 			VRMUtils.removeUnnecessaryVertices(vrm.scene);
 			VRMUtils.rotateVRM0(vrm);
 			scene.add(vrm.scene);
+			const box = new Box3().setFromObject(vrm.scene);
+			const center = box.getCenter(new Vector3());
+			const sizeY = box.getSize(new Vector3()).y;
+			const dist = Math.max(sizeY, .5) * 1.25 / 2 / Math.tan(FOV / 2 * Math.PI / 180);
+			camera.position.set(0, center.y, dist);
+			camera.lookAt(0, center.y, 0);
 			renderer = new WebGLRenderer({
 				antialias: true,
 				alpha: true,
@@ -51703,7 +51710,7 @@ function AvatarCard({ active, disabled, name, id, onClick }) {
 		}
 	}, react.default.createElement(VrmPreview, {
 		id: id ?? "",
-		height: 74
+		height: 140
 	}), react.default.createElement("span", { style: {
 		display: "flex",
 		alignItems: "center",

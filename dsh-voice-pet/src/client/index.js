@@ -141,9 +141,11 @@ function VrmPreview({ id, height }) {
     const rimLight = new THREE.DirectionalLight(0xffffff, 0.6)
     rimLight.position.set(-1, 1, -2)
     scene.add(rimLight)
-    const camera = new THREE.PerspectiveCamera(30, el.clientWidth / Math.max(el.clientHeight, 1), 0.1, 20)
-    camera.position.set(0.45, 1.05, 2.5)
-    camera.lookAt(0, 0.85, 0)
+    // 竖版取景:固定 FOV,模型加载后按实际身高动态调整距离(上下各留 ~12% 边距)
+    const FOV = 30
+    const camera = new THREE.PerspectiveCamera(FOV, el.clientWidth / Math.max(el.clientHeight, 1), 0.1, 20)
+    camera.position.set(0, 0.9, 2.5)
+    camera.lookAt(0, 0.9, 0)
     const loader = new GLTFLoader()
     loader.register((parser) => new VRMLoaderPlugin(parser))
     fetch(id && id !== 'default' ? '/voice-pet/vrm?id=' + encodeURIComponent(id) : '/voice-pet/vrm?id=default')
@@ -155,6 +157,14 @@ function VrmPreview({ id, height }) {
         VRMUtils.removeUnnecessaryVertices(vrm.scene)
         VRMUtils.rotateVRM0(vrm)
         scene.add(vrm.scene)
+        // 按模型实际身高动态取景:视高 = 身高 × 1.25,上下各留 ~12% 边距
+        const box = new THREE.Box3().setFromObject(vrm.scene)
+        const center = box.getCenter(new THREE.Vector3())
+        const sizeY = box.getSize(new THREE.Vector3()).y
+        const viewH = Math.max(sizeY, 0.5) * 1.25
+        const dist = (viewH / 2) / Math.tan((FOV / 2) * Math.PI / 180)
+        camera.position.set(0, center.y, dist)
+        camera.lookAt(0, center.y, 0)
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true })
         renderer.setClearColor(0x000000, 0)
         renderer.setSize(el.clientWidth, el.clientHeight)
@@ -206,7 +216,7 @@ function AvatarCard({ active, disabled, name, id, onClick }) {
       transition: 'border-color .15s, background .15s',
     },
   },
-    React.createElement(VrmPreview, { id: id ?? '', height: 74 }),
+    React.createElement(VrmPreview, { id: id ?? '', height: 140 }),
     React.createElement('span', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4, padding: '0 4px 2px' } },
       React.createElement('span', { style: { fontSize: 12, color: active ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-label-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, name),
       active ? React.createElement('svg', { width: 13, height: 13, viewBox: '0 0 16 16', fill: 'none', stroke: 'var(--dsw-alias-brand-primary)', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', flexShrink: 0 },

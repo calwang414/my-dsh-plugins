@@ -72,6 +72,33 @@ window.__ModuleLoader__.load({
 				const iframeRef = react.useRef(null);
 				const [reloadKey, setReloadKey] = react.useState(0);
 				const [pageModel, setPageModel] = react.useState(null);
+				// 跟随宿主深色模式(body 的 data-ds-dark-theme),同步外壳配色与 iframe 主题。
+				const [dark, setDark] = react.useState(() => Boolean(document.body?.hasAttribute("data-ds-dark-theme")));
+				react.useEffect(() => {
+					const target = document.body;
+					if (!target) return undefined;
+					const observer = new MutationObserver(() => {
+						setDark(target.hasAttribute("data-ds-dark-theme"));
+					});
+					observer.observe(target, { attributes: true, attributeFilter: ["data-ds-dark-theme"] });
+					return () => observer.disconnect();
+				}, []);
+				// 深色模式覆盖:DSH 的 --color-* 变量不存在,硬编码浅色必须按主题切换。
+				const themeStyle = dark
+					? {
+						shell: { background: "#17171a", color: "#f2f3f5" },
+						frame: { background: "#17171a" },
+						eyebrow: { color: "#9a9da6" },
+						empty: { color: "#9a9da6" },
+						thumbLabelBg: "color-mix(in srgb, #17171a 82%, transparent)"
+					}
+					: {
+						shell: {},
+						frame: {},
+						eyebrow: {},
+						empty: {},
+						thumbLabelBg: "color-mix(in srgb, var(--color-background, #ffffff) 82%, transparent)"
+					};
 				const list = react.useSyncExternalStore(
 					(fn) => sessions?.list.subscribe(fn) ?? (() => {}),
 					() => sessions?.list.getSnapshot() ?? null
@@ -206,7 +233,7 @@ window.__ModuleLoader__.load({
 										"aria-hidden": true,
 										onLoad: fitThumb
 									}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", { style: thumbPlaceholderStyle }),
-									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { style: thumbLabelStyle, children: page.title })
+									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { style: { ...thumbLabelStyle, background: themeStyle.thumbLabelBg }, children: page.title })
 								]
 							}, page.id)), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 								type: "button",
@@ -220,24 +247,25 @@ window.__ModuleLoader__.load({
 					})
 					: null;
 				if (!isDesignMode) return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
-					style: emptyStyle,
+					style: { ...emptyStyle, ...themeStyle.empty },
 					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("strong", { children: `${options.studioTitle} 仅在设计模式会话中可用` }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: "请在会话开始前选择「设计模式」Agent 预设后使用。" })]
 				});
 				if (!workspace) return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
-					style: emptyStyle,
+					style: { ...emptyStyle, ...themeStyle.empty },
 					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("strong", { children: [options.studioTitle, " needs a workspace"] }), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { children: "Open this conversation from a registered DeepSeek Harness workspace." })]
 				});
 				const query = new URLSearchParams({
 					workspaceId: String(workspace.workspaceId),
-					sessionId: String(sessionId)
+					sessionId: String(sessionId),
+					theme: dark ? "dark" : "light"
 				});
 				return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("section", {
-					style: shellStyle,
+					style: { ...shellStyle, ...themeStyle.shell },
 					"aria-label": `dsh-ui-design ${options.studioTitle}`,
 					children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("header", {
 						style: headerStyle,
 						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
-							style: eyebrowStyle,
+							style: { ...eyebrowStyle, ...themeStyle.eyebrow },
 							children: "dsh-ui-design"
 						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("strong", {
 							style: titleStyle,
@@ -268,7 +296,7 @@ window.__ModuleLoader__.load({
 						ref: iframeRef,
 						title: `dsh-ui-design ${options.studioTitle}`,
 						src: `${options.routeRoot}/studio/?${query.toString()}`,
-						style: frameStyle,
+						style: { ...frameStyle, ...themeStyle.frame },
 						sandbox: "allow-downloads allow-forms allow-modals allow-popups allow-same-origin allow-scripts"
 					})]
 				});

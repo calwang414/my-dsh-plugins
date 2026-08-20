@@ -8,7 +8,8 @@
  * BUNDLED_SKILL_RANK = 600),保证插件从任意安装位置(link 或 tarball)都能加载。
  *
  * 技能清单:
- * - `design-workflow`:本插件的设计工作流契约(项目结构/令牌系统/工作流/约束);
+ * - `design-workflow`:网页设计工作流契约(design/ 项目结构/令牌系统/工作流/约束);
+ * - `ppt-workflow`:演示文稿工作流契约(design/ppt/ 项目、1600×900 slide 结构、导出规则);
  * - `frontend-design`:来自 anthropics/skills 仓库(Apache-2.0,见
  *   assets/frontend-design/LICENSE.txt),指导有辨识度的视觉设计决策。
  * @module @calwang414/dsh-ui-design/skill
@@ -43,6 +44,16 @@ const CANDIDATES = [
     resourceBase: RESOURCE_BASE,
     rank: RANK,
     locator: new URL('../assets/design-workflow.md', import.meta.url),
+  },
+  {
+    name: 'ppt-workflow',
+    description: 'Presentation (PPT) workflow contract for DeepSeek Harness design mode: the shared design/ppt/ project layout, the 1600x900 .slide/.deck structure, the --ipw-* design-token system, and PPTX/PDF export coverage rules. Load before starting any slide-deck task while in design mode; also use when the user asks to create or change a presentation, slide deck, or PPT.',
+    invocation: INVOCATION,
+    provider: PROVIDER_NAME,
+    source: 'bundled',
+    resourceBase: RESOURCE_BASE,
+    rank: RANK,
+    locator: new URL('../assets/ppt-workflow.md', import.meta.url),
   },
   {
     name: 'frontend-design',

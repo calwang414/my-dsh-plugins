@@ -17,6 +17,7 @@
 
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
+import { getActiveMode } from './active-mode.js'
 
 /** 提供者名(技能目录里以此分组)。 */
 const PROVIDER_NAME = 'dsh-ui-design'
@@ -69,12 +70,31 @@ const CANDIDATES = [
 
 const byName = new Map(CANDIDATES.map((candidate) => [candidate.name, candidate]))
 
+/** 按当前激活视图模式暴露的技能:网页模式含 frontend-design,PPT 模式只有 ppt-workflow。 */
+const SKILLS_BY_MODE = {
+  design: ['design-workflow', 'frontend-design'],
+  slides: ['ppt-workflow'],
+  null: ['design-workflow', 'ppt-workflow', 'frontend-design'],
+}
+
+/** 当前模式允许的技能名集合(未检测时全量,由 agent 按 manifest 自判)。 */
+function visibleSkillNames() {
+  const mode = getActiveMode()
+  return SKILLS_BY_MODE[mode] ?? SKILLS_BY_MODE.null
+}
+
 const provider = {
   name: PROVIDER_NAME,
-  list: () => Promise.resolve(CANDIDATES),
+  list: () => {
+    const allowed = new Set(visibleSkillNames())
+    return Promise.resolve(CANDIDATES.filter((candidate) => allowed.has(candidate.name)))
+  },
   async get(candidate) {
     const known = byName.get(candidate?.name)
     if (!known) throw new Error(`dsh-ui-design: unknown skill candidate ${candidate?.name}`)
+    if (!visibleSkillNames().includes(known.name)) {
+      throw new Error(`dsh-ui-design: skill ${known.name} is not available in the current view mode`)
+    }
     return {
       name: known.name,
       description: known.description,

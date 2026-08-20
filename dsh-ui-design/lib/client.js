@@ -66,7 +66,6 @@ window.__ModuleLoader__.load({
 					if (/design-tokens\.css/i.test(tag) && tokensCss) return `<style>${tokensCss}</style>`;
 					return "";
 				});
-				doc = doc.replace(/<head[^>]*>/i, (tag) => `${tag}<style>html,body{overflow:hidden!important}</style>`);
 				return doc;
 			}
 			function StudioView({ sessionId, useWorkspaces, inputActions, sessions }) {
@@ -158,6 +157,18 @@ window.__ModuleLoader__.load({
 					void load();
 					return () => { disposed = true; };
 				}, [pageModel, workspaceId, options.routeRoot, reloadKey]);
+				const fitThumb = (event) => {
+					try {
+						const frame = event.currentTarget;
+						const doc = frame.contentDocument;
+						const height = doc?.documentElement?.scrollHeight ?? 640;
+						const scale = Math.min(0.1, 64 / Math.max(height, 1));
+						frame.style.height = `${height}px`;
+						frame.style.transform = `scale(${scale})`;
+					} catch {
+						// 跨域等异常时保持默认缩放。
+					}
+				};
 				const openTemplatePicker = () => {
 					const frame = iframeRef.current;
 					if (frame?.contentWindow) {
@@ -178,11 +189,11 @@ window.__ModuleLoader__.load({
 									thumbs[page.entry] ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("iframe", {
 										srcDoc: thumbs[page.entry],
 										style: thumbFrameStyle,
-										sandbox: "",
+										sandbox: "allow-same-origin",
 										scrolling: "no",
 										tabIndex: -1,
 										"aria-hidden": true,
-										loading: "lazy"
+										onLoad: fitThumb
 									}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", { style: thumbPlaceholderStyle }),
 									/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { style: thumbLabelStyle, children: page.title })
 								]
@@ -362,6 +373,8 @@ window.__ModuleLoader__.load({
 		const thumbCardStyle = {
 			flex: "0 0 auto",
 			width: 118,
+			height: 84,
+			position: "relative",
 			border: "1px solid color-mix(in srgb, currentColor 14%, transparent)",
 			borderRadius: 8,
 			overflow: "hidden",
@@ -373,22 +386,17 @@ window.__ModuleLoader__.load({
 			boxShadow: "0 0 0 1px var(--color-primary, #5b50e6)"
 		};
 		const thumbFrameStyle = {
-			width: "100%",
-			height: 64,
+			width: 1180,
+			height: 640,
 			border: 0,
 			display: "block",
 			pointerEvents: "none",
 			background: "#ffffff",
-			overflow: "hidden",
-			scrollbarWidth: "none"
-		};
-		const thumbFrameInnerStyle = {
-			width: "100%",
-			height: "100%",
-			border: 0,
-			display: "block",
-			pointerEvents: "none",
-			overflow: "hidden"
+			position: "absolute",
+			left: 0,
+			top: 0,
+			transform: "scale(0.1)",
+			transformOrigin: "0 0"
 		};
 		const thumbAddStyle = {
 			flex: "0 0 auto",
@@ -421,13 +429,17 @@ window.__ModuleLoader__.load({
 			background: "color-mix(in srgb, currentColor 6%, transparent)"
 		};
 		const thumbLabelStyle = {
-			display: "block",
+			position: "absolute",
+			left: 0,
+			right: 0,
+			bottom: 0,
 			padding: "2px 6px",
 			fontSize: 10,
 			lineHeight: 1.2,
 			whiteSpace: "nowrap",
 			overflow: "hidden",
-			textOverflow: "ellipsis"
+			textOverflow: "ellipsis",
+			background: "color-mix(in srgb, var(--color-background, #ffffff) 82%, transparent)"
 		};
 		const frameStyle = {
 			flex: 1,

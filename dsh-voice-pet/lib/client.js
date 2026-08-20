@@ -52067,12 +52067,22 @@ function SpeakButton(props) {
 	const { messageId, useSession } = props;
 	const [speaking, setSpeaking] = react.default.useState(false);
 	const [error, setError] = react.default.useState(false);
+	const [enabled, setEnabled] = react.default.useState(true);
 	const snapshot = typeof useSession === "function" ? useSession((s) => s) : null;
 	const text = snapshot ? extractMessageText(snapshot, messageId) : "";
+	react.default.useEffect(() => {
+		fetchConfig().then((cfg) => setEnabled(cfg.speakEnabled !== false)).catch(() => {});
+		const onCfg = (e) => {
+			const c = e.detail || {};
+			if (c.speakEnabled !== void 0) setEnabled(c.speakEnabled !== false);
+		};
+		window.addEventListener("voice-pet-config", onCfg);
+		return () => window.removeEventListener("voice-pet-config", onCfg);
+	}, []);
 	const onClick = async (e) => {
 		e.preventDefault();
 		e.stopPropagation();
-		if (speaking || !text) return;
+		if (!enabled || speaking || !text) return;
 		setSpeaking(true);
 		setError(false);
 		try {
@@ -52083,22 +52093,23 @@ function SpeakButton(props) {
 			setTimeout(() => setSpeaking(false), 600);
 		}
 	};
+	const usable = enabled && !!text;
 	const style = {
 		border: "none",
 		background: "transparent",
-		cursor: text ? "pointer" : "not-allowed",
+		cursor: usable ? "pointer" : "not-allowed",
 		fontSize: 14,
 		padding: "2px 5px",
 		borderRadius: 6,
 		color: "var(--dsw-alias-label-secondary)",
-		opacity: text ? 1 : .35,
+		opacity: usable ? 1 : .35,
 		display: "inline-flex",
 		alignItems: "center",
 		justifyContent: "center"
 	};
 	return react.default.createElement("button", {
 		type: "button",
-		title: text ? "朗读这条回复" : "无文本可朗读",
+		title: !enabled ? "语音播报已关闭(设置 → 语音桌宠 → 语音合成)" : text ? "朗读这条回复" : "无文本可朗读",
 		style,
 		onClick
 	}, speaking ? react.default.createElement(_deepseek_ai_dsh_client_ui_primitives.IconPauseOutline16, { size: 14 }) : error ? react.default.createElement(_deepseek_ai_dsh_client_ui_primitives.IconWarningOutline16, { size: 14 }) : react.default.createElement(_deepseek_ai_dsh_client_ui_primitives.IconPlayOutline16, { size: 14 }));

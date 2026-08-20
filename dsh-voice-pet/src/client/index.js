@@ -508,13 +508,24 @@ function SpeakButton(props) {
   const { messageId, useSession } = props
   const [speaking, setSpeaking] = React.useState(false)
   const [error, setError] = React.useState(false)
+  const [enabled, setEnabled] = React.useState(true)
   const snapshot = typeof useSession === 'function' ? useSession((s) => s) : null
   const text = snapshot ? extractMessageText(snapshot, messageId) : ''
+  // 语音播报开关:挂载时读取配置,设置页变更时同步(voice-pet-config 事件)
+  React.useEffect(() => {
+    fetchConfig().then((cfg) => setEnabled(cfg.speakEnabled !== false)).catch(() => {})
+    const onCfg = (e) => {
+      const c = e.detail || {}
+      if (c.speakEnabled !== undefined) setEnabled(c.speakEnabled !== false)
+    }
+    window.addEventListener('voice-pet-config', onCfg)
+    return () => window.removeEventListener('voice-pet-config', onCfg)
+  }, [])
 
   const onClick = async (e) => {
     e.preventDefault()
     e.stopPropagation()
-    if (speaking || !text) return
+    if (!enabled || speaking || !text) return
     setSpeaking(true)
     setError(false)
     try {
@@ -527,14 +538,15 @@ function SpeakButton(props) {
     }
   }
 
+  const usable = enabled && !!text
   const style = {
-    border: 'none', background: 'transparent', cursor: text ? 'pointer' : 'not-allowed',
+    border: 'none', background: 'transparent', cursor: usable ? 'pointer' : 'not-allowed',
     fontSize: 14, padding: '2px 5px', borderRadius: 6, color: 'var(--dsw-alias-label-secondary)',
-    opacity: text ? 1 : 0.35,
+    opacity: usable ? 1 : 0.35,
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
   }
   return React.createElement('button', {
-    type: 'button', title: text ? '朗读这条回复' : '无文本可朗读', style, onClick,
+    type: 'button', title: !enabled ? '语音播报已关闭(设置 → 语音桌宠 → 语音合成)' : text ? '朗读这条回复' : '无文本可朗读', style, onClick,
   },
     speaking
       ? React.createElement(IconPauseOutline16, { size: 14 })

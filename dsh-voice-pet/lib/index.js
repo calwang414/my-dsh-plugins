@@ -310,6 +310,10 @@ export function apply(ctx) {
           await engineSend('feed', { samples: msg.samples, sampleRate: msg.sampleRate ?? 48000 })
           break
         case 'speak':
+          if (readConfig().speakEnabled === false) {
+            ws.send(JSON.stringify({ type: 'error', message: '语音播报已关闭' }))
+            break
+          }
           await engineSend('speak', { text: String(msg.text ?? '') })
           ws.send(JSON.stringify({ type: 'ack', ok: true }))
           break
@@ -471,6 +475,10 @@ export function apply(ctx) {
     parameters: { type: 'object', properties: { text: { type: 'string', description: '要朗读的文本' } }, required: ['text'] },
     output: { schema: { type: 'object', additionalProperties: true }, render: textRender },
     async execute(args) {
+      const cfg = readConfig()
+      if (cfg.speakEnabled === false) {
+        return { ok: false, error: '语音播报已关闭(可在 设置 → 语音桌宠 → 语音合成 中开启)' }
+      }
       await engineSend('speak', { text: String(args.text) })
       return { ok: true, text: String(args.text) }
     },
@@ -684,6 +692,10 @@ export function apply(ctx) {
     path: '/voice-pet/speak',
     handler: async (req, res) => {
       try {
+        if (readConfig().speakEnabled === false) {
+          sendJson(res, 200, { ok: false, error: '语音播报已关闭' })
+          return
+        }
         const body = await readJsonBody(req)
         if (!body.text) {
           sendJson(res, 400, { ok: false, error: 'text required' })

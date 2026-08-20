@@ -4316,6 +4316,56 @@ async function handleApi(runtime, ctx, req, res, url) {
 		sendJson(res, 200, { path: `${projectRel}/output/${safeName}`, size: content.length });
 		return;
 	}
+	if (req.method === "POST" && action === "/versions") {
+		// 版本管理(design/ppt 项目各自独立):版本快照存于项目的
+		// design/[projectId]/.versions/<sessionId>/ 目录(list/create/delete)。
+		const body = await requestJson(req);
+		const root = workspaceRoot(ctx, stringField(field(body, "workspaceId"), "workspaceId"));
+		const sessionId = stringField(field(body, "sessionId"), "sessionId");
+		const versionAction = stringField(field(body, "action"), "action");
+		const projectId = projectSessionId(runtime, sessionId);
+		const projectRel = projectId ? `design/${projectId}` : "design";
+		const versionsDir = await verifiedWritePath(root, `${projectRel}/.versions/${sessionId}`);
+		// verifiedWritePath 把末段视为文件名,这里补建版本目录本身。
+		await mkdir(versionsDir, { recursive: true });
+		if (versionAction === "list") {
+			const files = await readdir(versionsDir).catch((error) => {
+				if (errorCode(error) === "ENOENT") return [];
+				throw error;
+			});
+			const versions = [];
+			for (const name of files) {
+				if (!name.endsWith(".html")) continue;
+				const info = await stat(resolve(versionsDir, name)).catch(() => null);
+				if (!info) continue;
+				versions.push({ id: name, size: info.size, updatedAt: info.mtimeMs });
+			}
+			versions.sort((a, b) => b.updatedAt - a.updatedAt);
+			sendJson(res, 200, { ok: true, versions });
+			return;
+		}
+		if (versionAction === "create") {
+			const content = field(body, "content");
+			if (typeof content !== "string" || content.length === 0) throw new HttpError(400, "Missing content.");
+			const id = `${Date.now()}.html`;
+			await writeFile(resolve(versionsDir, id), content, { encoding: "utf8" });
+			sendJson(res, 200, { ok: true, id, path: `${projectRel}/.versions/${sessionId}/${id}` });
+			return;
+		}
+		if (versionAction === "delete") {
+			const id = stringField(field(body, "id"), "id");
+			if (basename(id) !== id || !id.endsWith(".html")) throw new HttpError(400, "Invalid version id.");
+			const target = resolve(versionsDir, id);
+			if (!inside(versionsDir, target)) throw new HttpError(403, "Version id escaped its directory.");
+			await unlink(target).catch((error) => {
+				if (errorCode(error) === "ENOENT") throw new HttpError(404, "Version was not found.");
+				throw error;
+			});
+			sendJson(res, 200, { ok: true });
+			return;
+		}
+		throw new HttpError(400, "Unknown version action.");
+	}
 	if (req.method === "GET" && action === "/raw") {
 		const path = url.searchParams.get("path")?.trim();
 		if (!workspaceId || !path) throw new HttpError(400, "Missing workspaceId or path.");

@@ -101,6 +101,19 @@ dsh-ui-design/
 - PSD 文本暂不可编辑（Sketch 文本为原生文本图层）；
 - 复杂滤镜 / clip-path / 混合模式可能降级。
 
+## 版本管理（design / PPT）
+
+design 与 PPT 模式都有完整的版本管理（工具栏「Design version」下拉）：
+
+- **保存为新版本**：把当前编辑内容保存为一个版本快照（完整 HTML），版本号自动递增；
+- **版本列表**：current（V{n+1}）+ V1..Vn 倒序，下拉直接切换/恢复；
+- **保存到版本**：选中某版本后点保存，把改动写回该版本文件；
+- **管理版本**：对话框列出全部版本（恢复 / 删除，删除有确认）；
+- **版本存储**：各项目独立目录 —— design 存 `design/.versions/<sessionId>/`，
+  PPT 存 `design/ppt/.versions/<sessionId>/`（互不干扰），版本为完整 HTML 快照；
+- **会话记忆**：当前打开的版本记录在 localStorage（`ipollowork.session-design-version.*`）。
+- Host 侧：`POST /api/versions`（list / create / delete），需重启应用生效。
+
 ## 内部标识改名（已完成）
 | 位置 | 上游值 | 现在的值 |
 |---|---|---|

@@ -361,7 +361,7 @@ window.__ModuleLoader__.load({
 		};
 		const thumbCardStyle = {
 			flex: "0 0 auto",
-			width: 176,
+			width: 118,
 			border: "1px solid color-mix(in srgb, currentColor 14%, transparent)",
 			borderRadius: 8,
 			overflow: "hidden",

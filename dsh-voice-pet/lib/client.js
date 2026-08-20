@@ -52033,11 +52033,11 @@ function VoiceSettingsPage() {
 		color: "var(--dsw-alias-label-secondary)"
 	} }, avatarMsg) : null), react.default.createElement(Group, { title: "唤醒" }, react.default.createElement(Row, {
 		title: "唤醒词",
-		desc: "纯中文词命中率更高,如:小希小希",
-		block: true
+		desc: "纯中文词命中率更高,如:小希小希"
 	}, react.default.createElement("textarea", {
 		style: {
 			...inputStyle,
+			width: 300,
 			minHeight: 56,
 			resize: "vertical"
 		},

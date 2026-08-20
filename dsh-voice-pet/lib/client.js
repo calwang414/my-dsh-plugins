@@ -9221,7 +9221,7 @@ Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = true;
 *
 * @augments Object3D
 */
-var Group = class extends Object3D {
+var Group$1 = class extends Object3D {
 	constructor() {
 		super();
 		/**
@@ -9282,7 +9282,7 @@ var WebXRController = class {
 	*/
 	getHandSpace() {
 		if (this._hand === null) {
-			this._hand = new Group();
+			this._hand = new Group$1();
 			this._hand.matrixAutoUpdate = false;
 			this._hand.visible = false;
 			this._hand.joints = {};
@@ -9297,7 +9297,7 @@ var WebXRController = class {
 	*/
 	getTargetRaySpace() {
 		if (this._targetRay === null) {
-			this._targetRay = new Group();
+			this._targetRay = new Group$1();
 			this._targetRay.matrixAutoUpdate = false;
 			this._targetRay.visible = false;
 			this._targetRay.hasLinearVelocity = false;
@@ -9314,7 +9314,7 @@ var WebXRController = class {
 	*/
 	getGripSpace() {
 		if (this._grip === null) {
-			this._grip = new Group();
+			this._grip = new Group$1();
 			this._grip.matrixAutoUpdate = false;
 			this._grip.visible = false;
 			this._grip.hasLinearVelocity = false;
@@ -9475,7 +9475,7 @@ var WebXRController = class {
 	*/
 	_getHandJoint(hand, inputjoint) {
 		if (hand.joints[inputjoint.jointName] === void 0) {
-			const joint = new Group();
+			const joint = new Group$1();
 			joint.matrixAutoUpdate = false;
 			joint.visible = false;
 			hand.joints[inputjoint.jointName] = joint;
@@ -39829,7 +39829,7 @@ var GLTFParser = class {
 				if (meshDef.extensions) addUnknownExtensionsToUserData(extensions, meshes[0], meshDef);
 				return meshes[0];
 			}
-			const group = new Group();
+			const group = new Group$1();
 			if (meshDef.extensions) addUnknownExtensionsToUserData(extensions, group, meshDef);
 			parser.associations.set(group, { meshes: meshIndex });
 			for (let i = 0, il = meshes.length; i < il; i++) group.add(meshes[i]);
@@ -40026,7 +40026,7 @@ var GLTFParser = class {
 		this.nodeCache[nodeIndex] = Promise.all(pending).then(function(objects) {
 			let node;
 			if (nodeDef.isBone === true) node = new Bone();
-			else if (objects.length > 1) node = new Group();
+			else if (objects.length > 1) node = new Group$1();
 			else if (objects.length === 1) node = objects[0];
 			else node = new Object3D();
 			if (node !== objects[0]) for (let i = 0, il = objects.length; i < il; i++) node.add(objects[i]);
@@ -40066,7 +40066,7 @@ var GLTFParser = class {
 		const extensions = this.extensions;
 		const sceneDef = this.json.scenes[sceneIndex];
 		const parser = this;
-		const scene = new Group();
+		const scene = new Group$1();
 		if (sceneDef.name) scene.name = parser.createUniqueName(sceneDef.name);
 		assignExtrasToUserData(scene, sceneDef);
 		if (sceneDef.extensions) addUnknownExtensionsToUserData(extensions, scene, sceneDef);
@@ -41267,7 +41267,7 @@ var _VRMFirstPerson$1 = class _VRMFirstPerson2 {
 			node.layers.set(this._thirdPersonOnlyLayer);
 			if (this._isEraseTarget(node)) node.traverse((child) => child.layers.set(this._thirdPersonOnlyLayer));
 			else {
-				const parent = new Group();
+				const parent = new Group$1();
 				parent.name = `_headless_${node.name}`;
 				parent.layers.set(this._firstPersonOnlyLayer);
 				node.parent.add(parent);
@@ -41382,7 +41382,7 @@ var VRMFirstPersonLoaderPlugin = class {
 var _v3A = new Vector3();
 var _v3B = new Vector3();
 var _quatA = new Quaternion();
-var VRMHumanoidHelper = class extends Group {
+var VRMHumanoidHelper = class extends Group$1 {
 	constructor(humanoid) {
 		super();
 		this.vrmHumanoid = humanoid;
@@ -42196,7 +42196,7 @@ var _v3B2 = new Vector3();
 var SQRT_2_OVER_2$1 = Math.sqrt(2) / 2;
 var QUAT_XY_CW90 = new Quaternion(0, 0, -SQRT_2_OVER_2$1, SQRT_2_OVER_2$1);
 var VEC3_POSITIVE_Y = new Vector3(0, 1, 0);
-var VRMLookAtHelper = class extends Group {
+var VRMLookAtHelper = class extends Group$1 {
 	constructor(lookAt) {
 		super();
 		this.matrixAutoUpdate = false;
@@ -44050,7 +44050,7 @@ var __async6 = (__this, __arguments, generator) => {
 	});
 };
 var _v3A6$1 = new Vector3();
-var VRMNodeConstraintHelper = class extends Group {
+var VRMNodeConstraintHelper = class extends Group$1 {
 	constructor(constraint) {
 		super();
 		this._attrPosition = new BufferAttribute(new Float32Array([
@@ -44642,7 +44642,7 @@ var ColliderShapeSphereBufferGeometry = class extends BufferGeometry {
 	}
 };
 var _v3A52 = new Vector3();
-var VRMSpringBoneColliderHelper = class extends Group {
+var VRMSpringBoneColliderHelper = class extends Group$1 {
 	constructor(collider) {
 		super();
 		this.matrixAutoUpdate = false;
@@ -44723,7 +44723,7 @@ var SpringBoneBufferGeometry = class extends BufferGeometry {
 	}
 };
 var _v3A62 = new Vector3();
-var VRMSpringBoneJointHelper = class extends Group {
+var VRMSpringBoneJointHelper = class extends Group$1 {
 	constructor(springBone) {
 		super();
 		this.matrixAutoUpdate = false;
@@ -47123,7 +47123,7 @@ var _VRMFirstPerson = class _VRMFirstPerson2 {
 			node.layers.set(this._thirdPersonOnlyLayer);
 			if (this._isEraseTarget(node)) node.traverse((child) => child.layers.set(this._thirdPersonOnlyLayer));
 			else {
-				const parent = new Group();
+				const parent = new Group$1();
 				parent.name = `_headless_${node.name}`;
 				parent.layers.set(this._firstPersonOnlyLayer);
 				node.parent.add(parent);
@@ -48944,7 +48944,7 @@ var FBXTreeParser = class {
 		return rawMorphTargets;
 	}
 	parseScene(deformers, geometryMap, materialMap) {
-		sceneGraph = new Group();
+		sceneGraph = new Group$1();
 		const modelMap = this.parseModels(deformers.skeletons, geometryMap, materialMap);
 		const modelNodes = fbxTree.Objects.Model;
 		const scope = this;
@@ -49030,7 +49030,7 @@ var FBXTreeParser = class {
 					case "Root":
 						model = new Bone();
 						break;
-					default: model = new Group();
+					default: model = new Group$1();
 				}
 				model.name = node.attrName ? PropertyBinding.sanitizeNodeName(node.attrName) : "";
 				model.userData.originalName = node.attrName;
@@ -51050,7 +51050,7 @@ function mountPet(container, { onStatus, onSay, scale = 1 } = {}) {
 	const camera = new PerspectiveCamera(32, .8, .1, 100);
 	camera.position.set(0, 1.35, 3.6);
 	camera.lookAt(0, .9, 0);
-	const modelRoot = new Group();
+	const modelRoot = new Group$1();
 	modelRoot.position.y = 0;
 	scene.add(modelRoot);
 	let vrm = null;
@@ -51464,21 +51464,89 @@ var EDGE_VOICES = [
 		name: "晓双(女声·儿童)"
 	}
 ];
-function Field({ label, children, hint }) {
-	return react.default.createElement("label", { style: {
-		display: "block",
-		marginBottom: 10,
-		fontSize: 13
+function Group({ title, children }) {
+	return react.default.createElement("div", { style: {
+		background: "var(--dsw-alias-bg-layer-1)",
+		border: "1px solid var(--dsw-alias-border-l1)",
+		borderRadius: 16,
+		padding: "18px 20px 20px"
+	} }, react.default.createElement("div", { style: {
+		fontSize: 13,
+		fontWeight: 600,
+		color: "var(--dsw-alias-label-primary)",
+		margin: "0 0 6px"
+	} }, title), children);
+}
+function Row({ title, desc, children, block }) {
+	const rowStyle = {
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "space-between",
+		gap: 16,
+		padding: "12px 2px",
+		borderBottom: "1px solid var(--dsw-alias-border-l1)"
+	};
+	if (block) {
+		rowStyle.flexDirection = "column";
+		rowStyle.alignItems = "stretch";
+	}
+	return react.default.createElement("div", { style: rowStyle }, react.default.createElement("span", { style: {
+		display: "flex",
+		flexDirection: "column",
+		gap: 4,
+		minWidth: 0
 	} }, react.default.createElement("span", { style: {
-		display: "block",
-		marginBottom: 3,
-		color: "var(--dsw-alias-label-secondary)"
-	} }, label), children, hint ? react.default.createElement("span", { style: {
-		display: "block",
-		marginTop: 2,
-		fontSize: 11,
-		color: "var(--dsw-alias-label-secondary)"
-	} }, hint) : null);
+		fontSize: 14,
+		color: "var(--dsw-alias-label-primary)"
+	} }, title), desc ? react.default.createElement("span", { style: {
+		fontSize: 12,
+		color: "var(--dsw-alias-label-secondary)",
+		lineHeight: "18px"
+	} }, desc) : null), react.default.createElement("span", { style: {
+		display: "flex",
+		alignItems: "center",
+		gap: 6,
+		flexShrink: 0
+	} }, children));
+}
+function Switch({ checked, disabled, onChange, label }) {
+	return react.default.createElement("label", { style: {
+		display: "inline-flex",
+		alignItems: "center",
+		cursor: disabled ? "not-allowed" : "pointer"
+	} }, react.default.createElement("input", {
+		type: "checkbox",
+		checked,
+		disabled,
+		"aria-label": label,
+		onChange,
+		style: {
+			position: "absolute",
+			opacity: 0,
+			width: 0,
+			height: 0,
+			pointerEvents: "none"
+		}
+	}), react.default.createElement("span", { style: {
+		width: 36,
+		height: 20,
+		borderRadius: 10,
+		position: "relative",
+		flexShrink: 0,
+		transition: "background .15s",
+		background: checked ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-bg-layer-3)",
+		border: "1px solid " + (checked ? "transparent" : "var(--dsw-alias-border-l1)")
+	} }, react.default.createElement("span", { style: {
+		position: "absolute",
+		top: 1,
+		left: checked ? 17 : 1,
+		width: 16,
+		height: 16,
+		borderRadius: 8,
+		background: "#fff",
+		transition: "left .15s",
+		boxShadow: "0 1px 2px rgba(0,0,0,.2)"
+	} })));
 }
 var inputStyle = {
 	width: "100%",
@@ -51754,90 +51822,61 @@ function VoiceSettingsPage() {
 	const sizeMax = (value?.petMode ?? "off") === "standalone" ? 150 : 200;
 	const sizeShown = Math.min(petSizePct, sizeMax);
 	return react.default.createElement("div", { style: {
-		maxWidth: 420,
+		maxWidth: 760,
+		display: "flex",
+		flexDirection: "column",
+		gap: 14,
 		padding: "4px 0"
-	} }, react.default.createElement("h3", { style: {
-		margin: "0 0 12px",
-		fontSize: 15
-	} }, "语音桌宠设置"), error ? react.default.createElement("p", { style: {
+	} }, error ? react.default.createElement("p", { style: {
 		color: "var(--dsw-alias-state-error-primary)",
-		fontSize: 13
-	} }, error) : null, value === null && !error ? react.default.createElement("p", { style: {
+		fontSize: 13,
+		margin: 0
+	} }, error) : null, react.default.createElement("p", { style: {
+		fontSize: 13,
+		color: "var(--dsw-alias-label-secondary)",
+		lineHeight: "20px",
+		margin: 0
+	} }, "语音桌宠的显示、唤醒、语音输入与语音合成配置(本地离线优先,需网络的能力已标注)"), value === null && !error ? react.default.createElement("p", { style: {
 		color: "var(--dsw-alias-label-secondary)",
 		fontSize: 13
-	} }, "加载中…") : react.default.createElement("div", null, react.default.createElement(Field, {
-		label: "唤醒词(逗号/换行分隔)",
-		hint: "纯中文词命中率更高,如:小希小希"
-	}, react.default.createElement("textarea", {
+	} }, "加载中…") : react.default.createElement(react.default.Fragment, null, react.default.createElement(Group, { title: "桌宠设置" }, react.default.createElement(Row, {
+		title: "桌宠显示",
+		desc: isDesktop ? "独立桌宠需重启桌面应用后生效" : "独立桌宠仅桌面版可用"
+	}, react.default.createElement("select", {
 		style: {
 			...inputStyle,
-			minHeight: 56,
-			resize: "vertical"
+			width: 160
 		},
-		value: wakeWords.join("\n"),
+		value: value.petMode ?? "off",
 		disabled: false,
-		onChange: onWakeWords
-	})), react.default.createElement(Field, {
-		label: "说完判定(VAD 静音秒数)",
-		hint: "说话停顿超过该时长视为说完(2-15 秒)"
+		onChange: onSelect("petMode")
+	}, react.default.createElement("option", { value: "off" }, "关闭"), react.default.createElement("option", { value: "page" }, "页面桌宠(悬浮在主界面)"), react.default.createElement("option", {
+		value: "standalone",
+		disabled: !isDesktop
+	}, "独立桌宠(独立悬浮窗口)"))), react.default.createElement(Row, {
+		title: "桌宠大小",
+		desc: (value.petMode ?? "off") === "standalone" ? "独立窗口上限 150%(超出自动收至 150%)" : "缩放桌宠显示尺寸(50%-200%)"
 	}, react.default.createElement("input", {
-		type: "number",
-		style: inputStyle,
-		value: value.vadSilenceSeconds ?? 5,
-		min: 2,
-		max: 15,
+		type: "range",
+		min: 50,
+		max: sizeMax,
+		step: 5,
+		style: { width: 140 },
+		value: sizeShown,
 		disabled: false,
-		onChange: onNum("vadSilenceSeconds")
-	})), react.default.createElement(Field, {
-		label: "TTS 引擎",
-		hint: "melo = 本地离线;edge = 微软免费在线(需网络)"
+		onChange: (e) => patch({ petSize: Number(e.target.value) / 100 })
+	}), react.default.createElement("span", { style: {
+		fontSize: 13,
+		color: "var(--dsw-alias-label-secondary)",
+		width: 44,
+		textAlign: "right"
+	} }, sizeShown + "%")), react.default.createElement(Row, {
+		title: "桌宠形象",
+		desc: "上传 VRM 1.0/0.x 模型;动画需标准人形骨骼,非人形模型仅静态展示"
 	}, react.default.createElement("select", {
-		style: inputStyle,
-		value: value.ttsEngine ?? "melo",
-		disabled: false,
-		onChange: onSelect("ttsEngine")
-	}, react.default.createElement("option", { value: "melo" }, "MeloTTS(本地)"), react.default.createElement("option", { value: "edge" }, "Edge TTS(在线)"))), react.default.createElement(Field, { label: "语速(0.5-1.5)" }, react.default.createElement("input", {
-		type: "number",
-		style: inputStyle,
-		value: value.speed ?? 1,
-		step: .1,
-		min: .5,
-		max: 1.5,
-		disabled: false,
-		onChange: onNum("speed")
-	})), react.default.createElement(Field, {
-		label: "Edge 音色",
-		hint: "仅 TTS 引擎为 edge 时生效"
-	}, react.default.createElement("select", {
-		style: inputStyle,
-		value: value.edgeVoice ?? "zh-CN-XiaoxiaoNeural",
-		disabled: (value.ttsEngine ?? "melo") !== "edge",
-		onChange: onSelect("edgeVoice")
-	}, EDGE_VOICES.map((v) => react.default.createElement("option", {
-		key: v.code,
-		value: v.code,
-		title: v.code
-	}, v.name)))), react.default.createElement(Field, { label: "语音播报" }, react.default.createElement("label", { style: {
-		display: "flex",
-		alignItems: "center",
-		gap: 6,
-		fontSize: 13
-	} }, react.default.createElement("input", {
-		type: "checkbox",
-		checked: value.speakEnabled !== false,
-		disabled: false,
-		onChange: onCheck("speakEnabled")
-	}), " 开启语音播报(voice_speak 与回复朗读)")), react.default.createElement(Field, {
-		label: "桌宠形象",
-		hint: "上传 VRM 1.0/0.x 模型;动画需标准人形骨骼,非人形模型仅静态展示"
-	}, react.default.createElement("div", { style: {
-		display: "flex",
-		gap: 8,
-		alignItems: "center"
-	} }, react.default.createElement("select", {
 		style: {
 			...inputStyle,
-			flex: 1
+			width: 140
 		},
 		value: value?.avatarId ?? "",
 		disabled: false,
@@ -51875,39 +51914,83 @@ function VoiceSettingsPage() {
 		marginTop: 4,
 		fontSize: 11,
 		color: "var(--dsw-alias-label-secondary)"
-	} }, avatarMsg) : null), react.default.createElement(Field, {
-		label: "桌宠显示",
-		hint: isDesktop ? "独立桌宠需重启桌面应用后生效" : "独立桌宠仅桌面版可用"
+	} }, avatarMsg) : null), react.default.createElement(Group, { title: "唤醒" }, react.default.createElement(Row, {
+		title: "唤醒词",
+		desc: "纯中文词命中率更高,如:小希小希",
+		block: true
+	}, react.default.createElement("textarea", {
+		style: {
+			...inputStyle,
+			minHeight: 56,
+			resize: "vertical"
+		},
+		value: wakeWords.join("\n"),
+		disabled: false,
+		onChange: onWakeWords
+	}))), react.default.createElement(Group, { title: "语音输入" }, react.default.createElement(Row, {
+		title: "说完判定(VAD)",
+		desc: "说话停顿超过该时长视为说完(2-15 秒)"
+	}, react.default.createElement("input", {
+		type: "number",
+		style: {
+			...inputStyle,
+			width: 100
+		},
+		value: value.vadSilenceSeconds ?? 5,
+		min: 2,
+		max: 15,
+		disabled: false,
+		onChange: onNum("vadSilenceSeconds")
+	}))), react.default.createElement(Group, { title: "语音合成" }, react.default.createElement(Row, {
+		title: "TTS 引擎",
+		desc: "melo = 本地离线;edge = 微软免费在线(需网络)"
 	}, react.default.createElement("select", {
-		style: inputStyle,
-		value: value.petMode ?? "off",
+		style: {
+			...inputStyle,
+			width: 160
+		},
+		value: value.ttsEngine ?? "melo",
 		disabled: false,
-		onChange: onSelect("petMode")
-	}, react.default.createElement("option", { value: "off" }, "关闭"), react.default.createElement("option", { value: "page" }, "页面桌宠(悬浮在主界面)"), react.default.createElement("option", {
-		value: "standalone",
-		disabled: !isDesktop
-	}, "独立桌宠(独立悬浮窗口)"))), react.default.createElement(Field, {
-		label: "桌宠大小",
-		hint: (value.petMode ?? "off") === "standalone" ? "独立窗口上限 150%(超出自动收至 150%)" : "缩放桌宠显示尺寸(50%-200%)"
-	}, react.default.createElement("div", { style: {
-		display: "flex",
-		alignItems: "center",
-		gap: 8
-	} }, react.default.createElement("input", {
-		type: "range",
-		min: 50,
-		max: sizeMax,
-		step: 5,
-		style: { flex: 1 },
-		value: sizeShown,
+		onChange: onSelect("ttsEngine")
+	}, react.default.createElement("option", { value: "melo" }, "MeloTTS(本地)"), react.default.createElement("option", { value: "edge" }, "Edge TTS(在线)"))), react.default.createElement(Row, {
+		title: "语速",
+		desc: "0.5-1.5"
+	}, react.default.createElement("input", {
+		type: "number",
+		style: {
+			...inputStyle,
+			width: 100
+		},
+		value: value.speed ?? 1,
+		step: .1,
+		min: .5,
+		max: 1.5,
 		disabled: false,
-		onChange: (e) => patch({ petSize: Number(e.target.value) / 100 })
-	}), react.default.createElement("span", { style: {
-		fontSize: 13,
-		color: "var(--dsw-alias-label-secondary)",
-		width: 44,
-		textAlign: "right"
-	} }, sizeShown + "%")))));
+		onChange: onNum("speed")
+	})), react.default.createElement(Row, {
+		title: "Edge 音色",
+		desc: "仅 TTS 引擎为 edge 时生效"
+	}, react.default.createElement("select", {
+		style: {
+			...inputStyle,
+			width: 160
+		},
+		value: value.edgeVoice ?? "zh-CN-XiaoxiaoNeural",
+		disabled: (value.ttsEngine ?? "melo") !== "edge",
+		onChange: onSelect("edgeVoice")
+	}, EDGE_VOICES.map((v) => react.default.createElement("option", {
+		key: v.code,
+		value: v.code,
+		title: v.code
+	}, v.name)))), react.default.createElement(Row, {
+		title: "语音播报",
+		desc: "开启 voice_speak 与回复朗读"
+	}, react.default.createElement(Switch, {
+		label: "语音播报",
+		checked: value.speakEnabled !== false,
+		disabled: false,
+		onChange: onCheck("speakEnabled")
+	})))));
 }
 function MicInputButton(props) {
 	const { useInput, inputActions } = props;

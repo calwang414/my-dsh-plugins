@@ -22,11 +22,65 @@ const EDGE_VOICES = [
   { code: 'zh-CN-XiaoshuangNeural', name: '晓双(女声·儿童)' },
 ]
 
-function Field({ label, children, hint }) {
-  return React.createElement('label', { style: { display: 'block', marginBottom: 10, fontSize: 13 } },
-    React.createElement('span', { style: { display: 'block', marginBottom: 3, color: 'var(--dsw-alias-label-secondary)' } }, label),
+// ---------- 设置页:四分区卡片(参考「侧边卡片」设置页风格:分组卡片 + 行式设置项) ----------
+
+// 分区卡片:标题 + 行式设置项(标题/描述居左,控件居右)
+function Group({ title, children }) {
+  return React.createElement('div', {
+    style: {
+      background: 'var(--dsw-alias-bg-layer-1)',
+      border: '1px solid var(--dsw-alias-border-l1)',
+      borderRadius: 16,
+      padding: '18px 20px 20px',
+    },
+  },
+    React.createElement('div', { style: { fontSize: 13, fontWeight: 600, color: 'var(--dsw-alias-label-primary)', margin: '0 0 6px' } }, title),
     children,
-    hint ? React.createElement('span', { style: { display: 'block', marginTop: 2, fontSize: 11, color: 'var(--dsw-alias-label-secondary)' } }, hint) : null,
+  )
+}
+
+// 行:标题+描述在左,控件在右;block 变体让控件独占一行(文本域)
+function Row({ title, desc, children, block }) {
+  const rowStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+    padding: '12px 2px',
+    borderBottom: '1px solid var(--dsw-alias-border-l1)',
+  }
+  if (block) {
+    rowStyle.flexDirection = 'column'
+    rowStyle.alignItems = 'stretch'
+  }
+  return React.createElement('div', { style: rowStyle },
+    React.createElement('span', { style: { display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 } },
+      React.createElement('span', { style: { fontSize: 14, color: 'var(--dsw-alias-label-primary)' } }, title),
+      desc ? React.createElement('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-secondary)', lineHeight: '18px' } }, desc) : null),
+    React.createElement('span', { style: { display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } }, children),
+  )
+}
+
+// 开关(复刻设置页 switch:36x20 圆角轨道 + 滑块,选中品牌色)
+function Switch({ checked, disabled, onChange, label }) {
+  return React.createElement('label', { style: { display: 'inline-flex', alignItems: 'center', cursor: disabled ? 'not-allowed' : 'pointer' } },
+    React.createElement('input', {
+      type: 'checkbox', checked, disabled, 'aria-label': label, onChange,
+      style: { position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' },
+    }),
+    React.createElement('span', {
+      style: {
+        width: 36, height: 20, borderRadius: 10, position: 'relative', flexShrink: 0, transition: 'background .15s',
+        background: checked ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-bg-layer-3)',
+        border: '1px solid ' + (checked ? 'transparent' : 'var(--dsw-alias-border-l1)'),
+      },
+    },
+      React.createElement('span', {
+        style: {
+          position: 'absolute', top: 1, left: checked ? 17 : 1, width: 16, height: 16, borderRadius: 8,
+          background: '#fff', transition: 'left .15s', boxShadow: '0 1px 2px rgba(0,0,0,.2)',
+        },
+      })),
   )
 }
 
@@ -336,47 +390,48 @@ function VoiceSettingsPage() {
   const sizeMax = (value?.petMode ?? 'off') === 'standalone' ? 150 : 200
   const sizeShown = Math.min(petSizePct, sizeMax)
 
-  return React.createElement('div', { style: { maxWidth: 420, padding: '4px 0' } },
-    React.createElement('h3', { style: { margin: '0 0 12px', fontSize: 15 } }, '语音桌宠设置'),
-    error ? React.createElement('p', { style: { color: 'var(--dsw-alias-state-error-primary)', fontSize: 13 } }, error) : null,
+  return React.createElement('div', { style: { maxWidth: 760, display: 'flex', flexDirection: 'column', gap: 14, padding: '4px 0' } },
+    error ? React.createElement('p', { style: { color: 'var(--dsw-alias-state-error-primary)', fontSize: 13, margin: 0 } }, error) : null,
+    React.createElement('p', { style: { fontSize: 13, color: 'var(--dsw-alias-label-secondary)', lineHeight: '20px', margin: 0 } },
+      '语音桌宠的显示、唤醒、语音输入与语音合成配置(本地离线优先,需网络的能力已标注)'),
     value === null && !error
       ? React.createElement('p', { style: { color: 'var(--dsw-alias-label-secondary)', fontSize: 13 } }, '加载中…')
-      : React.createElement('div', null,
-          React.createElement(Field, { label: '唤醒词(逗号/换行分隔)', hint: '纯中文词命中率更高,如:小希小希' },
-            React.createElement('textarea', { style: { ...inputStyle, minHeight: 56, resize: 'vertical' }, value: wakeWords.join('\n'), disabled: !writable, onChange: onWakeWords })),
-          React.createElement(Field, { label: '说完判定(VAD 静音秒数)', hint: '说话停顿超过该时长视为说完(2-15 秒)' },
-            React.createElement('input', { type: 'number', style: inputStyle, value: value.vadSilenceSeconds ?? 5, min: 2, max: 15, disabled: !writable, onChange: onNum('vadSilenceSeconds') })),
-          React.createElement(Field, { label: 'TTS 引擎', hint: 'melo = 本地离线;edge = 微软免费在线(需网络)' },
-            React.createElement('select', { style: inputStyle, value: value.ttsEngine ?? 'melo', disabled: !writable, onChange: onSelect('ttsEngine') },
-              React.createElement('option', { value: 'melo' }, 'MeloTTS(本地)'),
-              React.createElement('option', { value: 'edge' }, 'Edge TTS(在线)'))),
-          React.createElement(Field, { label: '语速(0.5-1.5)' },
-            React.createElement('input', { type: 'number', style: inputStyle, value: value.speed ?? 1, step: 0.1, min: 0.5, max: 1.5, disabled: !writable, onChange: onNum('speed') })),
-          React.createElement(Field, { label: 'Edge 音色', hint: '仅 TTS 引擎为 edge 时生效' },
-            React.createElement('select', { style: inputStyle, value: value.edgeVoice ?? 'zh-CN-XiaoxiaoNeural', disabled: !writable || (value.ttsEngine ?? 'melo') !== 'edge', onChange: onSelect('edgeVoice') },
-              EDGE_VOICES.map((v) => React.createElement('option', { key: v.code, value: v.code, title: v.code }, v.name)))),
-          React.createElement(Field, { label: '语音播报' },
-            React.createElement('label', { style: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 } },
-              React.createElement('input', { type: 'checkbox', checked: value.speakEnabled !== false, disabled: !writable, onChange: onCheck('speakEnabled') }),
-              ' 开启语音播报(voice_speak 与回复朗读)')),
-          React.createElement(Field, { label: '桌宠形象', hint: '上传 VRM 1.0/0.x 模型;动画需标准人形骨骼,非人形模型仅静态展示' },
-            React.createElement('div', { style: { display: 'flex', gap: 8, alignItems: 'center' } },
-              React.createElement('select', { style: { ...inputStyle, flex: 1 }, value: value?.avatarId ?? '', disabled: !writable, onChange: onAvatar },
+      : React.createElement(React.Fragment, null,
+          React.createElement(Group, { title: '桌宠设置' },
+            React.createElement(Row, { title: '桌宠显示', desc: isDesktop ? '独立桌宠需重启桌面应用后生效' : '独立桌宠仅桌面版可用' },
+              React.createElement('select', { style: { ...inputStyle, width: 160 }, value: value.petMode ?? 'off', disabled: !writable, onChange: onSelect('petMode') },
+                React.createElement('option', { value: 'off' }, '关闭'),
+                React.createElement('option', { value: 'page' }, '页面桌宠(悬浮在主界面)'),
+                React.createElement('option', { value: 'standalone', disabled: !isDesktop }, '独立桌宠(独立悬浮窗口)'))),
+            React.createElement(Row, { title: '桌宠大小', desc: (value.petMode ?? 'off') === 'standalone' ? '独立窗口上限 150%(超出自动收至 150%)' : '缩放桌宠显示尺寸(50%-200%)' },
+              React.createElement('input', { type: 'range', min: 50, max: sizeMax, step: 5, style: { width: 140 }, value: sizeShown, disabled: !writable, onChange: (e) => patch({ petSize: Number(e.target.value) / 100 }) }),
+              React.createElement('span', { style: { fontSize: 13, color: 'var(--dsw-alias-label-secondary)', width: 44, textAlign: 'right' } }, sizeShown + '%')),
+            React.createElement(Row, { title: '桌宠形象', desc: '上传 VRM 1.0/0.x 模型;动画需标准人形骨骼,非人形模型仅静态展示' },
+              React.createElement('select', { style: { ...inputStyle, width: 140 }, value: value?.avatarId ?? '', disabled: !writable, onChange: onAvatar },
                 React.createElement('option', { value: '' }, '默认形象'),
                 avatars.filter((a) => a.custom).map((a) => React.createElement('option', { key: a.id, value: a.id }, a.name))),
               React.createElement('button', { type: 'button', style: { ...inputStyle, width: 'auto', flexShrink: 0, cursor: 'pointer' }, onClick: () => fileRef.current && fileRef.current.click() }, '上传'),
               value?.avatarId ? React.createElement('button', { type: 'button', style: { ...inputStyle, width: 'auto', flexShrink: 0, cursor: 'pointer', color: 'var(--dsw-alias-state-error-primary)' }, onClick: onDeleteAvatar }, '删除') : null),
             React.createElement('input', { ref: fileRef, type: 'file', accept: '.vrm', style: { display: 'none' }, onChange: onFileChosen }),
             avatarMsg ? React.createElement('span', { style: { display: 'block', marginTop: 4, fontSize: 11, color: 'var(--dsw-alias-label-secondary)' } }, avatarMsg) : null),
-          React.createElement(Field, { label: '桌宠显示', hint: isDesktop ? '独立桌宠需重启桌面应用后生效' : '独立桌宠仅桌面版可用' },
-            React.createElement('select', { style: inputStyle, value: value.petMode ?? 'off', disabled: !writable, onChange: onSelect('petMode') },
-              React.createElement('option', { value: 'off' }, '关闭'),
-              React.createElement('option', { value: 'page' }, '页面桌宠(悬浮在主界面)'),
-              React.createElement('option', { value: 'standalone', disabled: !isDesktop }, '独立桌宠(独立悬浮窗口)'))),
-          React.createElement(Field, { label: '桌宠大小', hint: (value.petMode ?? 'off') === 'standalone' ? '独立窗口上限 150%(超出自动收至 150%)' : '缩放桌宠显示尺寸(50%-200%)' },
-            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
-              React.createElement('input', { type: 'range', min: 50, max: sizeMax, step: 5, style: { flex: 1 }, value: sizeShown, disabled: !writable, onChange: (e) => patch({ petSize: Number(e.target.value) / 100 }) }),
-              React.createElement('span', { style: { fontSize: 13, color: 'var(--dsw-alias-label-secondary)', width: 44, textAlign: 'right' } }, sizeShown + '%'))),
+          React.createElement(Group, { title: '唤醒' },
+            React.createElement(Row, { title: '唤醒词', desc: '纯中文词命中率更高,如:小希小希', block: true },
+              React.createElement('textarea', { style: { ...inputStyle, minHeight: 56, resize: 'vertical' }, value: wakeWords.join('\n'), disabled: !writable, onChange: onWakeWords }))),
+          React.createElement(Group, { title: '语音输入' },
+            React.createElement(Row, { title: '说完判定(VAD)', desc: '说话停顿超过该时长视为说完(2-15 秒)' },
+              React.createElement('input', { type: 'number', style: { ...inputStyle, width: 100 }, value: value.vadSilenceSeconds ?? 5, min: 2, max: 15, disabled: !writable, onChange: onNum('vadSilenceSeconds') }))),
+          React.createElement(Group, { title: '语音合成' },
+            React.createElement(Row, { title: 'TTS 引擎', desc: 'melo = 本地离线;edge = 微软免费在线(需网络)' },
+              React.createElement('select', { style: { ...inputStyle, width: 160 }, value: value.ttsEngine ?? 'melo', disabled: !writable, onChange: onSelect('ttsEngine') },
+                React.createElement('option', { value: 'melo' }, 'MeloTTS(本地)'),
+                React.createElement('option', { value: 'edge' }, 'Edge TTS(在线)'))),
+            React.createElement(Row, { title: '语速', desc: '0.5-1.5' },
+              React.createElement('input', { type: 'number', style: { ...inputStyle, width: 100 }, value: value.speed ?? 1, step: 0.1, min: 0.5, max: 1.5, disabled: !writable, onChange: onNum('speed') })),
+            React.createElement(Row, { title: 'Edge 音色', desc: '仅 TTS 引擎为 edge 时生效' },
+              React.createElement('select', { style: { ...inputStyle, width: 160 }, value: value.edgeVoice ?? 'zh-CN-XiaoxiaoNeural', disabled: !writable || (value.ttsEngine ?? 'melo') !== 'edge', onChange: onSelect('edgeVoice') },
+                EDGE_VOICES.map((v) => React.createElement('option', { key: v.code, value: v.code, title: v.code }, v.name)))),
+            React.createElement(Row, { title: '语音播报', desc: '开启 voice_speak 与回复朗读' },
+              React.createElement(Switch, { label: '语音播报', checked: value.speakEnabled !== false, disabled: !writable, onChange: onCheck('speakEnabled') }))),
         ),
   )
 }

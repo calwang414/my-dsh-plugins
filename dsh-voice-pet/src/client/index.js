@@ -736,7 +736,8 @@ function SpeakButton(props) {
     }
   }
 
-  const usable = enabled && !!text
+  if (!enabled) return null // 语音播报关闭:不渲染朗读按钮
+  const usable = !!text
   const style = {
     border: 'none', background: 'transparent', cursor: usable ? 'pointer' : 'not-allowed',
     fontSize: 14, padding: '2px 5px', borderRadius: 6, color: 'var(--dsw-alias-label-secondary)',
@@ -744,7 +745,7 @@ function SpeakButton(props) {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
   }
   return React.createElement('button', {
-    type: 'button', title: !enabled ? '语音播报已关闭(设置 → 语音桌宠 → 语音合成)' : text ? '朗读这条回复' : '无文本可朗读', style, onClick,
+    type: 'button', title: text ? '朗读这条回复' : '无文本可朗读', style, onClick,
   },
     speaking
       ? React.createElement(IconPauseOutline16, { size: 14 })

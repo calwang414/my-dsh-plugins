@@ -52409,7 +52409,8 @@ function SpeakButton(props) {
 			setTimeout(() => setSpeaking(false), 600);
 		}
 	};
-	const usable = enabled && !!text;
+	if (!enabled) return null;
+	const usable = !!text;
 	const style = {
 		border: "none",
 		background: "transparent",
@@ -52425,7 +52426,7 @@ function SpeakButton(props) {
 	};
 	return react.default.createElement("button", {
 		type: "button",
-		title: !enabled ? "语音播报已关闭(设置 → 语音桌宠 → 语音合成)" : text ? "朗读这条回复" : "无文本可朗读",
+		title: text ? "朗读这条回复" : "无文本可朗读",
 		style,
 		onClick
 	}, speaking ? react.default.createElement(_deepseek_ai_dsh_client_ui_primitives.IconPauseOutline16, { size: 14 }) : error ? react.default.createElement(_deepseek_ai_dsh_client_ui_primitives.IconWarningOutline16, { size: 14 }) : react.default.createElement(_deepseek_ai_dsh_client_ui_primitives.IconPlayOutline16, { size: 14 }));

@@ -290,6 +290,7 @@ function launchChrome(args) {
     '--disable-sync',
     '--disable-extensions',
     '--disable-features=Translate,MediaRouter',
+    '--hide-crash-restore-bubble',
   ]
   if (args.headless) flags.push('--headless=new')
   const child = spawn(CHROME_BIN, flags, { stdio: ['ignore', 'ignore', 'pipe'] })
@@ -666,12 +667,20 @@ async function cmdClose() {
       await send('Browser.close')
     } catch {}
   }
+  // 优雅关闭失败时先发 SIGTERM(Chrome 可捕获并写干净退出标记),仍未退出再 SIGKILL 兜底
   const deadline = Date.now() + 4000
   while (Date.now() < deadline && state.chromeAlive) await delay(100)
   if (state.chromeAlive && state.chrome) {
     try {
-      state.chrome.kill('SIGKILL')
+      state.chrome.kill('SIGTERM')
     } catch {}
+    const deadline2 = Date.now() + 3000
+    while (Date.now() < deadline2 && state.chromeAlive) await delay(100)
+    if (state.chromeAlive && state.chrome) {
+      try {
+        state.chrome.kill('SIGKILL')
+      } catch {}
+    }
   }
   try {
     if (state.ws) state.ws.close()
@@ -735,10 +744,22 @@ rl.on('line', async (line) => {
 
 process.on('SIGTERM', () => {
   state.closing = true
+  // 先让 Chrome 优雅退出(可写干净退出标记),3 秒后仍未退出再 SIGKILL 兜底
   try {
-    if (state.chrome) state.chrome.kill('SIGKILL')
+    if (state.chrome) state.chrome.kill('SIGTERM')
   } catch {}
-  process.exit(0)
+  const deadline = Date.now() + 3000
+  const timer = setInterval(() => {
+    if (!state.chromeAlive || Date.now() >= deadline) {
+      clearInterval(timer)
+      if (state.chromeAlive && state.chrome) {
+        try {
+          state.chrome.kill('SIGKILL')
+        } catch {}
+      }
+      process.exit(0)
+    }
+  }, 100)
 })
 
 console.error('dsh-cdp-browser bridge ready (' + BROWSER_KIND + (MANAGED_VERSION ? ' ' + MANAGED_VERSION : '') + ', profile: ' + PROFILE_DIR + ')')

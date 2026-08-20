@@ -260,7 +260,8 @@ function applyConfig(patch) {
   } else {
     vm.setAsr(null)
   }
-  if (wasRunning && config.enableWakeword) vm.startListening()
+  // 唤醒开启且 KWS 已重建 → 启动常驻监听(startListening 幂等:非 idle 先停再启)
+  if (config.enableWakeword) vm.startListening()
 }
 
 // ---------------- 命令循环 ----------------

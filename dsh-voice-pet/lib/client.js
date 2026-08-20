@@ -51548,6 +51548,98 @@ function Switch({ checked, disabled, onChange, label }) {
 		boxShadow: "0 1px 2px rgba(0,0,0,.2)"
 	} })));
 }
+function PetModeIcon({ kind }) {
+	const common = {
+		width: 16,
+		height: 16,
+		viewBox: "0 0 16 16",
+		fill: "none",
+		stroke: "currentColor",
+		strokeWidth: 1.6,
+		strokeLinecap: "round",
+		strokeLinejoin: "round",
+		xmlns: "http://www.w3.org/2000/svg"
+	};
+	if (kind === "off") return react.default.createElement("svg", common, react.default.createElement("circle", {
+		cx: 8,
+		cy: 8,
+		r: 6
+	}), react.default.createElement("line", {
+		x1: 4.2,
+		y1: 4.2,
+		x2: 11.8,
+		y2: 11.8
+	}));
+	if (kind === "page") return react.default.createElement("svg", common, react.default.createElement("rect", {
+		x: 2.5,
+		y: 3.5,
+		width: 11,
+		height: 9,
+		rx: 1.5
+	}), react.default.createElement("line", {
+		x1: 2.5,
+		y1: 6,
+		x2: 13.5,
+		y2: 6
+	}));
+	return react.default.createElement("svg", common, react.default.createElement("rect", {
+		x: 2.5,
+		y: 4.5,
+		width: 8.5,
+		height: 8.5,
+		rx: 1.5
+	}), react.default.createElement("path", { d: "M8 2.5h5.5V8" }), react.default.createElement("path", { d: "M13.5 2.5L8.5 7.5" }));
+}
+function ModeCard({ active, disabled, title, desc, icon, onClick }) {
+	return react.default.createElement("button", {
+		type: "button",
+		disabled,
+		onClick,
+		title: disabled ? "独立桌宠仅桌面版可用" : title,
+		style: {
+			flex: 1,
+			minWidth: 0,
+			padding: "10px 12px",
+			borderRadius: 10,
+			cursor: disabled ? "not-allowed" : "pointer",
+			textAlign: "left",
+			display: "flex",
+			flexDirection: "column",
+			gap: 4,
+			alignItems: "flex-start",
+			border: "1px solid " + (active ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-border-l1)"),
+			background: active ? "color-mix(in srgb, var(--dsw-alias-brand-primary) 8%, var(--dsw-alias-bg-layer-1))" : "var(--dsw-alias-bg-layer-1)",
+			opacity: disabled ? .45 : 1,
+			transition: "border-color .15s, background .15s"
+		}
+	}, react.default.createElement("span", { style: {
+		display: "flex",
+		alignItems: "center",
+		gap: 6,
+		width: "100%"
+	} }, react.default.createElement("span", { style: {
+		display: "inline-flex",
+		color: active ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-label-secondary)"
+	} }, react.default.createElement(PetModeIcon, { kind: icon })), react.default.createElement("span", { style: {
+		flex: 1,
+		fontSize: 13,
+		fontWeight: 600,
+		color: active ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-label-primary)"
+	} }, title), active ? react.default.createElement("svg", {
+		width: 14,
+		height: 14,
+		viewBox: "0 0 16 16",
+		fill: "none",
+		stroke: "var(--dsw-alias-brand-primary)",
+		strokeWidth: 1.8,
+		strokeLinecap: "round",
+		strokeLinejoin: "round"
+	}, react.default.createElement("path", { d: "M3 8.5L6.5 12L13 4.5" })) : null), react.default.createElement("span", { style: {
+		fontSize: 11,
+		lineHeight: "15px",
+		color: "var(--dsw-alias-label-secondary)"
+	} }, desc));
+}
 var inputStyle = {
 	width: "100%",
 	boxSizing: "border-box",
@@ -51816,6 +51908,16 @@ function VoiceSettingsPage() {
 		}
 		patch({ [field]: v });
 	};
+	const onPickMode = (v) => {
+		if (v === "standalone" && (value.petSize ?? 1) > 1.5) {
+			patch({
+				petMode: v,
+				petSize: 1.5
+			});
+			return;
+		}
+		patch({ petMode: v });
+	};
 	const onCheck = (field) => (e) => patch({ [field]: e.target.checked });
 	const isDesktop = typeof window !== "undefined" && Boolean(window.__TAURI__);
 	const petSizePct = Math.round((value?.petSize ?? 1) * 100);
@@ -51841,19 +51943,33 @@ function VoiceSettingsPage() {
 		fontSize: 13
 	} }, "加载中…") : react.default.createElement(react.default.Fragment, null, react.default.createElement(Group, { title: "桌宠设置" }, react.default.createElement(Row, {
 		title: "桌宠显示",
-		desc: isDesktop ? "独立桌宠需重启桌面应用后生效" : "独立桌宠仅桌面版可用"
-	}, react.default.createElement("select", {
-		style: {
-			...inputStyle,
-			width: 160
-		},
-		value: value.petMode ?? "off",
+		desc: isDesktop ? "独立桌宠需重启桌面应用后生效" : "独立桌宠仅桌面版可用",
+		block: true
+	}, react.default.createElement("div", { style: {
+		display: "flex",
+		gap: 8
+	} }, react.default.createElement(ModeCard, {
+		active: (value.petMode ?? "off") === "off",
 		disabled: false,
-		onChange: onSelect("petMode")
-	}, react.default.createElement("option", { value: "off" }, "关闭"), react.default.createElement("option", { value: "page" }, "页面桌宠(悬浮在主界面)"), react.default.createElement("option", {
-		value: "standalone",
-		disabled: !isDesktop
-	}, "独立桌宠(独立悬浮窗口)"))), react.default.createElement(Row, {
+		title: "关闭",
+		desc: "不显示桌宠",
+		icon: "off",
+		onClick: () => onPickMode("off")
+	}), react.default.createElement(ModeCard, {
+		active: (value.petMode ?? "off") === "page",
+		disabled: false,
+		title: "页面桌宠",
+		desc: "悬浮在主界面",
+		icon: "page",
+		onClick: () => onPickMode("page")
+	}), react.default.createElement(ModeCard, {
+		active: (value.petMode ?? "off") === "standalone",
+		disabled: !isDesktop,
+		title: "独立桌宠",
+		desc: "独立悬浮窗口",
+		icon: "standalone",
+		onClick: () => onPickMode("standalone")
+	}))), react.default.createElement(Row, {
 		title: "桌宠大小",
 		desc: (value.petMode ?? "off") === "standalone" ? "独立窗口上限 150%(超出自动收至 150%)" : "缩放桌宠显示尺寸(50%-200%)"
 	}, react.default.createElement("input", {

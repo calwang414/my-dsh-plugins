@@ -84,6 +84,49 @@ function Switch({ checked, disabled, onChange, label }) {
   )
 }
 
+// 线性小图标(16px 视图,strokeWidth 1.6,与 MicIcon16 同一风格)
+function PetModeIcon({ kind }) {
+  const common = { width: 16, height: 16, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round', xmlns: 'http://www.w3.org/2000/svg' }
+  if (kind === 'off') {
+    return React.createElement('svg', common,
+      React.createElement('circle', { cx: 8, cy: 8, r: 6 }),
+      React.createElement('line', { x1: 4.2, y1: 4.2, x2: 11.8, y2: 11.8 }))
+  }
+  if (kind === 'page') {
+    return React.createElement('svg', common,
+      React.createElement('rect', { x: 2.5, y: 3.5, width: 11, height: 9, rx: 1.5 }),
+      React.createElement('line', { x1: 2.5, y1: 6, x2: 13.5, y2: 6 }))
+  }
+  // standalone:小窗 + 弹出箭头
+  return React.createElement('svg', common,
+    React.createElement('rect', { x: 2.5, y: 4.5, width: 8.5, height: 8.5, rx: 1.5 }),
+    React.createElement('path', { d: 'M8 2.5h5.5V8' }),
+    React.createElement('path', { d: 'M13.5 2.5L8.5 7.5' }))
+}
+
+// 桌宠显示模式卡片(选中:品牌色边框 + 浅品牌背景 + 勾选)
+function ModeCard({ active, disabled, title, desc, icon, onClick }) {
+  return React.createElement('button', {
+    type: 'button', disabled, onClick, title: disabled ? '独立桌宠仅桌面版可用' : title,
+    style: {
+      flex: 1, minWidth: 0, padding: '10px 12px', borderRadius: 10, cursor: disabled ? 'not-allowed' : 'pointer',
+      textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start',
+      border: '1px solid ' + (active ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-border-l1)'),
+      background: active ? 'color-mix(in srgb, var(--dsw-alias-brand-primary) 8%, var(--dsw-alias-bg-layer-1))' : 'var(--dsw-alias-bg-layer-1)',
+      opacity: disabled ? 0.45 : 1,
+      transition: 'border-color .15s, background .15s',
+    },
+  },
+    React.createElement('span', { style: { display: 'flex', alignItems: 'center', gap: 6, width: '100%' } },
+      React.createElement('span', { style: { display: 'inline-flex', color: active ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-label-secondary)' } },
+        React.createElement(PetModeIcon, { kind: icon })),
+      React.createElement('span', { style: { flex: 1, fontSize: 13, fontWeight: 600, color: active ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-label-primary)' } }, title),
+      active ? React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 16 16', fill: 'none', stroke: 'var(--dsw-alias-brand-primary)', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' },
+        React.createElement('path', { d: 'M3 8.5L6.5 12L13 4.5' })) : null),
+    React.createElement('span', { style: { fontSize: 11, lineHeight: '15px', color: 'var(--dsw-alias-label-secondary)' } }, desc),
+  )
+}
+
 // 主题变量见 dsh Theme tokens(--dsw-alias-* 系列,浅色/深色自动切换)
 const inputStyle = {
   width: '100%', boxSizing: 'border-box', padding: '5px 8px', fontSize: 13,
@@ -383,6 +426,13 @@ function VoiceSettingsPage() {
     }
     patch({ [field]: v })
   }
+  const onPickMode = (v) => {
+    if (v === 'standalone' && (value.petSize ?? 1) > 1.5) {
+      patch({ petMode: v, petSize: 1.5 })
+      return
+    }
+    patch({ petMode: v })
+  }
   const onCheck = (field) => (e) => patch({ [field]: e.target.checked })
   // Tauri 桌面壳暴露 __TAURI__ 全局,浏览器(Web)没有 → 独立桌宠仅桌面端可选
   const isDesktop = typeof window !== 'undefined' && Boolean(window.__TAURI__)
@@ -398,11 +448,11 @@ function VoiceSettingsPage() {
       ? React.createElement('p', { style: { color: 'var(--dsw-alias-label-secondary)', fontSize: 13 } }, '加载中…')
       : React.createElement(React.Fragment, null,
           React.createElement(Group, { title: '桌宠设置' },
-            React.createElement(Row, { title: '桌宠显示', desc: isDesktop ? '独立桌宠需重启桌面应用后生效' : '独立桌宠仅桌面版可用' },
-              React.createElement('select', { style: { ...inputStyle, width: 160 }, value: value.petMode ?? 'off', disabled: !writable, onChange: onSelect('petMode') },
-                React.createElement('option', { value: 'off' }, '关闭'),
-                React.createElement('option', { value: 'page' }, '页面桌宠(悬浮在主界面)'),
-                React.createElement('option', { value: 'standalone', disabled: !isDesktop }, '独立桌宠(独立悬浮窗口)'))),
+            React.createElement(Row, { title: '桌宠显示', desc: isDesktop ? '独立桌宠需重启桌面应用后生效' : '独立桌宠仅桌面版可用', block: true },
+              React.createElement('div', { style: { display: 'flex', gap: 8 } },
+                React.createElement(ModeCard, { active: (value.petMode ?? 'off') === 'off', disabled: !writable, title: '关闭', desc: '不显示桌宠', icon: 'off', onClick: () => onPickMode('off') }),
+                React.createElement(ModeCard, { active: (value.petMode ?? 'off') === 'page', disabled: !writable, title: '页面桌宠', desc: '悬浮在主界面', icon: 'page', onClick: () => onPickMode('page') }),
+                React.createElement(ModeCard, { active: (value.petMode ?? 'off') === 'standalone', disabled: !writable || !isDesktop, title: '独立桌宠', desc: '独立悬浮窗口', icon: 'standalone', onClick: () => onPickMode('standalone') }))),
             React.createElement(Row, { title: '桌宠大小', desc: (value.petMode ?? 'off') === 'standalone' ? '独立窗口上限 150%(超出自动收至 150%)' : '缩放桌宠显示尺寸(50%-200%)' },
               React.createElement('input', { type: 'range', min: 50, max: sizeMax, step: 5, style: { width: 140 }, value: sizeShown, disabled: !writable, onChange: (e) => patch({ petSize: Number(e.target.value) / 100 }) }),
               React.createElement('span', { style: { fontSize: 13, color: 'var(--dsw-alias-label-secondary)', width: 44, textAlign: 'right' } }, sizeShown + '%')),

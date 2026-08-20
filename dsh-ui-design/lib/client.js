@@ -82,8 +82,13 @@ window.__ModuleLoader__.load({
 				react.useEffect(() => {
 					const receive = (event) => {
 						if (event.origin !== window.location.origin || event.source !== iframeRef.current?.contentWindow) return;
-						if (!isDesignStudioHostMessage(event.data)) return;
-						inputActions.setDraft(designStudioAskAiPrompt(event.data.request));
+						if (isDesignStudioHostMessage(event.data)) {
+							inputActions.setDraft(designStudioAskAiPrompt(event.data.request));
+							return;
+						}
+						if (event.data && typeof event.data === "object" && event.data.channel === "dsh-ui-design-studio-host-v1" && event.data.type === "pages-changed") {
+							setReloadKey((key) => key + 1);
+						}
 					};
 					window.addEventListener("message", receive);
 					return () => window.removeEventListener("message", receive);
